@@ -38,6 +38,8 @@ export default function GastosCategoriaPieChartCard({ porCategoria, totalGastos 
 
   // Calcular ângulos para o gráfico de pizza
   const calcularArco = () => {
+    if (!totalGastos || totalGastos === 0) return []
+
     let inicio = 0
     return dadosOrdenados.map((item) => {
       const percentual = item.value / totalGastos

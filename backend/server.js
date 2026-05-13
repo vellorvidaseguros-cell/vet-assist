@@ -91,7 +91,7 @@ app.get('/api/status', (req, res) => {
 async function iniciarServidor() {
   try {
     console.log('[INFO] Sincronizando banco de dados SQLite...');
-    await sequelize.sync({ alter: true, force: false });
+    await sequelize.sync({ force: false });
     console.log('[OK] Banco de dados sincronizado!');
 
     // Criar veterinário padrão se não existir
