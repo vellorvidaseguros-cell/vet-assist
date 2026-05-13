@@ -183,10 +183,23 @@ async function iniciarServidor() {
       res.status(500).json({ sucesso: false, erro: err.message });
     });
 
-    // 404 handler (API only)
+    // 404 handler - retorna HTML para facilitar debug
     app.use((req, res) => {
       if (req.path.startsWith('/api')) {
         res.status(404).json({ sucesso: false, erro: 'Rota não encontrada' });
+      } else {
+        res.status(404).send(`
+          <!DOCTYPE html>
+          <html>
+          <head><title>404 - Página não encontrada</title></head>
+          <body style="font-family: Arial">
+            <h1>❌ Página não encontrada</h1>
+            <p>Path: ${req.path}</p>
+            <p><a href="/">Voltar para Home</a></p>
+            <p><a href="/app">Teste do App</a></p>
+          </body>
+          </html>
+        `);
       }
     });
 
