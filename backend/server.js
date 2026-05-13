@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import bcryptjs from 'bcryptjs';
 import sequelize from './database.js';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { Veterinario, Cliente, Pet, Agendamento, Consulta, Vacina, HistoricoConsulta, Anexo, Faturamento, Veiculo, Despesa } from './models/index.js';
 
@@ -131,27 +132,28 @@ async function iniciarServidor() {
     app.use('/api/perfil', perfilRoutes);
     app.use('/api/anexos', anexosRoutes);
 
-    // Em produção, servir o frontend React buildado
-    // Use DATABASE_URL as the production indicator (Railway sets it automatically)
-    const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
+    // Servir frontend em produção (Railway) ou rota raiz em dev
+    const frontendDist = path.join(__dirname, '../frontend/dist');
 
-    if (isProduction) {
-      const frontendDist = path.join(__dirname, '../frontend/dist');
-      console.log('[INFO] Modo produção detectado - servindo frontend de:', frontendDist);
+    // Always serve static files if dist exists
+    const distExists = fs.existsSync(frontendDist);
+
+    if (distExists) {
+      console.log('[INFO] Servindo frontend de:', frontendDist);
       app.use(express.static(frontendDist));
 
-      // Qualquer rota não-API retorna o index.html (React Router)
+      // Qualquer rota não-API retorna o index.html (React Router SPA)
       app.get('*', (req, res) => {
-        if (!req.path.startsWith('/api') && !req.path.startsWith('/backend')) {
+        if (!req.path.startsWith('/api') && !req.path.startsWith('/backend') && !req.path.startsWith('/test-')) {
           res.sendFile(path.join(frontendDist, 'index.html'));
         }
       });
     } else {
-      // Rota raiz só em dev
-      console.log('[INFO] Modo desenvolvimento detectado');
+      // Rota raiz só em dev (quando dist não existe)
+      console.log('[WARNING] Frontend dist não encontrado:', frontendDist);
       app.get('/', (req, res) => {
         res.json({
-          mensagem: 'VetAssist API - Desenvolvimento',
+          mensagem: 'VetAssist API',
           versao: '1.0.0',
           endpoints: {
             clientes: '/api/clientes',
