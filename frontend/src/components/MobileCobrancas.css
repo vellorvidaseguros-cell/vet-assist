@@ -1,0 +1,275 @@
+.mobile-cobrancas-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: 120px;
+}
+
+.mobile-error {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ff3b30;
+  color: white;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.mobile-error button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* RESUMO */
+.mobile-cobrancas-resumo {
+  padding: 12px 16px;
+}
+
+.resumo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: linear-gradient(135deg, #0d6b3a 0%, #1a8f4f 100%);
+  color: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(13, 107, 58, 0.2);
+}
+
+.resumo-label {
+  font-size: 12px;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.resumo-valor {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* FILTROS */
+.mobile-cobrancas-filtros {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e5ea;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filtro-btn {
+  padding: 8px 16px;
+  border: 1px solid #e5e5ea;
+  border-radius: 20px;
+  background-color: #f5f5f5;
+  color: #8e8e93;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.filtro-btn:hover {
+  background-color: #e5e5ea;
+}
+
+.filtro-btn.ativo {
+  background-color: #007aff;
+  color: white;
+  border-color: #007aff;
+}
+
+.mobile-cobrancas-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: #8e8e93;
+  font-size: 14px;
+}
+
+.mobile-cobrancas-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #8e8e93;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* LISTA */
+.mobile-cobrancas-list {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0;
+  gap: 8px;
+}
+
+.mobile-cobranca-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #ffffff;
+  padding: 12px 16px;
+  margin: 0 12px;
+  border-radius: 12px;
+  border-left: 4px solid #ffcc00;
+}
+
+.mobile-cobranca-item[data-status="pago"] {
+  border-left-color: #34c759;
+}
+
+.mobile-cobranca-item[data-status="parcialmente-pago"] {
+  border-left-color: #ff9500;
+}
+
+.cobranca-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.cobranca-cliente {
+  font-size: 13px;
+  font-weight: 600;
+  color: #000;
+  flex: 1;
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cobranca-status {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.cobranca-status.pendente {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.cobranca-status.pago {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.cobranca-status.parcialmente-pago {
+  background-color: #fff8e1;
+  color: #ff9500;
+}
+
+.cobranca-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cobranca-pet {
+  font-size: 11px;
+  color: #8e8e93;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.cobranca-valor {
+  font-size: 15px;
+  font-weight: 700;
+  color: #000;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.cobranca-btn-pagar {
+  padding: 10px 16px;
+  background-color: #007aff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cobranca-btn-pagar:hover {
+  background-color: #0051d5;
+}
+
+.cobranca-btn-pagar:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 480px) {
+  .mobile-cobrancas-container {
+    padding-bottom: 100px;
+  }
+
+  .mobile-cobrancas-resumo {
+    padding: 10px 12px;
+  }
+
+  .resumo-card {
+    padding: 14px 12px;
+  }
+
+  .resumo-label {
+    font-size: 11px;
+  }
+
+  .resumo-valor {
+    font-size: 18px;
+  }
+
+  .mobile-cobrancas-filtros {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .filtro-btn {
+    padding: 7px 14px;
+    font-size: 11px;
+  }
+
+  .mobile-cobranca-item {
+    margin: 0 8px;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .cobranca-cliente {
+    font-size: 13px;
+  }
+
+  .cobranca-valor {
+    font-size: 15px;
+  }
+
+  .cobranca-btn-pagar {
+    padding: 9px 14px;
+    font-size: 11px;
+  }
+}

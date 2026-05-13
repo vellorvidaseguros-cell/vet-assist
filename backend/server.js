@@ -126,20 +126,34 @@ async function iniciarServidor() {
     app.use('/api/perfil', perfilRoutes);
     app.use('/api/anexos', anexosRoutes);
 
-    // Rota raiz
-    app.get('/', (req, res) => {
-      res.json({
-        mensagem: 'VetAssist API',
-        versao: '1.0.0',
-        endpoints: {
-          clientes: '/api/clientes',
-          pets: '/api/pets',
-          agendamentos: '/api/agendamentos',
-          consultas: '/api/consultas',
-          vacinas: '/api/vacinas'
+    // Em produção, servir o frontend React buildado
+    if (process.env.NODE_ENV === 'production') {
+      const frontendDist = path.join(__dirname, '../frontend/dist');
+      app.use(express.static(frontendDist));
+      console.log('[INFO] Servindo frontend de:', frontendDist);
+
+      // Qualquer rota não-API retorna o index.html (React Router)
+      app.get('*', (req, res) => {
+        if (!req.path.startsWith('/api') && !req.path.startsWith('/backend')) {
+          res.sendFile(path.join(frontendDist, 'index.html'));
         }
       });
-    });
+    } else {
+      // Rota raiz só em dev
+      app.get('/', (req, res) => {
+        res.json({
+          mensagem: 'VetAssist API - Desenvolvimento',
+          versao: '1.0.0',
+          endpoints: {
+            clientes: '/api/clientes',
+            pets: '/api/pets',
+            agendamentos: '/api/agendamentos',
+            consultas: '/api/consultas',
+            vacinas: '/api/vacinas'
+          }
+        });
+      });
+    }
 
     // Error handler
     app.use((err, req, res, next) => {
@@ -147,15 +161,17 @@ async function iniciarServidor() {
       res.status(500).json({ sucesso: false, erro: err.message });
     });
 
-    // 404 handler
+    // 404 handler (API only)
     app.use((req, res) => {
-      res.status(404).json({ sucesso: false, erro: 'Rota não encontrada' });
+      if (req.path.startsWith('/api')) {
+        res.status(404).json({ sucesso: false, erro: 'Rota não encontrada' });
+      }
     });
 
-    app.listen(PORT, () => {
-      console.log(`\n[OK] Servidor rodando em http://localhost:${PORT}`);
-      console.log(`[INFO] Status: http://localhost:${PORT}/api/status`);
-      console.log(`[INFO] API Root: http://localhost:${PORT}/\n`);
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`\n[OK] Servidor rodando na porta ${PORT}`);
+      console.log(`[INFO] Ambiente: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`[INFO] Status: http://localhost:${PORT}/api/status\n`);
     });
   } catch (err) {
     console.error('[ERROR] Erro ao iniciar servidor:', err);

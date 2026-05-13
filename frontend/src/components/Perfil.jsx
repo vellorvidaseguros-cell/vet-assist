@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import BuscaVeiculo from './BuscaVeiculo'
-import PricingProfile from './PricingProfile'
-import WhiteLabel from './WhiteLabel'
+import PricingModal from './PricingModal'
+import WhiteLabelModal from './WhiteLabelModal'
 import './Perfil.css'
 
 export default function Perfil() {
@@ -12,6 +12,8 @@ export default function Perfil() {
   const [loading, setLoading] = useState(true)
   const [editMode, setEditMode] = useState(false)
   const [veiculoMode, setVeiculoMode] = useState(false)
+  const [pricingModalOpen, setPricingModalOpen] = useState(false)
+  const [whiteLabelModalOpen, setWhiteLabelModalOpen] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -509,14 +511,48 @@ export default function Perfil() {
 
         {/* Seção de Tabela de Preços */}
         <div className="perfil-card">
-          <PricingProfile />
+          <div className="card-header">
+            <h2>💰 Tabela de Preços</h2>
+          </div>
+          <div className="card-content">
+            <p className="card-description">Gerencie os valores dos seus serviços e produtos de forma centralizada.</p>
+            <button
+              className="btn-manage-pricing"
+              onClick={() => setPricingModalOpen(true)}
+            >
+              ⚙️ Gerenciar Tabela de Preços
+            </button>
+          </div>
         </div>
 
         {/* Seção de White Label */}
         <div className="perfil-card">
-          <WhiteLabel />
+          <div className="card-header">
+            <h2>⚙️ Configurar Clínica</h2>
+          </div>
+          <div className="card-content">
+            <p className="card-description">Personalize o nome, logomarca e informações da sua clínica para documentos e relatórios.</p>
+            <button
+              className="btn-manage-pricing"
+              onClick={() => setWhiteLabelModalOpen(true)}
+            >
+              🏥 Configurar Identidade da Clínica
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Pricing Modal */}
+      <PricingModal
+        isOpen={pricingModalOpen}
+        onClose={() => setPricingModalOpen(false)}
+      />
+
+      {/* White Label Modal */}
+      <WhiteLabelModal
+        isOpen={whiteLabelModalOpen}
+        onClose={() => setWhiteLabelModalOpen(false)}
+      />
     </div>
   )
 }

@@ -1,7 +1,26 @@
 @import '../styles/variables.css';
 
 .perfil-container {
-  padding: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 1.5rem;
+  padding-top: max(1.5rem, env(safe-area-inset-top));
+  padding-bottom: 120px;
+  overflow-x: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .perfil-container {
+    padding: 12px 16px;
+    padding-bottom: 120px;
+    overflow-x: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 .perfil-content {
@@ -10,11 +29,26 @@
   gap: 2rem;
 }
 
+@media (max-width: 768px) {
+  .perfil-content {
+    gap: 1rem;
+  }
+}
+
 .perfil-card {
   background: var(--color-white);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   padding: 2rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .perfil-card {
+    padding: 12px 16px;
+    border-radius: 8px;
+  }
 }
 
 .card-header {
@@ -30,6 +64,25 @@
   margin: 0;
   color: var(--color-primary);
   font-size: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .card-header {
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .card-header h2 {
+    font-size: 14px;
+    flex: 1;
+  }
+
+  .btn-edit {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
 }
 
 .btn-edit {
@@ -53,10 +106,23 @@
   gap: 1.5rem;
 }
 
+@media (max-width: 768px) {
+  .perfil-form {
+    gap: 12px;
+  }
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .form-group {
@@ -71,6 +137,13 @@
   font-size: 0.9rem;
 }
 
+@media (max-width: 768px) {
+  .form-group label {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+}
+
 .form-group input,
 .form-group select {
   padding: 0.75rem;
@@ -79,6 +152,14 @@
   font-size: 1rem;
   transition: border-color 0.3s, box-shadow 0.3s;
   text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .form-group input,
+  .form-group select {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
 }
 
 .form-group input:focus,
@@ -92,6 +173,14 @@
   display: flex;
   gap: 1rem;
   margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .form-actions {
+    gap: 8px;
+    flex-direction: column;
+    margin-top: 12px;
+  }
 }
 
 .btn-primary {
@@ -111,6 +200,13 @@
   background-color: var(--color-primary-dark);
 }
 
+@media (max-width: 768px) {
+  .btn-primary {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}
+
 .btn-secondary {
   flex: 1;
   padding: 0.75rem 1.5rem;
@@ -127,6 +223,13 @@
   background-color: var(--color-gray-medium);
 }
 
+@media (max-width: 768px) {
+  .btn-secondary {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}
+
 .perfil-info,
 .veiculo-info {
   display: flex;
@@ -138,6 +241,13 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .info-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .info-item {
@@ -160,6 +270,16 @@
   font-weight: 500;
 }
 
+@media (max-width: 768px) {
+  .info-item .label {
+    font-size: 11px;
+  }
+
+  .info-item .value {
+    font-size: 13px;
+  }
+}
+
 .custo-km-card {
   background-color: #f0f8f3;
   border-left: 4px solid var(--color-primary);
@@ -174,11 +294,30 @@
   font-size: 1.1rem;
 }
 
+@media (max-width: 768px) {
+  .custo-km-card {
+    padding: 10px 12px;
+    margin-top: 8px;
+  }
+
+  .custo-km-card h3 {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+}
+
 .custo-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .custo-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .custo-item {
@@ -252,4 +391,64 @@
   text-align: center;
   padding: 2rem;
   color: var(--color-gray-dark);
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card-description {
+  margin: 0;
+  color: var(--color-gray-dark);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.btn-manage-pricing {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background-color 0.3s;
+  text-align: center;
+}
+
+.btn-manage-pricing:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-manage-pricing:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 768px) {
+  .btn-manage-pricing {
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .card-description {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-content {
+    gap: 1rem;
+  }
+
+  .btn-manage-pricing {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .card-description {
+    font-size: 0.8rem;
+  }
 }

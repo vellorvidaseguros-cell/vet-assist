@@ -13,5 +13,14 @@ yarn-error.log*
 .vscode/
 *.swp
 *.swo
-package-lock.json
 yarn.lock
+
+# Banco de dados local (não subir para produção)
+vet_assist.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Uploads locais
+backend/uploads/*
+!backend/uploads/.gitkeep
