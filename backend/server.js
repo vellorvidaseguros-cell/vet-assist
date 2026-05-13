@@ -136,10 +136,44 @@ async function iniciarServidor() {
     const frontendDist = path.join(__dirname, '../frontend/dist');
     app.use(express.static(frontendDist));
 
+    // Rota de teste para verificar se o app está servindo HTML
+    app.get('/app', (req, res) => {
+      res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head><title>VetAssist App</title></head>
+        <body>
+          <h1>✅ VetAssist está rodando em produção!</h1>
+          <p>Frontend dist path: ${frontendDist}</p>
+          <p>Dist exists: ${fs.existsSync(frontendDist)}</p>
+          <p>Index.html exists: ${fs.existsSync(path.join(frontendDist, 'index.html'))}</p>
+          <hr>
+          <p><strong>API Status:</strong> <a href="/api/status">/api/status</a></p>
+          <p><strong>Clientes:</strong> <a href="/api/clientes">/api/clientes</a></p>
+        </body>
+        </html>
+      `);
+    });
+
     // Para qualquer rota que não seja API, retorna index.html (SPA routing)
     app.get('*', (req, res) => {
       if (!req.path.startsWith('/api') && !req.path.startsWith('/backend') && !req.path.startsWith('/test-')) {
-        res.sendFile(path.join(frontendDist, 'index.html'));
+        const indexPath = path.join(frontendDist, 'index.html');
+        if (fs.existsSync(indexPath)) {
+          res.sendFile(indexPath);
+        } else {
+          res.status(404).send(`
+            <!DOCTYPE html>
+            <html>
+            <head><title>Frontend não encontrado</title></head>
+            <body>
+              <h1>❌ Frontend não encontrado</h1>
+              <p>Arquivo esperado: ${indexPath}</p>
+              <p><a href="/app">Verificar status</a></p>
+            </body>
+            </html>
+          `);
+        }
       }
     });
 
