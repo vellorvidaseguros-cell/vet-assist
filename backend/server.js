@@ -93,6 +93,24 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+// Rota de teste PRIMEIRO - antes de qualquer outra rota
+app.get('/app', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>VetAssist App</title></head>
+    <body style="font-family: Arial">
+      <h1>✅ VetAssist está rodando em produção!</h1>
+      <p><strong>Novo Deploy Sucesso!</strong></p>
+      <p>Timestamp: ${new Date().toLocaleString('pt-BR')}</p>
+      <hr>
+      <p><a href="/api/status">Verificar Status da API</a></p>
+      <p><a href="/">Ir para App</a></p>
+    </body>
+    </html>
+  `);
+});
+
 // Sincronizar banco de dados e iniciar servidor
 async function iniciarServidor() {
   try {
@@ -136,25 +154,6 @@ async function iniciarServidor() {
     // Servir frontend React buildado
     const frontendDist = path.join(__dirname, '../frontend/dist');
     app.use(express.static(frontendDist));
-
-    // Rota de teste para verificar se o app está servindo HTML
-    app.get('/app', (req, res) => {
-      res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head><title>VetAssist App</title></head>
-        <body>
-          <h1>✅ VetAssist está rodando em produção!</h1>
-          <p>Frontend dist path: ${frontendDist}</p>
-          <p>Dist exists: ${fs.existsSync(frontendDist)}</p>
-          <p>Index.html exists: ${fs.existsSync(path.join(frontendDist, 'index.html'))}</p>
-          <hr>
-          <p><strong>API Status:</strong> <a href="/api/status">/api/status</a></p>
-          <p><strong>Clientes:</strong> <a href="/api/clientes">/api/clientes</a></p>
-        </body>
-        </html>
-      `);
-    });
 
     // Para qualquer rota que não seja API, retorna index.html (SPA routing)
     app.get('*', (req, res) => {
