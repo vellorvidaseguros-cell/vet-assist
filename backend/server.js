@@ -132,10 +132,13 @@ async function iniciarServidor() {
     app.use('/api/anexos', anexosRoutes);
 
     // Em produção, servir o frontend React buildado
-    if (process.env.NODE_ENV === 'production') {
+    // Use DATABASE_URL as the production indicator (Railway sets it automatically)
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
+
+    if (isProduction) {
       const frontendDist = path.join(__dirname, '../frontend/dist');
+      console.log('[INFO] Modo produção detectado - servindo frontend de:', frontendDist);
       app.use(express.static(frontendDist));
-      console.log('[INFO] Servindo frontend de:', frontendDist);
 
       // Qualquer rota não-API retorna o index.html (React Router)
       app.get('*', (req, res) => {
@@ -145,6 +148,7 @@ async function iniciarServidor() {
       });
     } else {
       // Rota raiz só em dev
+      console.log('[INFO] Modo desenvolvimento detectado');
       app.get('/', (req, res) => {
         res.json({
           mensagem: 'VetAssist API - Desenvolvimento',
