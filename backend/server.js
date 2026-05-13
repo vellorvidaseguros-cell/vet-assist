@@ -132,29 +132,51 @@ async function iniciarServidor() {
     app.use('/api/perfil', perfilRoutes);
     app.use('/api/anexos', anexosRoutes);
 
-    // Servir frontend em produção (Railway) ou rota raiz em dev
+    // Servir frontend em produção
     const frontendDist = path.join(__dirname, '../frontend/dist');
+    const altFrontendDist = path.join('/app/frontend/dist');
 
-    // Always serve static files if dist exists
-    const distExists = fs.existsSync(frontendDist);
+    let distPath = null;
 
-    if (distExists) {
+    if (fs.existsSync(frontendDist)) {
+      distPath = frontendDist;
       console.log('[INFO] Servindo frontend de:', frontendDist);
-      app.use(express.static(frontendDist));
+    } else if (fs.existsSync(altFrontendDist)) {
+      distPath = altFrontendDist;
+      console.log('[INFO] Servindo frontend de (alt path):', altFrontendDist);
+    } else {
+      console.log('[WARNING] Frontend dist não encontrado em nenhum local');
+      console.log('  Tentado:', frontendDist);
+      console.log('  Tentado:', altFrontendDist);
+      console.log('  __dirname:', __dirname);
+    }
 
-      // Qualquer rota não-API retorna o index.html (React Router SPA)
+    if (distPath) {
+      // Serve static files
+      app.use(express.static(distPath));
+      console.log('[INFO] Static files configurados');
+
+      // Catch-all: retorna index.html para todas as rotas não-API (SPA routing)
       app.get('*', (req, res) => {
         if (!req.path.startsWith('/api') && !req.path.startsWith('/backend') && !req.path.startsWith('/test-')) {
-          res.sendFile(path.join(frontendDist, 'index.html'));
+          const indexPath = path.join(distPath, 'index.html');
+          console.log(`[DEBUG] Servindo index.html para: ${req.path} (${indexPath})`);
+          res.sendFile(indexPath, (err) => {
+            if (err) {
+              console.error('[ERROR] Erro ao servir index.html:', err.message);
+              res.status(500).json({ erro: 'Não foi possível carregar o frontend' });
+            }
+          });
         }
       });
     } else {
-      // Rota raiz só em dev (quando dist não existe)
-      console.log('[WARNING] Frontend dist não encontrado:', frontendDist);
+      // Fallback: retorna API JSON na raiz
+      console.log('[WARNING] Servindo como modo API-only (frontend não encontrado)');
       app.get('/', (req, res) => {
         res.json({
           mensagem: 'VetAssist API',
           versao: '1.0.0',
+          warning: 'Frontend não encontrado. Verifique os logs do deploy.',
           endpoints: {
             clientes: '/api/clientes',
             pets: '/api/pets',
