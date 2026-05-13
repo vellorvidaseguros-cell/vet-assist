@@ -54,8 +54,20 @@ export const uploadArquivo = async (req, res) => {
       });
     }
 
-    // Convertir caminho absoluto para caminho relativo (URL)
-    const caminhoRelativo = req.file.path.replace(/\\/g, '/').split('backend/')[1] || req.file.path;
+    // Converter caminho absoluto para caminho relativo (URL)
+    // Funciona em Windows e Linux normalizando os separadores
+    const pathNormalizado = req.file.path.replace(/\\/g, '/');
+    let caminhoRelativo;
+    const idxBackend = pathNormalizado.indexOf('backend/');
+    if (idxBackend >= 0) {
+      caminhoRelativo = pathNormalizado.substring(idxBackend + 'backend/'.length);
+    } else if (pathNormalizado.includes('uploads/')) {
+      // Fallback: pegar tudo a partir de uploads/
+      caminhoRelativo = pathNormalizado.substring(pathNormalizado.indexOf('uploads/'));
+    } else {
+      // Último fallback: apenas o nome do arquivo
+      caminhoRelativo = `uploads/${req.file.filename || pathNormalizado.split('/').pop()}`;
+    }
 
     let finalHistoricoConsultaId = historicoConsultaId ? parseInt(historicoConsultaId) : null;
 

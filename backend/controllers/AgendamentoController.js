@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { Agendamento, Pet, Cliente, HistoricoConsulta, Faturamento, Anexo } from '../models/index.js';
 
 export const listarAgendamentos = async (req, res) => {
@@ -70,21 +71,45 @@ export const atualizarAgendamento = async (req, res) => {
     await agendamento.reload();
 
     // Se proximoRetorno foi alterado, criar agendamento de retorno
-    if (proximoRetorno && (!proximoRetornoAnterior || new Date(proximoRetornoAnterior).getTime() !== new Date(proximoRetorno).getTime())) {
-      try {
-        const dataRetorno = new Date(proximoRetorno);
-        const horaRetorno = dataRetorno.toTimeString().substring(0, 5);
+    // Comparar apenas a parte da data (não timestamp completo) para evitar duplicação
+    const dataAnteriorStr = proximoRetornoAnterior
+      ? new Date(proximoRetornoAnterior).toISOString().split('T')[0]
+      : null;
+    const dataNovaStr = proximoRetorno
+      ? new Date(proximoRetorno).toISOString().split('T')[0]
+      : null;
 
-        await Agendamento.create({
-          petId: agendamento.petId,
-          clienteId: agendamento.clienteId,
-          data: proximoRetorno,
-          hora: horaRetorno || '10:00',
-          tipoAtendimento: `Retorno - ${agendamento.tipoAtendimento || 'Consulta'}`,
-          status: 'Pendente',
-          observacoes: `Retorno agendado automaticamente de consulta anterior: ${new Date(agendamento.data).toLocaleDateString('pt-BR')}`
+    if (dataNovaStr && dataAnteriorStr !== dataNovaStr) {
+      try {
+        // Verificar se já existe agendamento de retorno para este pet nesta data
+        const inicio = new Date(dataNovaStr + 'T00:00:00');
+        const fim = new Date(dataNovaStr + 'T23:59:59');
+
+        const retornoExistente = await Agendamento.findOne({
+          where: {
+            petId: agendamento.petId,
+            data: { [Op.between]: [inicio, fim] },
+            tipoAtendimento: { [Op.like]: 'Retorno%' }
+          }
         });
-        console.log(`[INFO] Agendamento de retorno criado para ${new Date(proximoRetorno).toLocaleDateString('pt-BR')}`);
+
+        if (!retornoExistente) {
+          // Hora padrão para retornos: 10:00 (evita usar UTC errado)
+          const horaRetorno = '10:00';
+
+          await Agendamento.create({
+            petId: agendamento.petId,
+            clienteId: agendamento.clienteId,
+            data: proximoRetorno,
+            hora: horaRetorno,
+            tipoAtendimento: `Retorno - ${agendamento.tipoAtendimento || 'Consulta'}`,
+            status: 'Pendente',
+            observacoes: `Retorno agendado automaticamente de consulta anterior: ${new Date(agendamento.data).toLocaleDateString('pt-BR')}`
+          });
+          console.log(`[INFO] Agendamento de retorno criado para ${new Date(proximoRetorno).toLocaleDateString('pt-BR')}`);
+        } else {
+          console.log(`[INFO] Retorno já existe para ${dataNovaStr}, não duplicado.`);
+        }
       } catch (erroRetorno) {
         console.warn('[WARNING] Erro ao criar agendamento de retorno:', erroRetorno.message);
       }
@@ -99,8 +124,19 @@ export const atualizarAgendamento = async (req, res) => {
         console.log(`[DEBUG] Valor do agendamento: ${agendamentoAtualizado.valor}`);
 
         // Verificar se já existe HistoricoConsulta para este agendamento
+        // Buscar pelo agendamentoId (mais confiável que comparar timestamps)
+        // Fallback: buscar por petId + data (apenas dia) + tipo
+        const dataInicio = new Date(agendamentoAtualizado.data);
+        dataInicio.setHours(0, 0, 0, 0);
+        const dataFim = new Date(dataInicio);
+        dataFim.setHours(23, 59, 59, 999);
+
         let historico = await HistoricoConsulta.findOne({
-          where: { petId: agendamentoAtualizado.petId, data: agendamentoAtualizado.data, tipoAtendimento: agendamentoAtualizado.tipoAtendimento }
+          where: {
+            petId: agendamentoAtualizado.petId,
+            tipoAtendimento: agendamentoAtualizado.tipoAtendimento,
+            data: { [Op.between]: [dataInicio, dataFim] }
+          }
         });
 
         if (historico) {
@@ -135,15 +171,22 @@ export const atualizarAgendamento = async (req, res) => {
           console.log(`[INFO] Novo histórico criado com ID: ${historico.id}`);
         }
 
-        // Criar faturamento
-        await Faturamento.create({
-          historicoConsultaId: historico.id,
-          clienteId: agendamentoAtualizado.clienteId,
-          valor: agendamentoAtualizado.valor || 0,
-          status: 'Pendente',
-          descricao: `Faturamento de ${agendamentoAtualizado.tipoAtendimento} para ${agendamentoAtualizado.Pet?.nome || 'animal'}`
+        // Criar faturamento - apenas se ainda não existir para este histórico
+        const faturamentoExistente = await Faturamento.findOne({
+          where: { historicoConsultaId: historico.id }
         });
-        console.log(`[INFO] Faturamento criado para histórico ${historico.id}`);
+        if (!faturamentoExistente) {
+          await Faturamento.create({
+            historicoConsultaId: historico.id,
+            clienteId: agendamentoAtualizado.clienteId,
+            valor: agendamentoAtualizado.valor || 0,
+            status: 'Pendente',
+            descricao: `Faturamento de ${agendamentoAtualizado.tipoAtendimento} para ${agendamentoAtualizado.Pet?.nome || 'animal'}`
+          });
+          console.log(`[INFO] Faturamento criado para histórico ${historico.id}`);
+        } else {
+          console.log(`[INFO] Faturamento já existente para histórico ${historico.id}, não duplicado.`);
+        }
 
         // Reanexar TODAS as fotos do agendamento ao histórico (incluindo órfãs)
         const fotosAgendamento = await Anexo.findAll({

@@ -1,0 +1,282 @@
+.mobile-agendamento-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e5ea;
+  border-radius: 12px;
+  padding: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-agendamento-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-agendamento-card.status-pendente {
+  border-left: 4px solid #ffcc00;
+}
+
+.mobile-agendamento-card.status-confirmado {
+  border-left: 4px solid #34c759;
+}
+
+.mobile-agendamento-card.status-concluido {
+  border-left: 4px solid #007aff;
+}
+
+.mobile-agendamento-card.status-cancelado {
+  border-left: 4px solid #ff3b30;
+  opacity: 0.6;
+}
+
+.card-error {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ff3b30;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.card-error button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+}
+
+/* HEADER DO CARD */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card-horario {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.horario-icon {
+  font-size: 16px;
+}
+
+.horario-texto {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+}
+
+.card-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-status.status-pendente {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.card-status.status-confirmado {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.card-status.status-concluido {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.card-status.status-cancelado {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* CONTENT DO CARD */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.card-pet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pet-emoji {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.pet-info {
+  font-size: 13px;
+  color: #000;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.card-tutor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #8e8e93;
+}
+
+.tutor-icon {
+  font-size: 14px;
+}
+
+.tutor-nome {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-valor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+}
+
+.valor-icon {
+  font-size: 16px;
+}
+
+.valor-texto {
+  flex: 1;
+}
+
+/* AÇÕES */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-acao {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.btn-acao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-confirmar {
+  background-color: #34c759;
+  color: white;
+}
+
+.btn-confirmar:hover:not(:disabled) {
+  background-color: #30b550;
+  transform: scale(1.02);
+}
+
+.btn-concluir {
+  background-color: #007aff;
+  color: white;
+}
+
+.btn-concluir:hover:not(:disabled) {
+  background-color: #0051d5;
+  transform: scale(1.02);
+}
+
+.btn-historico {
+  background-color: #f5f5f5;
+  color: #007aff;
+}
+
+.btn-historico:hover:not(:disabled) {
+  background-color: #e5e5ea;
+  transform: scale(1.02);
+}
+
+.btn-editar {
+  background-color: #f5f5f5;
+  color: #007aff;
+  flex: 1;
+}
+
+.btn-editar:hover:not(:disabled) {
+  background-color: #e5e5ea;
+  transform: scale(1.02);
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 480px) {
+  .mobile-agendamento-card {
+    padding: 10px;
+  }
+
+  .card-header {
+    margin-bottom: 10px;
+  }
+
+  .horario-texto {
+    font-size: 14px;
+  }
+
+  .card-status {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .card-content {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .pet-emoji {
+    font-size: 16px;
+  }
+
+  .pet-info {
+    font-size: 12px;
+  }
+
+  .card-tutor,
+  .card-valor {
+    font-size: 12px;
+  }
+
+  .btn-acao {
+    padding: 8px 10px;
+    font-size: 11px;
+    min-width: 90px;
+  }
+
+  .card-actions {
+    gap: 6px;
+  }
+}

@@ -53,7 +53,13 @@ export const listarVeterinarios = async (req, res) => {
     const veterinarios = await Veterinario.findAll({
       attributes: { exclude: ['senha'] }
     })
-    res.json({ sucesso: true, data: veterinarios })
+    // Não retornar hashes de senha em listagens
+    const safeData = veterinarios.map(v => {
+      const obj = v.toJSON()
+      delete obj.senha
+      return obj
+    })
+    res.json({ sucesso: true, data: safeData })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
   }
@@ -65,7 +71,9 @@ export const obterVeterinario = async (req, res) => {
       attributes: { exclude: ['senha'] }
     })
     if (!veterinario) return res.status(404).json({ sucesso: false, erro: 'Veterinário não encontrado' })
-    res.json({ sucesso: true, data: veterinario })
+    const safeData = veterinario.toJSON()
+    delete safeData.senha
+    res.json({ sucesso: true, data: safeData })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
   }
@@ -90,7 +98,9 @@ export const criarVeterinario = async (req, res) => {
       crmv
     })
 
-    res.status(201).json({ sucesso: true, mensagem: 'Veterinário criado!', data: veterinario })
+    const safeData = veterinario.toJSON()
+    delete safeData.senha
+    res.status(201).json({ sucesso: true, mensagem: 'Veterinário criado!', data: safeData })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
   }
@@ -107,7 +117,10 @@ export const atualizarVeterinario = async (req, res) => {
     }
 
     await veterinario.update(dadosAtualizacao)
-    res.json({ sucesso: true, mensagem: 'Veterinário atualizado!', data: veterinario })
+    // Remover senha da resposta
+    const safeData = veterinario.toJSON()
+    delete safeData.senha
+    res.json({ sucesso: true, mensagem: 'Veterinário atualizado!', data: safeData })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
   }

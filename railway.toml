@@ -1,12 +1,10 @@
 [build]
-buildCommand = "npm install --omit=optional && cd frontend && npm install && npm run build"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "node backend/server.js"
 healthcheckPath = "/api/status"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
-
-[[services]]
-name = "vet-assist"

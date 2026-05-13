@@ -64,19 +64,25 @@ export const calcularCustoKm = async (req, res) => {
     // Buscar preço do combustível
     const precoCombustivel = await buscarPrecoCombustivel(veiculo.combustivel)
 
-    // Calcular custos mensais
-    const custoCombuivel = (veiculo.kmAtual / veiculo.consumoMedio) * precoCombustivel
-    const custoSeguroMensal = veiculo.valorSeguroMensal || 0
-    const custoManutencaoMensal = veiculo.custoManutencaoEstimado || 0
+    // Validar dados para evitar divisão por zero
+    const kmAtual = parseFloat(veiculo.kmAtual) || 0
+    const consumoMedio = parseFloat(veiculo.consumoMedio) || 0
+
+    // Calcular custos mensais (com proteção contra divisão por zero)
+    const custoCombustivel = (consumoMedio > 0)
+      ? (kmAtual / consumoMedio) * precoCombustivel
+      : 0
+    const custoSeguroMensal = parseFloat(veiculo.valorSeguroMensal) || 0
+    const custoManutencaoMensal = parseFloat(veiculo.custoManutencaoEstimado) || 0
     const custoDepreciacaoMensal = calcularDepreciacao(veiculo.valorAquisicao, veiculo.dataAquisicao)
 
-    const totalCustoMensal = custoCombuivel + custoSeguroMensal + custoManutencaoMensal + custoDepreciacaoMensal
-    const custoKm = totalCustoMensal / veiculo.kmAtual
+    const totalCustoMensal = custoCombustivel + custoSeguroMensal + custoManutencaoMensal + custoDepreciacaoMensal
+    const custoKm = (kmAtual > 0) ? (totalCustoMensal / kmAtual) : 0
 
     res.json({
       sucesso: true,
       data: {
-        custoCombuivel,
+        custoCombustivel, // Nome corrigido (era custoCombuivel)
         custoSeguroMensal,
         custoManutencaoMensal,
         custoDepreciacaoMensal,
@@ -109,12 +115,9 @@ async function buscarPrecoCombustivel(tipo) {
 function calcularDepreciacao(valorAquisicao, dataAquisicao) {
   if (!valorAquisicao || !dataAquisicao) return 0
 
-  const mesesUsado = Math.floor(
-    (new Date() - new Date(dataAquisicao)) / (1000 * 60 * 60 * 24 * 30)
-  )
-
-  // Depreciação estimada: 0.8% ao mês
-  const depreciacao = (valorAquisicao * 0.008) / Math.max(mesesUsado, 1)
+  // Depreciação estimada: 0.8% do valor de aquisição ao mês (depreciação mensal constante)
+  // Não depende de quantos meses passaram - é o valor que perde por mês
+  const depreciacao = parseFloat(valorAquisicao) * 0.008
   return depreciacao
 }
 

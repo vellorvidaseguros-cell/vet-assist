@@ -191,22 +191,66 @@
 @media (max-width: 768px) {
   .pricing-profile {
     gap: 1rem;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .pricing-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .pricing-header p {
+    font-size: 0.85rem;
+  }
+
+  /* Tabela com scroll horizontal dentro do container */
+  .pricing-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
   }
 
   .pricing-table {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    min-width: 500px; /* tabela rola horizontalmente dentro do container */
   }
 
   .pricing-table th,
   .pricing-table td {
-    padding: 0.75rem;
+    padding: 8px 6px;
   }
 
   .service-name {
-    min-width: 150px;
+    min-width: 120px;
+  }
+
+  .default-price {
+    min-width: 80px;
+  }
+
+  .custom-input {
+    min-width: 90px;
+  }
+
+  .final-price {
+    min-width: 80px;
+  }
+
+  .pricing-info {
+    padding: 10px 12px;
+  }
+
+  .info-box h4 {
+    font-size: 0.9rem;
+  }
+
+  .info-box ul {
+    font-size: 0.8rem;
   }
 
   .btn-save {
     width: 100%;
+    padding: 10px;
+    font-size: 14px;
   }
 }

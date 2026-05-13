@@ -163,15 +163,32 @@ export const registrarPagamento = async (req, res) => {
       return res.status(404).json({ sucesso: false, erro: 'Faturamento não encontrado' })
     }
 
+    // Validar valor de pagamento (deve ser positivo e número válido)
+    const valorPagamentoNum = parseFloat(valorPagamento)
+    if (isNaN(valorPagamentoNum) || valorPagamentoNum <= 0) {
+      return res.status(400).json({
+        sucesso: false,
+        erro: 'Valor de pagamento deve ser um número positivo'
+      })
+    }
+
     const valorAtual = parseFloat(faturamento.valorRecebido) || 0
-    const novoValorRecebido = valorAtual + parseFloat(valorPagamento)
+    const novoValorRecebido = valorAtual + valorPagamentoNum
     const valorTotal = parseFloat(faturamento.valor)
+
+    // Não permitir pagar mais que o valor total
+    if (novoValorRecebido > valorTotal + 0.01) {
+      return res.status(400).json({
+        sucesso: false,
+        erro: `Valor excede o saldo devedor (faltam R$ ${(valorTotal - valorAtual).toFixed(2)})`
+      })
+    }
 
     // Adicionar ao histórico de pagamentos
     const historico = Array.isArray(faturamento.historicoPagamentos) ? faturamento.historicoPagamentos : []
     historico.push({
       data: dataPagamento || new Date().toISOString().split('T')[0],
-      valor: parseFloat(valorPagamento)
+      valor: valorPagamentoNum
     })
 
     console.log('[DEBUG] Histórico antes de salvar:', JSON.stringify(historico))

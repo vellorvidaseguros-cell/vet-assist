@@ -22,11 +22,16 @@ export default function App() {
       <Routes>
         <Route
           path="/login"
-          element={isAuthenticated ? <Navigate to="/" /> : <Login onLogin={handleLogin} />}
+          element={isAuthenticated ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />}
         />
         <Route
           path="/"
-          element={isAuthenticated ? <Dashboard onLogout={handleLogout} /> : <Navigate to="/login" />}
+          element={isAuthenticated ? <Dashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
+        />
+        {/* Fallback: rotas desconhecidas redirecionam */}
+        <Route
+          path="*"
+          element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />}
         />
       </Routes>
     </BrowserRouter>

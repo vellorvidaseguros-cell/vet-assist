@@ -1,0 +1,270 @@
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import { formatarData } from '../utils/dateFormatter'
+import MobileAgendamentosCard from './MobileAgendamentosCard'
+import FAB from './FAB'
+import MobileSearch from './MobileSearch'
+import WeatherInfo from './WeatherInfo'
+import './MobileHome.css'
+
+export default function MobileHome() {
+  const [agendamentos, setAgendamentos] = useState([])
+  const [faturamentos, setFaturamentos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [abaAtiva, setAbaAtiva] = useState('proximos') // 'proximos', 'amanha', 'semana'
+  const [dataAtual, setDataAtual] = useState(new Date())
+  const [searchAtivo, setSearchAtivo] = useState(false)
+  const [searchResultados, setSearchResultados] = useState([])
+  const [showFABMenu, setShowFABMenu] = useState(false)
+
+  const veterinarioId = 1
+
+  useEffect(() => {
+    fetchData()
+    // Atualizar data a cada minuto
+    const interval = setInterval(() => setDataAtual(new Date()), 60000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const [agendamentosRes, faturamentosRes] = await Promise.all([
+        axios.get('/api/agendamentos'),
+        axios.get('/api/faturamento')
+      ])
+
+      if (agendamentosRes.data.sucesso) {
+        setAgendamentos(agendamentosRes.data.data || [])
+      }
+      if (faturamentosRes.data.sucesso) {
+        setFaturamentos(faturamentosRes.data.data || [])
+      }
+    } catch (err) {
+      setError('Erro ao carregar agendamentos')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Obter data em formato Date sem hora
+  const getDataSemHora = (data) => {
+    const d = new Date(data)
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  }
+
+  const hoje = getDataSemHora(dataAtual)
+  const amanha = new Date(hoje)
+  amanha.setDate(amanha.getDate() + 1)
+
+  const inicioSemana = new Date(hoje)
+  inicioSemana.setDate(inicioSemana.getDate() - hoje.getDay())
+
+  const fimSemana = new Date(inicioSemana)
+  fimSemana.setDate(fimSemana.getDate() + 6)
+
+  // Filtrar agendamentos por período (campos corretos do backend: data, hora)
+  const agendasHoje = agendamentos.filter(a => {
+    const dataAgenda = getDataSemHora(a.data)
+    return dataAgenda.getTime() === hoje.getTime()
+  }).sort((a, b) => new Date(`2000-01-01 ${a.hora || '00:00'}`) - new Date(`2000-01-01 ${b.hora || '00:00'}`))
+
+  const agendasAmanha = agendamentos.filter(a => {
+    const dataAgenda = getDataSemHora(a.data)
+    return dataAgenda.getTime() === amanha.getTime()
+  }).sort((a, b) => new Date(`2000-01-01 ${a.hora || '00:00'}`) - new Date(`2000-01-01 ${b.hora || '00:00'}`))
+
+  const agendasSemana = agendamentos.filter(a => {
+    const dataAgenda = getDataSemHora(a.data)
+    return dataAgenda >= inicioSemana && dataAgenda <= fimSemana
+  }).sort((a, b) => new Date(`2000-01-01 ${a.hora || '00:00'}`) - new Date(`2000-01-01 ${b.hora || '00:00'}`))
+
+  // Filtrar agendamentos para exibição baseado na aba ativa
+  const agendasParaExibir = abaAtiva === 'proximos'
+    ? agendasHoje
+    : abaAtiva === 'amanha'
+    ? agendasAmanha
+    : agendasSemana
+
+  // Calcular pendências
+  const totalPendente = faturamentos
+    .filter(f => f.status === 'Pendente')
+    .reduce((sum, f) => sum + parseFloat(f.valor || 0), 0)
+
+  const retornosAgendar = agendamentos
+    .filter(a => a.status === 'Pendente')
+    .length
+
+  // Formatar data para exibição
+  const formatarDataCompleta = (data) => {
+    const d = new Date(data)
+    const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
+    const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
+
+    return `${dias[d.getDay()]}, ${d.getDate()} de ${meses[d.getMonth()]}`
+  }
+
+  const handleBusca = (resultados) => {
+    setSearchResultados(resultados)
+  }
+
+  const handleVerTodasCobancas = () => {
+    // Navegar para a aba de Cobranças
+    window.dispatchEvent(new CustomEvent('navegarPara', { detail: 'financeiro' }))
+  }
+
+  const handleVerTodosRetornos = () => {
+    // Navegar para a aba de Clientes
+    window.dispatchEvent(new CustomEvent('navegarPara', { detail: 'clientes' }))
+  }
+
+  if (loading) {
+    return <div className="mobile-loading">Carregando...</div>
+  }
+
+  // Se está em modo busca, mostrar resultados
+  if (searchAtivo) {
+    return (
+      <div className="mobile-home">
+        <div className="mobile-header">
+          <h1>VetAssist</h1>
+          <span className="mobile-hora">
+            {dataAtual.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+
+        <MobileSearch
+          onSearch={handleBusca}
+          onClose={() => setSearchAtivo(false)}
+          autoFocus
+        />
+
+        {searchResultados.length > 0 ? (
+          <div className="mobile-search-resultados">
+            {searchResultados.map(resultado => (
+              <div key={resultado.id} className="search-resultado-item">
+                <span>{resultado.nome || resultado.descricao}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mobile-empty-search">
+            Nenhum resultado encontrado
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="mobile-home">
+      {error && (
+        <div className="mobile-error">
+          {error}
+          <button onClick={() => setError('')}>×</button>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="mobile-header">
+        <h1>VetAssist</h1>
+        <WeatherInfo />
+      </div>
+
+      {/* Título da seção */}
+      <div className="mobile-title">
+        <h2>📅 HOJE - {formatarDataCompleta(hoje)}</h2>
+      </div>
+
+      {/* Abas */}
+      <div className="mobile-tabs">
+        <button
+          className={`mobile-tab ${abaAtiva === 'proximos' ? 'ativo' : ''}`}
+          onClick={() => setAbaAtiva('proximos')}
+        >
+          Próximos
+        </button>
+        <button
+          className={`mobile-tab ${abaAtiva === 'amanha' ? 'ativo' : ''}`}
+          onClick={() => setAbaAtiva('amanha')}
+        >
+          Amanhã
+        </button>
+        <button
+          className={`mobile-tab ${abaAtiva === 'semana' ? 'ativo' : ''}`}
+          onClick={() => setAbaAtiva('semana')}
+        >
+          Semana
+        </button>
+      </div>
+
+      {/* Cards de Agendamentos */}
+      <div className="mobile-agendamentos-list">
+        {agendasParaExibir.length === 0 ? (
+          <div className="mobile-empty-state">
+            <p>Nenhum agendamento {
+              abaAtiva === 'proximos' ? 'para hoje' :
+              abaAtiva === 'amanha' ? 'para amanhã' :
+              'para esta semana'
+            }</p>
+          </div>
+        ) : (
+          agendasParaExibir.map(agendamento => (
+            <MobileAgendamentosCard
+              key={agendamento.id}
+              agendamento={agendamento}
+              onStatusChange={fetchData}
+            />
+          ))
+        )}
+      </div>
+
+      {/* Seção de Pendências */}
+      <div className="mobile-pendencias">
+        <h3>⚠️ PENDÊNCIAS</h3>
+
+        <div className="pendencia-item">
+          <div className="pendencia-icon">💰</div>
+          <div className="pendencia-info">
+            <span className="pendencia-label">Em cobranças</span>
+            <span className="pendencia-valor">
+              R$ {totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          </div>
+          <button className="pendencia-link" onClick={handleVerTodasCobancas}>
+            Ver todas
+          </button>
+        </div>
+
+        {retornosAgendar > 0 && (
+          <div className="pendencia-item">
+            <div className="pendencia-icon">🔔</div>
+            <div className="pendencia-info">
+              <span className="pendencia-label">Retornos a agendar</span>
+              <span className="pendencia-valor">{retornosAgendar}</span>
+            </div>
+            <button className="pendencia-link" onClick={handleVerTodosRetornos}>
+              Ver todos
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Busca Rápida */}
+      <div className="mobile-search-section">
+        <h3>🔍 BUSCAR</h3>
+        <button
+          className="mobile-search-input"
+          onClick={() => setSearchAtivo(true)}
+        >
+          Buscar cliente, pet, consulta...
+        </button>
+      </div>
+
+      {/* FAB - Floating Action Button */}
+      <FAB onMenuToggle={setShowFABMenu} showMenu={showFABMenu} />
+    </div>
+  )
+}

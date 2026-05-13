@@ -1,0 +1,54 @@
+.weather-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #000;
+  font-weight: 500;
+}
+
+.weather-emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.weather-temp {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+}
+
+.weather-cidade {
+  font-size: 12px;
+  color: #8e8e93;
+  font-weight: 400;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.weather-loading {
+  color: #c7c7cc;
+  font-size: 16px;
+}
+
+@media (max-width: 480px) {
+  .weather-info {
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .weather-emoji {
+    font-size: 16px;
+  }
+
+  .weather-temp {
+    font-size: 13px;
+  }
+
+  .weather-cidade {
+    font-size: 11px;
+    max-width: 80px;
+  }
+}

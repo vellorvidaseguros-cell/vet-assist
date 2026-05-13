@@ -41,7 +41,15 @@ const Faturamento = sequelize.define('Faturamento', {
     comment: 'Array de pagamentos: [{ data, valor }]',
     get() {
       const value = this.getDataValue('historicoPagamentos')
-      return typeof value === 'string' ? JSON.parse(value || '[]') : (value || [])
+      if (Array.isArray(value)) return value
+      if (!value) return []
+      try {
+        const parsed = JSON.parse(value)
+        return Array.isArray(parsed) ? parsed : []
+      } catch (e) {
+        console.warn('[WARN] historicoPagamentos com JSON inválido, retornando array vazio')
+        return []
+      }
     },
     set(value) {
       this.setDataValue('historicoPagamentos', typeof value === 'string' ? value : JSON.stringify(value || []))

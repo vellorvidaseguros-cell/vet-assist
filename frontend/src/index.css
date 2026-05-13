@@ -14,6 +14,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-gray-light);
   color: var(--color-text);
+  /* Espaço para a status bar do celular (notch/Dynamic Island) */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  min-height: 100vh;
+}
+
+html {
+  background-color: #ffffff;
 }
 
 code {
@@ -93,5 +101,10 @@ code {
 
   .sidebar-nav {
     max-height: 400px !important;
+  }
+
+  /* Garantir espaço para bottom navigation */
+  .main-content {
+    padding-bottom: 100px !important;
   }
 }

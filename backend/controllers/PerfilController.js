@@ -77,10 +77,14 @@ export const atualizarPerfil = async (req, res) => {
 
     await veterinario.update(atualizacoes)
 
+    // Não retornar hash da senha
+    const safeData = veterinario.toJSON()
+    delete safeData.senha
+
     res.json({
       sucesso: true,
       mensagem: 'Perfil atualizado com sucesso!',
-      data: veterinario
+      data: safeData
     })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
@@ -132,7 +136,7 @@ export const saveWhiteLabel = async (req, res) => {
       cidade: whiteLabel.cidade,
       estado: whiteLabel.estado,
       logomarcaUrl: whiteLabel.logomarcaUrl,
-      whiteLabel: JSON.stringify(whiteLabel) // Serializar como JSON string para garantir persistência
+      whiteLabel: whiteLabel // O setter do model serializa automaticamente
     })
 
     // Recarregar para garantir que temos os dados atualizados

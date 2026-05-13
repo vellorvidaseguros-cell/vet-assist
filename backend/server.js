@@ -93,29 +93,12 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// Rota de teste PRIMEIRO - antes de qualquer outra rota
-app.get('/app', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head><title>VetAssist App</title></head>
-    <body style="font-family: Arial">
-      <h1>✅ VetAssist está rodando em produção!</h1>
-      <p><strong>Novo Deploy Sucesso!</strong></p>
-      <p>Timestamp: ${new Date().toLocaleString('pt-BR')}</p>
-      <hr>
-      <p><a href="/api/status">Verificar Status da API</a></p>
-      <p><a href="/">Ir para App</a></p>
-    </body>
-    </html>
-  `);
-});
 
 // Sincronizar banco de dados e iniciar servidor
 async function iniciarServidor() {
   try {
-    console.log('[TESTE_NOVO_CODIGO] ✅ Novo código está sendo executado! Deploy funcionando!');
-    console.log('[INFO] Sincronizando banco de dados SQLite...');
+    const dbType = process.env.DATABASE_URL ? 'PostgreSQL' : 'SQLite';
+    console.log(`[INFO] Sincronizando banco de dados (${dbType})...`);
     await sequelize.sync({ force: false });
     console.log('[OK] Banco de dados sincronizado!');
 
@@ -156,47 +139,53 @@ async function iniciarServidor() {
     app.use(express.static(frontendDist));
 
     // Para qualquer rota que não seja API, retorna index.html (SPA routing)
-    app.get('*', (req, res) => {
-      if (!req.path.startsWith('/api') && !req.path.startsWith('/backend') && !req.path.startsWith('/test-')) {
-        const indexPath = path.join(frontendDist, 'index.html');
-        if (fs.existsSync(indexPath)) {
-          res.sendFile(indexPath);
-        } else {
-          res.status(404).send(`
-            <!DOCTYPE html>
-            <html>
-            <head><title>Frontend não encontrado</title></head>
-            <body>
-              <h1>❌ Frontend não encontrado</h1>
-              <p>Arquivo esperado: ${indexPath}</p>
-              <p><a href="/app">Verificar status</a></p>
-            </body>
-            </html>
-          `);
-        }
+    // IMPORTANTE: chama next() para rotas /api ou /backend caírem no 404 handler abaixo
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api') || req.path.startsWith('/backend') || req.path.startsWith('/test-')) {
+        return next();
       }
-    });
-
-    // Error handler
-    app.use((err, req, res, next) => {
-      console.error('[ERROR]', err);
-      res.status(500).json({ sucesso: false, erro: err.message });
-    });
-
-    // 404 handler - retorna HTML para facilitar debug
-    app.use((req, res) => {
-      if (req.path.startsWith('/api')) {
-        res.status(404).json({ sucesso: false, erro: 'Rota não encontrada' });
+      const indexPath = path.join(frontendDist, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
       } else {
         res.status(404).send(`
           <!DOCTYPE html>
           <html>
+          <head><title>Frontend não encontrado</title></head>
+          <body>
+            <h1>❌ Frontend não encontrado</h1>
+            <p>Arquivo esperado: ${indexPath}</p>
+            <p><a href="/app">Verificar status</a></p>
+          </body>
+          </html>
+        `);
+      }
+    });
+
+    // Error handler - não vaza mensagem detalhada em produção
+    app.use((err, req, res, next) => {
+      console.error('[ERROR]', err);
+      const isProd = process.env.NODE_ENV === 'production' || !!process.env.DATABASE_URL;
+      res.status(500).json({
+        sucesso: false,
+        erro: isProd ? 'Erro interno do servidor' : err.message
+      });
+    });
+
+    // 404 handler para rotas /api
+    app.use((req, res) => {
+      if (req.path.startsWith('/api')) {
+        res.status(404).json({ sucesso: false, erro: 'Rota não encontrada' });
+      } else {
+        // Para rotas não-API que chegam aqui (frontend dist não existe),
+        // retorna mensagem amigável
+        res.status(404).send(`
+          <!DOCTYPE html>
+          <html>
           <head><title>404 - Página não encontrada</title></head>
-          <body style="font-family: Arial">
+          <body style="font-family: Arial; text-align: center; padding: 40px;">
             <h1>❌ Página não encontrada</h1>
-            <p>Path: ${req.path}</p>
             <p><a href="/">Voltar para Home</a></p>
-            <p><a href="/app">Teste do App</a></p>
           </body>
           </html>
         `);

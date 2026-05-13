@@ -16,15 +16,15 @@ export default function DashboardHome() {
   const [selectedAgendamentoId, setSelectedAgendamentoId] = useState(null)
 
   useEffect(() => {
-    fetchData()
-    // Atualizar a cada 5 minutos
-    const interval = setInterval(fetchData, 5 * 60 * 1000)
+    fetchData(true)
+    // Atualizar a cada 5 minutos SEM mostrar loading (silencioso, em background)
+    const interval = setInterval(() => fetchData(false), 5 * 60 * 1000)
     return () => clearInterval(interval)
   }, [])
 
-  const fetchData = async () => {
+  const fetchData = async (showLoading = true) => {
     try {
-      setLoading(true)
+      if (showLoading) setLoading(true)
       setError('')
 
       // Carregar agendamentos
@@ -97,7 +97,7 @@ export default function DashboardHome() {
       const response = await axios.put(`/api/agendamentos/${agendamentoId}`, payload)
       if (response.data.sucesso) {
         setError('')
-        await fetchData()
+        await fetchData(false)
       }
     } catch (err) {
       setError(err.response?.data?.erro || 'Erro ao atualizar status')
@@ -110,7 +110,7 @@ export default function DashboardHome() {
   }
 
   const handlePhotoUploadSuccess = () => {
-    fetchData()
+    fetchData(false)
   }
 
   const handleDiagnosisButtonClick = (agendamentoId) => {
@@ -119,7 +119,7 @@ export default function DashboardHome() {
   }
 
   const handleDiagnosisSave = () => {
-    fetchData()
+    fetchData(false)
   }
 
   if (loading) return <div className="loading">Carregando...</div>

@@ -120,3 +120,35 @@
   margin-top: 0.5rem;
   font-style: italic;
 }
+
+@media (max-width: 768px) {
+  .busca-veiculo {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+
+  .busca-veiculo h4 {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .busca-form {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .busca-veiculo input {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .btn-buscar {
+    padding: 10px 12px;
+    font-size: 13px;
+    width: 100%;
+  }
+
+  .info-text {
+    font-size: 12px;
+  }
+}

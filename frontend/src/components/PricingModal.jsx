@@ -31,7 +31,7 @@ const formatBR = (value) => {
 }
 
 export default function PricingModal({ isOpen, onClose }) {
-  const [services, setServices] = useState([DEFAULT_SERVICES[0]])
+  const [services, setServices] = useState([...DEFAULT_SERVICES])
   const [customValues, setCustomValues] = useState({})     // numérico salvo
   const [inputValues, setInputValues] = useState({})        // texto temporário do input
   const [loading, setLoading] = useState(true)
@@ -40,6 +40,7 @@ export default function PricingModal({ isOpen, onClose }) {
   const [success, setSuccess] = useState('')
   const [newService, setNewService] = useState({ nome: '', valor: '' })
   const [showAddForm, setShowAddForm] = useState(false)
+  const [editingService, setEditingService] = useState(null) // {id, nome}
 
   useEffect(() => {
     if (isOpen) {
@@ -124,6 +125,22 @@ export default function PricingModal({ isOpen, onClose }) {
       setCustomValues(newCV)
       setInputValues(newIV)
     }
+  }
+
+  const handleEditService = (serviceId) => {
+    const service = services.find(s => s.id === serviceId)
+    if (!service) return
+    const novoNome = window.prompt('Editar nome do serviço:', service.nome)
+    if (novoNome === null) return // usuário cancelou
+    const nomeTrimmed = novoNome.trim()
+    if (!nomeTrimmed) {
+      setError('Nome do serviço não pode ser vazio.')
+      return
+    }
+    setServices(prev => prev.map(s =>
+      s.id === serviceId ? { ...s, nome: nomeTrimmed } : s
+    ))
+    setError('')
   }
 
   const handleSave = async () => {

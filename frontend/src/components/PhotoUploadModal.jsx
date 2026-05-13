@@ -136,7 +136,7 @@ export default function PhotoUploadModal({ historicoId, agendamentoId, onClose, 
         } else if (err.response?.data?.erro) {
           errorMsg = err.response.data.erro
         } else if (!err.response) {
-          errorMsg = 'Sem conexão com o servidor - verifique se http://localhost:5000 está rodando'
+          errorMsg = 'Sem conexão com o servidor - verifique sua internet ou tente novamente'
         } else if (err.message) {
           errorMsg = err.message
         }
