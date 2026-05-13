@@ -96,6 +96,7 @@ app.get('/api/status', (req, res) => {
 // Sincronizar banco de dados e iniciar servidor
 async function iniciarServidor() {
   try {
+    console.log('[TESTE_NOVO_CODIGO] ✅ Novo código está sendo executado! Deploy funcionando!');
     console.log('[INFO] Sincronizando banco de dados SQLite...');
     await sequelize.sync({ force: false });
     console.log('[OK] Banco de dados sincronizado!');
