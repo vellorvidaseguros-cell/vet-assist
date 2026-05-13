@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
-    "build": "cd frontend && npm install && npm run build",
+    "build": "npm install --omit=optional && cd frontend && npm install && npm run build",
     "client": "cd frontend && npm start",
     "install-all": "npm install && cd frontend && npm install"
   },
@@ -27,7 +27,9 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "pg": "^8.10.0",
-    "sequelize": "^6.35.1",
+    "sequelize": "^6.35.1"
+  },
+  "optionalDependencies": {
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
