@@ -24,6 +24,11 @@ import anexosRoutes from './routes/anexos.js';
 
 dotenv.config();
 
+// Force production mode if DATABASE_URL is set (Railway environment)
+if (process.env.DATABASE_URL && !process.env.NODE_ENV) {
+  process.env.NODE_ENV = 'production';
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
