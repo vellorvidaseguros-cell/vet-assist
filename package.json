@@ -1,6 +1,6 @@
 {
   "name": "vet-assist",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sistema de gestão para clínicas veterinárias",
   "main": "backend/server.js",
   "type": "module",
