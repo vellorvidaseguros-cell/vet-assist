@@ -1,0 +1,35 @@
+{
+  "name": "vet-assist",
+  "version": "1.0.0",
+  "description": "Sistema de gestão para clínicas veterinárias",
+  "main": "backend/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "client": "cd frontend && npm start",
+    "install-all": "npm install && cd frontend && npm install"
+  },
+  "keywords": [
+    "veterinaria",
+    "agendamentos",
+    "consultas"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.10.0",
+    "sequelize": "^6.35.1",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

@@ -1,0 +1,169 @@
+.status-menu-container {
+  position: relative;
+  display: inline-block;
+  z-index: 2147483647;
+}
+
+.status-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.6rem;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  white-space: nowrap;
+  position: relative;
+  z-index: 2147483647;
+  height: fit-content;
+}
+
+.status-menu-btn .status-icon {
+  font-size: 0.75rem;
+}
+
+.status-menu-btn .status-label {
+  font-size: 0.6rem;
+}
+
+.status-menu-btn:hover {
+  border-color: #667eea;
+  background-color: #f5f7ff;
+}
+
+.status-menu-btn.pendente {
+  border-color: #ff9800;
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-menu-btn.pendente:hover {
+  background-color: #ffe69c;
+}
+
+.status-menu-btn.concluido {
+  border-color: #4caf50;
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-menu-btn.concluido:hover {
+  background-color: #c3e6cb;
+}
+
+.status-menu-btn.cancelado {
+  border-color: #f44336;
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-menu-btn.cancelado:hover {
+  background-color: #f5c6cb;
+}
+
+.status-menu-btn.reagendado {
+  border-color: #2196f3;
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.status-menu-btn.reagendado:hover {
+  background-color: #b6d4fe;
+}
+
+.status-dropdown-portal {
+  position: fixed !important;
+  z-index: 2147483647 !important;
+}
+
+.status-dropdown {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  min-width: 180px;
+  position: relative;
+  z-index: 2147483647 !important;
+}
+
+.status-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  text-align: left;
+  justify-content: space-between;
+}
+
+.status-option:hover {
+  background-color: #f5f5f5;
+}
+
+.status-option .option-icon {
+  font-size: 1.1rem;
+}
+
+.status-option .option-label {
+  flex: 1;
+}
+
+.status-option .check-mark {
+  font-size: 1.2rem;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.status-option.pendente {
+  border-left: 3px solid #ff9800;
+  color: #856404;
+}
+
+.status-option.pendente:hover {
+  background-color: #fff3cd;
+}
+
+.status-option.concluido {
+  border-left: 3px solid #4caf50;
+  color: #155724;
+}
+
+.status-option.concluido:hover {
+  background-color: #d4edda;
+}
+
+.status-option.cancelado {
+  border-left: 3px solid #f44336;
+  color: #721c24;
+}
+
+.status-option.cancelado:hover {
+  background-color: #f8d7da;
+}
+
+.status-option.reagendado {
+  border-left: 3px solid #2196f3;
+  color: #084298;
+}
+
+.status-option.reagendado:hover {
+  background-color: #cfe2ff;
+}
+
+.status-option.active {
+  background-color: #f0f0f0;
+  font-weight: 700;
+}

@@ -1,0 +1,16 @@
+⚠️ IMPORTANTE: NÃO APAGAR O BANCO DE DADOS SEM AVISAR AO USUÁRIO!
+
+O arquivo vet_assist.db contém todos os dados salvos:
+- Clientes
+- Animais
+- Agendamentos
+- Histórico de Consultas
+- Faturamentos
+- Fotos
+
+REGRA OURO:
+✅ Manter o banco sempre intacto
+✅ Só apagar SE houver erro estrutural do Sequelize
+✅ AVISAR o usuário ANTES de apagar
+
+O banco é mantido entre reinicializações do servidor!

@@ -1,0 +1,255 @@
+@import '../styles/variables.css';
+
+.perfil-container {
+  padding: 1.5rem 0;
+}
+
+.perfil-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.perfil-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 2rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.card-header h2 {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 1.5rem;
+}
+
+.btn-edit {
+  padding: 0.5rem 1.5rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.btn-edit:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.perfil-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.75rem;
+  border: 1px solid var(--color-gray-medium);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  text-transform: uppercase;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(13, 107, 58, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-secondary {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-gray-light);
+  color: var(--color-text);
+  border: 2px solid var(--color-gray-medium);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-gray-medium);
+}
+
+.perfil-info,
+.veiculo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-item .label {
+  color: var(--color-gray-dark);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-item .value {
+  color: var(--color-text);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.custo-km-card {
+  background-color: #f0f8f3;
+  border-left: 4px solid var(--color-primary);
+  padding: 1.5rem;
+  border-radius: var(--radius-sm);
+  margin-top: 1rem;
+}
+
+.custo-km-card h3 {
+  margin: 0 0 1rem 0;
+  color: var(--color-primary);
+  font-size: 1.1rem;
+}
+
+.custo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.custo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.custo-item .label {
+  color: var(--color-gray-dark);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.custo-item .value {
+  color: var(--color-primary);
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.custo-breakdown {
+  background: white;
+  padding: 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.custo-breakdown p {
+  margin: 0;
+}
+
+.empty-message {
+  text-align: center;
+  color: var(--color-gray-dark);
+  padding: 2rem 0;
+  margin: 0;
+}
+
+.error-message {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #ffe6e6;
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+}
+
+.error-message button {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.success-message {
+  padding: 1rem 1.5rem;
+  background-color: #e6f7e6;
+  color: var(--color-success);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-gray-dark);
+}

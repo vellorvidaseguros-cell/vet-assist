@@ -1,0 +1,342 @@
+.clientes-container {
+  background-color: white !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+.clientes-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 1rem 1.25rem !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.clientes-header h2 {
+  display: none !important;
+}
+
+.btn-primary {
+  padding: 0.5rem 1rem !important;
+  background-color: #667eea !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  transition: background-color 0.3s !important;
+}
+
+.btn-primary:hover {
+  background-color: #764ba2;
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background-color 0.3s;
+}
+
+.btn-small:hover {
+  background-color: #764ba2;
+}
+
+.btn-danger {
+  padding: 0.5rem 1rem;
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background-color 0.3s;
+}
+
+.btn-danger:hover {
+  background-color: #b71c1c;
+}
+
+.error-message {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #ffebee;
+  color: #d32f2f;
+  border-bottom: 1px solid #ef5350;
+}
+
+.error-message button {
+  background: none;
+  border: none;
+  color: #d32f2f;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 1rem;
+}
+
+.clientes-list {
+  padding: 1.5rem;
+}
+
+.empty-message {
+  text-align: center;
+  color: #999;
+  padding: 2rem 0;
+  margin: 0;
+}
+
+.cliente-accordion {
+  border: 1px solid #f0f0f0 !important;
+  border-radius: 6px !important;
+  margin-bottom: 0.8rem !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+.cliente-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0.6rem 1rem !important;
+  background-color: #fafafa !important;
+  cursor: pointer !important;
+  transition: background-color 0.3s !important;
+  border-left: 4px solid #667eea !important;
+  gap: 1rem !important;
+}
+
+.cliente-header:hover {
+  background-color: #f5f5f5 !important;
+}
+
+.cliente-info {
+  flex: 1 !important;
+  display: grid !important;
+  grid-template-columns: 200px 180px 150px !important;
+  gap: 3rem !important;
+  align-items: center !important;
+  line-height: 1.2 !important;
+}
+
+@media (max-width: 768px) {
+  .cliente-info {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  .cliente-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 0.75rem !important;
+  }
+}
+
+.cliente-col-nome,
+.cliente-col-telefone,
+.cliente-col-animais {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #2c3e50 !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+}
+
+.cliente-col-nome span,
+.cliente-col-telefone span,
+.cliente-col-animais span {
+  white-space: nowrap !important;
+}
+
+.cliente-details {
+  margin: 0 !important;
+  color: #666 !important;
+  font-size: 0.8rem !important;
+  display: none !important;
+}
+
+
+.expand-icon {
+  color: #667eea !important;
+  font-size: 1rem !important;
+  margin-left: auto !important;
+  transition: transform 0.3s !important;
+  flex-shrink: 0 !important;
+}
+
+.cliente-content {
+  padding: 1.5rem;
+  background-color: white;
+  border-top: 1px solid #eee;
+}
+
+.cliente-details-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.cliente-details-section h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #667eea;
+}
+
+.cliente-details-section p {
+  margin: 0.5rem 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.animais-section {
+  margin-bottom: 2rem;
+}
+
+.animais-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.animais-header h4 {
+  margin: 0;
+  color: #333;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #667eea;
+}
+
+.animal-form {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #667eea;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  text-transform: uppercase;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-card {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.animais-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.animal-card {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0.75rem 1rem !important;
+  background-color: #fafafa !important;
+  border-left: 4px solid #4caf50 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+.animal-info {
+  flex: 1;
+}
+
+.animal-name {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.animal-details {
+  margin: 0;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.no-animals {
+  text-align: center;
+  color: #999;
+  padding: 1rem 0;
+  margin: 0;
+  font-style: italic;
+}
+
+.cliente-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+.form-card button {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.animal-form button {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}

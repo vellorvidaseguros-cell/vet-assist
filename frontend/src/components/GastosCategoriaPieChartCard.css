@@ -1,0 +1,59 @@
+.gastos-categoria-card {
+  background: white !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1rem !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  border-left: 4px solid #667eea !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 140px;
+}
+
+.gastos-categoria-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(-2px);
+}
+
+.gastos-categoria-card .card-icon {
+  font-size: 1.6rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.gastos-categoria-card .card-content {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  width: 100%;
+}
+
+.gastos-categoria-card .card-label {
+  margin: 0 !important;
+  color: #888 !important;
+  font-size: 0.65rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  line-height: 1.2 !important;
+  font-weight: 600 !important;
+  text-align: center;
+}
+
+.pie-chart-tiny {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.pie-chart-tiny svg {
+  width: 100%;
+  height: 100%;
+}
