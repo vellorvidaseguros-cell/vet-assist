@@ -12,6 +12,7 @@ import Comunidades from '../components/Comunidades'
 import MobileHome from '../components/MobileHome'
 import MobileClientesList from '../components/MobileClientesList'
 import MobileCobrancas from '../components/MobileCobrancas'
+import MobileAgendamentosList from '../components/MobileAgendamentosList'
 import './Dashboard.css'
 
 export default function Dashboard({ onLogout }) {
@@ -60,7 +61,7 @@ export default function Dashboard({ onLogout }) {
         case 'clientes':
           return <MobileClientesList />
         case 'agendamentos':
-          return <AgendamentosList />
+          return <MobileAgendamentosList />
         case 'historico':
           return <AnimalHistory />
         case 'perfil':
