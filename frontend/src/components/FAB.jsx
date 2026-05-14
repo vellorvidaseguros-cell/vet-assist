@@ -1,31 +1,33 @@
 import { useState } from 'react'
 import './FAB.css'
 
-export default function FAB({ onMenuToggle, showMenu }) {
-  const [showAgendamentoForm, setShowAgendamentoForm] = useState(false)
-  const [showClienteForm, setShowClienteForm] = useState(false)
-  const [showCobrancaForm, setShowCobrancaForm] = useState(false)
-
+export default function FAB({
+  onMenuToggle,
+  showMenu,
+  onNovoAgendamento,
+  onNovoCliente,
+  onNovaCobranca
+}) {
   const handleToggleMenu = () => {
     onMenuToggle(!showMenu)
   }
 
   const handleAgendamento = () => {
-    setShowAgendamentoForm(true)
-    onMenuToggle(false)
-    // Será implementado na Fase 2 - abrir modal de novo agendamento
+    if (onNovoAgendamento) {
+      onNovoAgendamento()
+    }
   }
 
   const handleNovoCliente = () => {
-    setShowClienteForm(true)
-    onMenuToggle(false)
-    // Será implementado na Fase 2 - abrir modal de novo cliente
+    if (onNovoCliente) {
+      onNovoCliente()
+    }
   }
 
   const handleNovaCobranca = () => {
-    setShowCobrancaForm(true)
-    onMenuToggle(false)
-    // Será implementado na Fase 2 - abrir modal de nova cobrança
+    if (onNovaCobranca) {
+      onNovaCobranca()
+    }
   }
 
   return (

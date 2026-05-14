@@ -5,6 +5,7 @@ import MobileAgendamentosCard from './MobileAgendamentosCard'
 import FAB from './FAB'
 import MobileSearch from './MobileSearch'
 import WeatherInfo from './WeatherInfo'
+import NovoClienteModal from './NovoClienteModal'
 import './MobileHome.css'
 
 export default function MobileHome() {
@@ -17,6 +18,9 @@ export default function MobileHome() {
   const [searchAtivo, setSearchAtivo] = useState(false)
   const [searchResultados, setSearchResultados] = useState([])
   const [showFABMenu, setShowFABMenu] = useState(false)
+  const [showNovoClienteModal, setShowNovoClienteModal] = useState(false)
+  const [showNovoAgendamento, setShowNovoAgendamento] = useState(false)
+  const [showNovaCobranca, setShowNovaCobranca] = useState(false)
 
   const veterinarioId = 1
 
@@ -120,6 +124,23 @@ export default function MobileHome() {
     window.dispatchEvent(new CustomEvent('navegarPara', { detail: 'clientes' }))
   }
 
+  const handleFABNovoAgendamento = () => {
+    setShowNovoAgendamento(true)
+    setShowFABMenu(false)
+    // TODO: Implementar formulário de novo agendamento
+  }
+
+  const handleFABNovoCliente = () => {
+    setShowNovoClienteModal(true)
+    setShowFABMenu(false)
+  }
+
+  const handleFABNovaCobranca = () => {
+    setShowNovaCobranca(true)
+    setShowFABMenu(false)
+    // TODO: Implementar formulário de nova cobrança
+  }
+
   if (loading) {
     return <div className="mobile-loading">Carregando...</div>
   }
@@ -160,6 +181,16 @@ export default function MobileHome() {
 
   return (
     <div className="mobile-home">
+      {showNovoClienteModal && (
+        <NovoClienteModal
+          onClose={() => setShowNovoClienteModal(false)}
+          onSuccess={() => {
+            setShowNovoClienteModal(false)
+            fetchData()
+          }}
+        />
+      )}
+
       {error && (
         <div className="mobile-error">
           {error}
@@ -264,7 +295,13 @@ export default function MobileHome() {
       </div>
 
       {/* FAB - Floating Action Button */}
-      <FAB onMenuToggle={setShowFABMenu} showMenu={showFABMenu} />
+      <FAB
+        onMenuToggle={setShowFABMenu}
+        showMenu={showFABMenu}
+        onNovoAgendamento={handleFABNovoAgendamento}
+        onNovoCliente={handleFABNovoCliente}
+        onNovaCobranca={handleFABNovaCobranca}
+      />
     </div>
   )
 }
