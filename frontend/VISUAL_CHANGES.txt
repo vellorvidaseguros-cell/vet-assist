@@ -1,0 +1,239 @@
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                            ANTES vs DEPOIS - TABELA DE PREÇOS                                                    ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ ANTES (Perfil.jsx - Embedded Components)                                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                                 │
+│  ┌──────────────────────────────────┐                                                                         │
+│  │ 👤 Dados Pessoais               │                                                                         │
+│  │ [Form muito grande]              │                                                                         │
+│  └──────────────────────────────────┘                                                                         │
+│                                                                                                                 │
+│  ┌──────────────────────────────────┐                                                                         │
+│  │ 🚗 Informações do Veículo        │                                                                         │
+│  │ [Form muito grande]              │                                                                         │
+│  └──────────────────────────────────┘                                                                         │
+│                                                                                                                 │
+│  ┌──────────────────────────────────────────────────────────────────────────────────────────┐                 │
+│  │ 💰 Tabela de Preços (EMBEDDED - MUITO GRANDE)                                            │                 │
+│  ├──────────────────────────────────────────────────────────────────────────────────────────┤                 │
+│  │ ┌─────────────┬──────────┬─────────────┬──────────┐                                       │                 │
+│  │ │ Serviço     │ Padrão   │ Customizado │ Final    │                                       │                 │
+│  │ ├─────────────┼──────────┼─────────────┼──────────┤                                       │                 │
+│  │ │ Consulta    │ R$ 150   │ [____]      │ R$ 150   │                                       │                 │
+│  │ │ Vacinação   │ R$ 80    │ [____]      │ R$ 80    │                                       │                 │
+│  │ │ Banho Tosa  │ R$ 120   │ [____]      │ R$ 120   │                                       │                 │
+│  │ │ ... 5 mais  │ ...      │ ...         │ ...      │  ← SCROLL HORIZONTAL NO MOBILE!     │                 │
+│  │ └─────────────┴──────────┴─────────────┴──────────┘                                       │                 │
+│  │ [💾 Salvar Tabela de Preços]                                                              │                 │
+│  └──────────────────────────────────────────────────────────────────────────────────────────┘                 │
+│  ↑ PROBLEMA: Faz a tela "flutuar pra direita e esquerda"                                    │                 │
+│                                                                                                                 │
+│  ┌──────────────────────────────────────────────────────────────────────────────────────────┐                 │
+│  │ 🏥 White Label (EMBEDDED - MUITO GRANDE)                                                  │                 │
+│  │ [Ainda maior que PricingProfile...]                                                       │                 │
+│  └──────────────────────────────────────────────────────────────────────────────────────────┘                 │
+│                                                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ DEPOIS (Perfil.jsx - Modal Button)                                                                              │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                                 │
+│  ┌──────────────────────────────────┐                                                                         │
+│  │ 👤 Dados Pessoais               │                                                                         │
+│  │ [Form muito grande]              │                                                                         │
+│  └──────────────────────────────────┘                                                                         │
+│                                                                                                                 │
+│  ┌──────────────────────────────────┐                                                                         │
+│  │ 🚗 Informações do Veículo        │                                                                         │
+│  │ [Form muito grande]              │                                                                         │
+│  └──────────────────────────────────┘                                                                         │
+│                                                                                                                 │
+│  ┌──────────────────────────────────┐          ← MUITO MAIS CLEAN!                          │                 │
+│  │ 💰 Tabela de Preços (CLEAN)      │          Sem scroll horizontal                        │                 │
+│  ├──────────────────────────────────┤          Sem layout quebrado                          │                 │
+│  │ Gerencie os valores dos seus     │          Sem "flutuação"                              │                 │
+│  │ serviços e produtos de forma     │                                                      │                 │
+│  │ centralizada.                    │                                                      │                 │
+│  │                                  │                                                      │                 │
+│  │ [⚙️ Gerenciar Tabela de Preços]  │ ← BOTÃO LIMPO                                         │                 │
+│  └──────────────────────────────────┘                                                      │                 │
+│                                                                                                                 │
+│  ┌──────────────────────────────────┐                                                                         │
+│  │ 🏥 White Label                   │                                                                         │
+│  │ [Também limpo, sem overflow]     │                                                                         │
+│  └──────────────────────────────────┘                                                                         │
+│                                                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+RESULTADO: Perfil.jsx muito mais limpo! ✨
+
+
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                              PRICING MODAL - INTERFACE LIMPA                                                    ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+DESKTOP (> 768px):
+┌───────────────────────────────────────────────────────────────┐
+│ ✕ 💰 Tabela de Preços                                         │
+├───────────────────────────────────────────────────────────────┤
+│                                                               │
+│ ┌─ Consulta ─────────────────────────────────────────────┐   │
+│ │ Padrão: R$ 150.00                [___150__] [×]          │   │
+│ │ R$ 150.00                                                │   │
+│ └────────────────────────────────────────────────────────┘   │
+│                                                               │
+│ ┌─ Vacinação ────────────────────────────────────────────┐   │
+│ │ Padrão: R$ 80.00                 [___80___] [×]          │   │
+│ │ R$ 80.00                                                 │   │
+│ └────────────────────────────────────────────────────────┘   │
+│                                                               │
+│ ┌─ Banho e Tosa ─────────────────────────────────────────┐   │
+│ │ Padrão: R$ 120.00                [__120__] [×]          │   │
+│ │ R$ 120.00                                                │   │
+│ └────────────────────────────────────────────────────────┘   │
+│                                                               │
+│ [+ Adicionar Serviço]                                        │
+│                                                               │
+├───────────────────────────────────────────────────────────────┤
+│ [Cancelar]              [💾 Salvar Tabela]                   │
+└───────────────────────────────────────────────────────────────┘
+
+
+MOBILE (≤ 480px):
+┌──────────────────────────────────┐
+│ ✕ 💰 Tabela de Preços           │
+├──────────────────────────────────┤
+│                                  │
+│ ┌─ Consulta ───────────────────┐│
+│ │ Padrão: R$ 150.00           ││
+│ │ [__150__] [×]               ││
+│ │ R$ 150.00                    ││
+│ └──────────────────────────────┘│
+│                                  │
+│ ┌─ Vacinação ──────────────────┐│
+│ │ Padrão: R$ 80.00            ││
+│ │ [__80__] [×]                ││
+│ │ R$ 80.00                     ││
+│ └──────────────────────────────┘│
+│                                  │
+│ [+ Adicionar Serviço]            │
+│                                  │
+├──────────────────────────────────┤
+│ [Cancelar] [💾 Salvar]           │
+└──────────────────────────────────┘
+  ↑ Bottom-sheet que sobe de baixo
+
+
+ADICIONAR NOVO SERVIÇO:
+┌──────────────────────────────────┐
+│ Adicionar Novo Serviço           │
+├──────────────────────────────────┤
+│ Nome do Serviço/Produto          │
+│ [Limpeza de Ouvido_______________]│
+│                                  │
+│ Valor (R$)                       │
+│ [___35.00_______________________]│
+│                                  │
+│ [✓ Adicionar] [Cancelar]         │
+└──────────────────────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                      FLUXO DE USO                                                               ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+1. Usuário abre aba "Perfil" → Vê card "Tabela de Preços" com botão limpo
+
+2. Clica em [⚙️ Gerenciar Tabela de Preços] → Modal abre
+   - Desktop: Modal centralizado (max 600px)
+   - Mobile: Bottom-sheet desliza de baixo (100% width)
+
+3. Modal mostra lista de serviços com:
+   - Nome do serviço
+   - Valor padrão
+   - Input para valor customizado
+   - Botão 🗑️ para remover
+
+4. Usuário pode:
+   A) Editar valor customizado de serviço existente
+      → Digita novo valor no input
+
+   B) Remover serviço
+      → Clica 🗑️ → Confirmação
+
+   C) Adicionar novo serviço
+      → Clica "+ Adicionar Serviço"
+      → Form abre inline
+      → Preenche nome e valor
+      → Clica "✓ Adicionar"
+
+5. Clica [💾 Salvar Tabela] → Backend recebe todos os dados
+
+6. Modal fecha e retorna à Perfil com sucesso!
+
+
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                    ARQUIVOS MODIFICADOS                                                         ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+✅ CRIADOS:
+   - frontend/src/components/PricingModal.jsx (150 linhas)
+   - frontend/src/components/PricingModal.css (300+ linhas)
+   - frontend/PRICING_MODAL_CHANGES.md (documentação)
+   - frontend/VISUAL_CHANGES.txt (este arquivo)
+
+✏️ MODIFICADOS:
+   - frontend/src/components/Perfil.jsx
+     • Import: PricingProfile → PricingModal
+     • Estado: +pricingModalOpen
+     • JSX: Removido PricingProfile component
+     • JSX: Adicionado novo card com botão
+     • JSX: Adicionado PricingModal component
+
+   - frontend/src/components/Perfil.css
+     • Adicionado: .card-content
+     • Adicionado: .card-description
+     • Adicionado: .btn-manage-pricing
+     • Adicionado: responsive styles
+
+❌ NÃO REMOVIDOS (podem permanecer para referência):
+   - frontend/src/components/PricingProfile.jsx (não mais usado)
+
+
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                       BENEFÍCIOS                                                                ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+✨ PERFIL.JSX MAIS CLEAN
+   - Removida complexidade de componentes embedded
+   - Página mais rápida de carregar
+   - Layout sem quebras
+
+✨ MELHOR UX MOBILE
+   - Bottom-sheet intuitivo (padrão Apple)
+   - Sem scroll horizontal
+   - Inputs com font-size 16px (sem zoom iOS)
+   - Toque seguro com padding adequado
+
+✨ ESCALÁVEL
+   - Fácil adicionar novos serviços
+   - Fácil editar valores
+   - Fácil remover serviços
+   - Interface dedicada
+
+✨ PROFISSIONAL
+   - Modal com overlay backdrop
+   - Validação de campos
+   - Mensagens de erro/sucesso
+   - Confirmação ao remover
+
+✨ RESPONSIVO
+   - Desktop: Modal centrado 600px max
+   - Tablet: Layout adaptativo
+   - Mobile: Bottom-sheet 100% width
+   - Sem media query hacks

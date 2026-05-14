@@ -109,7 +109,7 @@
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  padding: 0.6rem 1rem !important;
+  padding: 1rem 1.25rem !important;
   background-color: #fafafa !important;
   cursor: pointer !important;
   transition: background-color 0.3s !important;
@@ -149,7 +149,7 @@
   margin: 0 !important;
   padding: 0 !important;
   color: #2c3e50 !important;
-  font-size: 0.85rem !important;
+  font-size: 0.95rem !important;
   font-weight: 500 !important;
 }
 
@@ -283,7 +283,7 @@
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  padding: 0.75rem 1rem !important;
+  padding: 1rem 1.25rem !important;
   background-color: #fafafa !important;
   border-left: 4px solid #4caf50 !important;
   border-radius: 4px !important;
@@ -297,13 +297,13 @@
 .animal-name {
   margin: 0 0 0.5rem 0;
   color: #333;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .animal-details {
   margin: 0;
   color: #666;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .no-animals {
