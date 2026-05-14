@@ -1,7 +1,8 @@
+/* ===== LAYOUT DESKTOP ===== */
 .dashboard {
   display: flex;
   height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #f0f2f5;
 }
 
 .dashboard-content {
@@ -9,19 +10,22 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .dashboard-header {
   background-color: white;
-  padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.25rem 2rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   border-bottom: 1px solid #eee;
+  flex-shrink: 0;
 }
 
 .dashboard-header h1 {
-  color: #333;
-  font-size: 1.8rem;
+  color: #1a1a2e;
+  font-size: 1.5rem;
   margin: 0;
+  font-weight: 700;
 }
 
 .main-content {
@@ -30,50 +34,7 @@
   padding: 1.5rem 2rem;
 }
 
-/* ===== RESPONSIVO PARA MOBILE ===== */
-@media (max-width: 768px) {
-  .dashboard {
-    flex-direction: column;
-    height: auto;
-    min-height: 100vh;
-  }
-
-  .dashboard-content {
-    margin-top: 140px !important;
-    position: relative;
-    z-index: 1;
-  }
-
-  .dashboard-header {
-    padding: 1rem;
-    margin-top: 0;
-  }
-
-  .dashboard-header h1 {
-    font-size: 1.3rem;
-  }
-
-  .main-content {
-    padding: 1rem;
-    overflow-y: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .dashboard-header {
-    padding: 0.75rem;
-  }
-
-  .dashboard-header h1 {
-    font-size: 1.1rem;
-  }
-
-  .main-content {
-    padding: 0.75rem;
-  }
-}
-
-/* ===== LAYOUT MOBILE ===== */
+/* ===== LAYOUT MOBILE (usa bottom nav, não sidebar) ===== */
 .dashboard-mobile {
   flex-direction: column;
   height: 100vh;
@@ -90,9 +51,11 @@
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   max-width: 100vw;
+  /* Permite sticky dentro do scroll */
+  -webkit-overflow-scrolling: touch;
 }
 
-/* BOTTOM NAVIGATION */
+/* ===== BOTTOM NAVIGATION MOBILE ===== */
 .mobile-bottom-nav {
   position: fixed;
   bottom: 0;
@@ -104,42 +67,42 @@
   justify-content: space-around;
   align-items: stretch;
   z-index: 999;
-  padding: 0 0 env(safe-area-inset-bottom) 0;
+  padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  gap: 0;
   height: calc(60px + env(safe-area-inset-bottom));
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
-  will-change: transform;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.nav-item {
+/* Estilos dos itens do BOTTOM NAV - scopados para não conflitar com Sidebar */
+.mobile-bottom-nav .nav-item {
   flex: 1;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 2px !important;
-  background: none !important;
-  border: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: none;
+  border: none;
   cursor: pointer;
-  color: #8e8e93 !important;
-  transition: all 0.2s ease;
-  padding: 4px !important;
-  font-size: 10px !important;
-  font-weight: 500 !important;
-  width: auto !important;
-  margin: 0 !important;
-  min-width: 0 !important;
+  color: #8e8e93;
+  transition: color 0.2s;
+  padding: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  width: auto;
+  margin: 0;
+  min-width: 0;
   height: 100%;
+  border-left: none !important; /* reset sidebar active style */
 }
 
-.nav-item:hover {
-  color: #007aff !important;
+.mobile-bottom-nav .nav-item:hover {
+  color: #007aff;
 }
 
-.nav-item.ativo {
-  color: #007aff !important;
+.mobile-bottom-nav .nav-item.ativo {
+  color: #007aff;
 }
 
 .nav-icon {
@@ -149,9 +112,26 @@
 }
 
 .nav-label {
-  font-size: 10px !important;
+  font-size: 10px;
   white-space: nowrap;
   line-height: 1;
+}
+
+/* ===== RESPONSIVO DESKTOP (sidebar fica no topo como barra) ===== */
+@media (max-width: 768px) {
+  /* No desktop abaixo de 768px, o Dashboard usa layout mobile (MobileHome)
+     então não há sidebar. Mas se houver, ajuste o conteúdo */
+  .dashboard:not(.dashboard-mobile) .main-content {
+    padding: 1rem;
+  }
+
+  .dashboard-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.2rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -159,13 +139,6 @@
     height: calc(56px + env(safe-area-inset-bottom));
   }
 
-  .nav-icon {
-    font-size: 20px;
-  }
-
-  .nav-label {
-    font-size: 9px !important;
-  }
+  .nav-icon { font-size: 20px; }
+  .nav-label { font-size: 9px; }
 }
-
-/* Bottom nav sempre visível – não precisa de keyboard-open hack */
