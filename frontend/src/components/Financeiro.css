@@ -463,4 +463,87 @@
 
 @media (max-width: 768px) {
   .form-row { grid-template-columns: 1fr !important; }
+
+  .card-label {
+    font-size: 0.7rem !important;
+  }
+
+  .card-value {
+    font-size: 1.1rem !important;
+  }
+
+  .despesa-form,
+  .despesa-section,
+  .faturamentos-section {
+    padding: 1rem !important;
+  }
+
+  .section-header,
+  .despesas-header,
+  .faturamentos-header {
+    margin-bottom: 1rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .cards-resumo {
+    gap: 0.75rem;
+  }
+
+  .card {
+    padding: 0.85rem !important;
+    gap: 0.75rem !important;
+  }
+
+  .card-icon {
+    font-size: 1.5rem !important;
+  }
+
+  .card-label {
+    font-size: 0.65rem !important;
+  }
+
+  .card-value {
+    font-size: 0.95rem !important;
+  }
+
+  .despesa-form,
+  .despesa-section,
+  .faturamentos-section {
+    padding: 0.75rem !important;
+    margin: 0 -16px !important;
+    border-radius: 0 !important;
+  }
+
+  .despesas-header h2,
+  .faturamentos-header h2,
+  .section-header h2,
+  .faturamentos-section h2 {
+    font-size: 0.95rem !important;
+  }
+
+  .btn-primary {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  .form-row {
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+  }
+
+  .empty-message {
+    padding: 1.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .error-message {
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+  }
 }
