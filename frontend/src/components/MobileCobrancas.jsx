@@ -34,7 +34,7 @@ export default function MobileCobrancas() {
     return f.status === filtro
   })
 
-  const totalPendente = faturamentosFiltrados
+  const totalPendente = faturamentos
     .filter(f => f.status === 'Pendente')
     .reduce((sum, f) => sum + parseFloat(f.valor || 0), 0)
 
