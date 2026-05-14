@@ -1,29 +1,19 @@
-# Dockerfile simples - single stage para Railway
+# Dockerfile minimal - usa frontend já pré-buildado
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copia toda a aplicação primeiro
+# Copia package.json e instala dependências de produção
 COPY package*.json ./
-COPY frontend/package*.json ./frontend/
-
-# Instala dependências do backend (sem optional, ex: sqlite3 que requer native build)
 RUN npm install --omit=optional --omit=dev
 
-# Instala dependências do frontend
-RUN cd frontend && npm install
-
-# Copia o resto do código
+# Copia o código backend e o frontend já pré-buildado
 COPY backend ./backend
-COPY frontend ./frontend
-
-# Build do frontend
-RUN cd frontend && npm run build
+COPY frontend/dist ./frontend/dist
 
 # Cria diretório de uploads
 RUN mkdir -p backend/uploads
 
-# Variáveis padrão
 ENV NODE_ENV=production
 ENV PORT=5000
 

@@ -2,7 +2,8 @@ node_modules/
 .env
 .env.local
 .env.*.local
-dist/
+# Não ignorar frontend/dist - é necessário para o deploy no Railway
+# dist/
 build/
 .DS_Store
 *.log
