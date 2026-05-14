@@ -4,6 +4,7 @@
   background-color: #f5f5f5;
   min-height: 100vh;
   padding-bottom: 100px; /* Espaço para bottom navigation */
+  padding-top: calc(56px + env(safe-area-inset-top)); /* Espaço para header fixed */
 }
 
 .mobile-error {
@@ -42,9 +43,13 @@
   padding-left: max(16px, env(safe-area-inset-left));
   padding-right: max(16px, env(safe-area-inset-right));
   border-bottom: 1px solid #e5e5ea;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .mobile-header h1 {

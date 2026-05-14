@@ -9,6 +9,7 @@ export default function MobileClientesList() {
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [showNovoClienteModal, setShowNovoClienteModal] = useState(false)
+  const [selectedClienteId, setSelectedClienteId] = useState(null)
 
   useEffect(() => {
     fetchClientes()
@@ -33,6 +34,11 @@ export default function MobileClientesList() {
     (cliente.nome || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (cliente.telefone || '').includes(searchTerm)
   )
+
+  const handleClienteClick = (clienteId) => {
+    setSelectedClienteId(clienteId)
+    // TODO: Implementar tela de detalhes do cliente
+  }
 
   if (loading) {
     return <div className="mobile-clientes-loading">Carregando...</div>
@@ -94,16 +100,22 @@ export default function MobileClientesList() {
       ) : (
         <div className="mobile-clientes-list">
           {clientesFiltrados.map(cliente => (
-            <div key={cliente.id} className="mobile-cliente-item">
+            <div
+              key={cliente.id}
+              className="mobile-cliente-item"
+              onClick={() => handleClienteClick(cliente.id)}
+            >
               <div className="cliente-avatar">
                 {cliente.nome.charAt(0).toUpperCase()}
               </div>
 
               <div className="cliente-info">
-                <div className="cliente-nome">{cliente.nome}</div>
-                {cliente.telefone && (
-                  <div className="cliente-telefone">📱 {cliente.telefone}</div>
-                )}
+                <div className="cliente-header-row">
+                  <div className="cliente-nome">{cliente.nome}</div>
+                  {cliente.telefone && (
+                    <div className="cliente-telefone">📱 {cliente.telefone}</div>
+                  )}
+                </div>
                 {cliente.Pets && cliente.Pets.length > 0 && (
                   <div className="cliente-pets">
                     🐾 {cliente.Pets.length} animal{cliente.Pets.length !== 1 ? 's' : ''}

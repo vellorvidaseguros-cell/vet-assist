@@ -53,10 +53,36 @@ export default function MobileCobrancas() {
 
       {/* Resumo */}
       <div className="mobile-cobrancas-resumo">
-        <div className="resumo-card">
-          <span className="resumo-label">Pendente</span>
+        <div className="resumo-card resumo-a-receber">
+          <span className="resumo-label">À Receber</span>
           <span className="resumo-valor">
             R$ {totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </span>
+        </div>
+        <div className="resumo-card resumo-faturamento-mes">
+          <span className="resumo-label">Faturamento do Mês</span>
+          <span className="resumo-valor">
+            R$ {faturamentos
+              .filter(f => {
+                const dataFat = new Date(f.createdAt)
+                const hoje = new Date()
+                return dataFat.getMonth() === hoje.getMonth() && dataFat.getFullYear() === hoje.getFullYear()
+              })
+              .reduce((sum, f) => sum + parseFloat(f.valor || 0), 0)
+              .toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </span>
+        </div>
+        <div className="resumo-card resumo-faturado-hoje">
+          <span className="resumo-label">Faturado Hoje</span>
+          <span className="resumo-valor">
+            R$ {faturamentos
+              .filter(f => {
+                const dataFat = new Date(f.createdAt)
+                const hoje = new Date()
+                return dataFat.getDate() === hoje.getDate() && dataFat.getMonth() === hoje.getMonth() && dataFat.getFullYear() === hoje.getFullYear()
+              })
+              .reduce((sum, f) => sum + parseFloat(f.valor || 0), 0)
+              .toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </span>
         </div>
       </div>
