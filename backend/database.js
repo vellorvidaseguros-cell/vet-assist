@@ -13,14 +13,22 @@ let sequelize;
 if (process.env.DATABASE_URL) {
   // PostgreSQL no Railway (produção)
   console.log('[INFO] Usando PostgreSQL (DATABASE_URL detectada)');
+
+  // SSL é necessário para Postgres externo (ex: Supabase), mas NÃO para
+  // a rede interna do Railway (postgres.railway.internal) que usa TLS automático.
+  // Habilitar SSL apenas se a env DATABASE_SSL=true estiver setada.
+  const useSSL = process.env.DATABASE_SSL === 'true';
+
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    },
+    dialectOptions: useSSL
+      ? {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false
+          }
+        }
+      : {},
     logging: false,
   });
 } else {
