@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import './MobileClientesList.css'
 import NovoClienteModal from './NovoClienteModal'
+import MobileClienteDetalhes from './MobileClienteDetalhes'
 
 export default function MobileClientesList() {
   const [clientes, setClientes] = useState([])
@@ -37,7 +38,6 @@ export default function MobileClientesList() {
 
   const handleClienteClick = (clienteId) => {
     setSelectedClienteId(clienteId)
-    // TODO: Implementar tela de detalhes do cliente
   }
 
   if (loading) {
@@ -50,6 +50,13 @@ export default function MobileClientesList() {
         <NovoClienteModal
           onClose={() => setShowNovoClienteModal(false)}
           onSuccess={fetchClientes}
+        />
+      )}
+
+      {selectedClienteId && (
+        <MobileClienteDetalhes
+          clienteId={selectedClienteId}
+          onClose={() => setSelectedClienteId(null)}
         />
       )}
 

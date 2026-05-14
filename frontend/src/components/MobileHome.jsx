@@ -6,6 +6,8 @@ import FAB from './FAB'
 import MobileSearch from './MobileSearch'
 import WeatherInfo from './WeatherInfo'
 import NovoClienteModal from './NovoClienteModal'
+import NovoAgendamentoModal from './NovoAgendamentoModal'
+import NovaCobrancaModal from './NovaCobrancaModal'
 import './MobileHome.css'
 
 export default function MobileHome() {
@@ -127,7 +129,6 @@ export default function MobileHome() {
   const handleFABNovoAgendamento = () => {
     setShowNovoAgendamento(true)
     setShowFABMenu(false)
-    // TODO: Implementar formulário de novo agendamento
   }
 
   const handleFABNovoCliente = () => {
@@ -138,7 +139,6 @@ export default function MobileHome() {
   const handleFABNovaCobranca = () => {
     setShowNovaCobranca(true)
     setShowFABMenu(false)
-    // TODO: Implementar formulário de nova cobrança
   }
 
   if (loading) {
@@ -186,6 +186,26 @@ export default function MobileHome() {
           onClose={() => setShowNovoClienteModal(false)}
           onSuccess={() => {
             setShowNovoClienteModal(false)
+            fetchData()
+          }}
+        />
+      )}
+
+      {showNovoAgendamento && (
+        <NovoAgendamentoModal
+          onClose={() => setShowNovoAgendamento(false)}
+          onSuccess={() => {
+            setShowNovoAgendamento(false)
+            fetchData()
+          }}
+        />
+      )}
+
+      {showNovaCobranca && (
+        <NovaCobrancaModal
+          onClose={() => setShowNovaCobranca(false)}
+          onSuccess={() => {
+            setShowNovaCobranca(false)
             fetchData()
           }}
         />

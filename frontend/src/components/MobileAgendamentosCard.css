@@ -233,6 +233,16 @@
   transform: scale(1.02);
 }
 
+.btn-detalhes {
+  background-color: #007aff;
+  color: white;
+}
+
+.btn-detalhes:hover:not(:disabled) {
+  background-color: #0051d5;
+  transform: scale(1.02);
+}
+
 /* RESPONSIVIDADE */
 @media (max-width: 480px) {
   .mobile-agendamento-card {

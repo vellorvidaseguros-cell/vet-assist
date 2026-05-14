@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import axios from 'axios'
+import MobileAgendamentoDetalhes from './MobileAgendamentoDetalhes'
 import './MobileAgendamentosCard.css'
 
 export default function MobileAgendamentosCard({ agendamento, onStatusChange }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showDetalhes, setShowDetalhes] = useState(false)
 
   // Mapeamento de emojis para tipos de pet (campo correto do backend: especie)
   const getPetEmoji = () => {
@@ -82,94 +84,115 @@ export default function MobileAgendamentosCard({ agendamento, onStatusChange }) 
   const valor = parseFloat(agendamento.valor || 0)
 
   return (
-    <div className={`mobile-agendamento-card ${status.classe}`}>
-      {error && (
-        <div className="card-error">
-          {error}
-          <button onClick={() => setError('')}>×</button>
-        </div>
+    <>
+      {showDetalhes && (
+        <MobileAgendamentoDetalhes
+          agendamentoId={agendamento.id}
+          onClose={() => setShowDetalhes(false)}
+          onSuccess={() => {
+            setShowDetalhes(false)
+            onStatusChange()
+          }}
+        />
       )}
 
-      <div className="card-header">
-        <div className="card-horario">
-          <span className="horario-icon">⏰</span>
-          <span className="horario-texto">{agendamento.hora || agendamento.horario || '--:--'}</span>
-        </div>
-        <div className={`card-status ${status.classe}`}>
-          {status.label}
-        </div>
-      </div>
-
-      <div className="card-content">
-        <div className="card-pet">
-          <span className="pet-emoji">{getPetEmoji()}</span>
-          <span className="pet-info">
-            {agendamento.Pet?.nome || 'Pet'} - {agendamento.descricao || 'Consulta'}
-          </span>
-        </div>
-
-        <div className="card-tutor">
-          <span className="tutor-icon">👤</span>
-          <span className="tutor-nome">{agendamento.Cliente?.nome || 'Cliente'}</span>
-        </div>
-
-        <div className="card-valor">
-          <span className="valor-icon">💰</span>
-          <span className="valor-texto">
-            R$ {valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
-        </div>
-      </div>
-
-      <div className="card-actions">
-        {agendamento.status === 'Pendente' && (
-          <>
-            <button
-              className="btn-acao btn-confirmar"
-              onClick={handleConfirmar}
-              disabled={loading}
-            >
-              ✓ Confirmar
-            </button>
-            <button
-              className="btn-acao btn-historico"
-              onClick={handleHistorico}
-              disabled={loading}
-            >
-              📋 Histórico
-            </button>
-          </>
+      <div className={`mobile-agendamento-card ${status.classe}`}>
+        {error && (
+          <div className="card-error">
+            {error}
+            <button onClick={() => setError('')}>×</button>
+          </div>
         )}
 
-        {agendamento.status === 'Confirmado' && (
-          <>
-            <button
-              className="btn-acao btn-concluir"
-              onClick={handleConcluir}
-              disabled={loading}
-            >
-              ✓ Finalizar
-            </button>
-            <button
-              className="btn-acao btn-historico"
-              onClick={handleHistorico}
-              disabled={loading}
-            >
-              📋 Histórico
-            </button>
-          </>
-        )}
+        <div className="card-header">
+          <div className="card-horario">
+            <span className="horario-icon">⏰</span>
+            <span className="horario-texto">{agendamento.hora || agendamento.horario || '--:--'}</span>
+          </div>
+          <div className={`card-status ${status.classe}`}>
+            {status.label}
+          </div>
+        </div>
 
-        {agendamento.status === 'Concluído' && (
+        <div className="card-content">
+          <div className="card-pet">
+            <span className="pet-emoji">{getPetEmoji()}</span>
+            <span className="pet-info">
+              {agendamento.Pet?.nome || 'Pet'} - {agendamento.descricao || 'Consulta'}
+            </span>
+          </div>
+
+          <div className="card-tutor">
+            <span className="tutor-icon">👤</span>
+            <span className="tutor-nome">{agendamento.Cliente?.nome || 'Cliente'}</span>
+          </div>
+
+          <div className="card-valor">
+            <span className="valor-icon">💰</span>
+            <span className="valor-texto">
+              R$ {valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          </div>
+        </div>
+
+        <div className="card-actions">
           <button
-            className="btn-acao btn-editar"
-            onClick={handleHistorico}
+            className="btn-acao btn-detalhes"
+            onClick={() => setShowDetalhes(true)}
             disabled={loading}
           >
-            📋 Detalhes
+            📋 Ver Detalhes
           </button>
-        )}
+
+          {agendamento.status === 'Pendente' && (
+            <>
+              <button
+                className="btn-acao btn-confirmar"
+                onClick={handleConfirmar}
+                disabled={loading}
+              >
+                ✓ Confirmar
+              </button>
+              <button
+                className="btn-acao btn-historico"
+                onClick={handleHistorico}
+                disabled={loading}
+              >
+                📋 Histórico
+              </button>
+            </>
+          )}
+
+          {agendamento.status === 'Confirmado' && (
+            <>
+              <button
+                className="btn-acao btn-concluir"
+                onClick={handleConcluir}
+                disabled={loading}
+              >
+                ✓ Finalizar
+              </button>
+              <button
+                className="btn-acao btn-historico"
+                onClick={handleHistorico}
+                disabled={loading}
+              >
+                📋 Histórico
+              </button>
+            </>
+          )}
+
+          {agendamento.status === 'Concluído' && (
+            <button
+              className="btn-acao btn-editar"
+              onClick={handleHistorico}
+              disabled={loading}
+            >
+              📋 Histórico
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
