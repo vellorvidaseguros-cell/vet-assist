@@ -1,36 +1,32 @@
-# Multi-stage Dockerfile para VetAssist
-# Stage 1: Build do frontend
-FROM node:22-alpine AS frontend-builder
-
-WORKDIR /app/frontend
-
-# Copia os arquivos do frontend
-COPY frontend/package*.json ./
-RUN npm install
-
-COPY frontend/ ./
-RUN npm run build
-
-# Stage 2: Build da aplicação completa
-FROM node:22-alpine
+# Dockerfile simples - single stage para Railway
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copia package.json e instala dependências de produção (sem sqlite3 que é optional)
+# Copia toda a aplicação primeiro
 COPY package*.json ./
+COPY frontend/package*.json ./frontend/
+
+# Instala dependências do backend (sem optional, ex: sqlite3 que requer native build)
 RUN npm install --omit=optional --omit=dev
 
-# Copia o código do backend
-COPY backend ./backend
+# Instala dependências do frontend
+RUN cd frontend && npm install
 
-# Copia o frontend buildado do stage anterior
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+# Copia o resto do código
+COPY backend ./backend
+COPY frontend ./frontend
+
+# Build do frontend
+RUN cd frontend && npm run build
 
 # Cria diretório de uploads
 RUN mkdir -p backend/uploads
 
-# Expõe a porta (Railway define dinamicamente)
+# Variáveis padrão
+ENV NODE_ENV=production
+ENV PORT=5000
+
 EXPOSE 5000
 
-# Inicia o servidor
 CMD ["node", "backend/server.js"]
