@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import './MobileClientesList.css'
+import NovoClienteModal from './NovoClienteModal'
 
 export default function MobileClientesList() {
   const [clientes, setClientes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [showNovoClienteModal, setShowNovoClienteModal] = useState(false)
 
   useEffect(() => {
     fetchClientes()
@@ -38,12 +40,30 @@ export default function MobileClientesList() {
 
   return (
     <div className="mobile-clientes-container">
+      {showNovoClienteModal && (
+        <NovoClienteModal
+          onClose={() => setShowNovoClienteModal(false)}
+          onSuccess={fetchClientes}
+        />
+      )}
+
       {error && (
         <div className="mobile-error">
           {error}
           <button onClick={() => setError('')}>×</button>
         </div>
       )}
+
+      {/* Header com botão Novo Cliente */}
+      <div className="mobile-clientes-header">
+        <h2>Clientes</h2>
+        <button
+          className="mobile-btn-novo-cliente"
+          onClick={() => setShowNovoClienteModal(true)}
+        >
+          + Novo Cliente
+        </button>
+      </div>
 
       {/* Barra de busca */}
       <div className="mobile-clientes-search">
