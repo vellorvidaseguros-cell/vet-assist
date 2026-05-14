@@ -221,3 +221,156 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+    width: 95%;
+  }
+
+  .modal-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .modal-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .btn-close {
+    width: 28px;
+    height: 28px;
+    font-size: 1.3rem;
+  }
+
+  .error-message {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .drop-zone {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .drop-zone-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .drop-zone-label div:nth-child(2) {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .drop-zone-label small {
+    font-size: 0.75rem;
+  }
+
+  .preview-section {
+    margin-bottom: 1rem;
+  }
+
+  .preview-section h4 {
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .preview-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .preview-item img {
+    height: 80px;
+  }
+
+  .btn-remove {
+    width: 22px;
+    height: 22px;
+    font-size: 0.8rem;
+  }
+
+  .upload-progress {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .progress-bar {
+    margin-bottom: 0.3rem;
+  }
+
+  .upload-progress p {
+    font-size: 0.8rem;
+  }
+
+  .modal-actions {
+    gap: 0.75rem;
+  }
+
+  .btn-cancel,
+  .btn-upload {
+    padding: 0.65rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay {
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 12px 12px 0 0;
+    padding: 1rem 0.75rem;
+  }
+
+  .modal-header {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .drop-zone {
+    padding: 1rem 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .drop-zone-icon {
+    font-size: 2rem;
+  }
+
+  .drop-zone-label div:nth-child(2) {
+    font-size: 0.8rem;
+  }
+
+  .preview-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .preview-item img {
+    height: 70px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .btn-cancel,
+  .btn-upload {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 0.8rem;
+  }
+}

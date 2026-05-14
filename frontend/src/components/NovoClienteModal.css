@@ -309,6 +309,92 @@
 }
 
 /* ===== RESPONSIVO ===== */
+@media (max-width: 768px) {
+  .ncm-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .ncm-modal {
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+    max-height: 90vh;
+  }
+
+  .ncm-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .ncm-header h2 {
+    font-size: 1rem;
+  }
+
+  .ncm-body {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .ncm-section {
+    gap: 0.75rem;
+  }
+
+  .ncm-section-title {
+    font-size: 0.8rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .ncm-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .ncm-group label {
+    font-size: 0.85rem;
+  }
+
+  .ncm-group input,
+  .ncm-group select {
+    padding: 0.6rem 0.65rem;
+    font-size: 0.9rem;
+  }
+
+  .ncm-animal-card {
+    padding: 0.75rem 0.85rem;
+    gap: 0.75rem;
+  }
+
+  .ncm-animal-card-info p {
+    font-size: 0.85rem;
+  }
+
+  .ncm-animal-form {
+    padding: 0.9rem;
+    gap: 0.75rem;
+  }
+
+  .ncm-add-animal-btn {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.85rem;
+  }
+
+  .ncm-btn-confirm-animal,
+  .ncm-btn-cancel-animal {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.8rem;
+  }
+
+  .ncm-footer {
+    padding: 1rem 1.25rem;
+    gap: 0.5rem;
+  }
+
+  .ncm-btn-salvar,
+  .ncm-btn-cancelar {
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+
 @media (max-width: 600px) {
   .ncm-row {
     grid-template-columns: 1fr;
@@ -326,5 +412,70 @@
   .ncm-btn-cancelar {
     width: 100%;
     text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .ncm-modal {
+    border-radius: 12px 12px 0 0;
+  }
+
+  .ncm-header {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ncm-header h2 {
+    font-size: 0.95rem;
+  }
+
+  .ncm-close {
+    width: 28px;
+    height: 28px;
+    font-size: 1.3rem;
+  }
+
+  .ncm-body {
+    padding: 0.85rem;
+    gap: 0.85rem;
+  }
+
+  .ncm-section-title {
+    font-size: 0.75rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .ncm-group label {
+    font-size: 0.8rem;
+  }
+
+  .ncm-group input,
+  .ncm-group select {
+    padding: 0.55rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .ncm-animal-card-info p {
+    font-size: 0.8rem;
+  }
+
+  .ncm-add-animal-btn {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .ncm-footer {
+    padding: 0.85rem 1rem;
+  }
+
+  .ncm-btn-salvar,
+  .ncm-btn-cancelar {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .ncm-error {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.8rem;
   }
 }
