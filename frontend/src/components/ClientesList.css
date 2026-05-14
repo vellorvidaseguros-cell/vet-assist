@@ -132,6 +132,22 @@
 }
 
 @media (max-width: 600px) {
+  .clientes-header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .clientes-header h2 {
+    display: block;
+    width: 100%;
+  }
+
+  .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+
   .cliente-info {
     grid-template-columns: 1fr;
     gap: 0.5rem;
