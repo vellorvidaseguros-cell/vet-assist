@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { formatarData } from '../utils/dateFormatter'
 import './ClientesList.css'
+import NovoClienteModal from './NovoClienteModal'
 
 export default function ClientesList() {
   const [clientes, setClientes] = useState([])
@@ -9,6 +10,7 @@ export default function ClientesList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showNewClienteForm, setShowNewClienteForm] = useState(false)
+  const [showNovoClienteModal, setShowNovoClienteModal] = useState(false)
   const [showNewAnimalForm, setShowNewAnimalForm] = useState(null)
   const [editingClienteId, setEditingClienteId] = useState(null)
   const [editingAnimalId, setEditingAnimalId] = useState(null)
@@ -196,6 +198,12 @@ export default function ClientesList() {
 
   return (
     <div className="clientes-container">
+      {showNovoClienteModal && (
+        <NovoClienteModal
+          onClose={() => setShowNovoClienteModal(false)}
+          onSuccess={fetchClientes}
+        />
+      )}
       {error && (
         <div className="error-message">
           {error}
@@ -207,14 +215,15 @@ export default function ClientesList() {
         <h2>Clientes</h2>
         <button
           className="btn-primary"
-          onClick={() => setShowNewClienteForm(!showNewClienteForm)}
+          onClick={() => setShowNovoClienteModal(true)}
         >
-          {showNewClienteForm ? 'Cancelar' : '+ Novo Cliente'}
+          + Novo Cliente
         </button>
       </div>
 
-      {showNewClienteForm && (
-        <form className="form-card" onSubmit={editingClienteId ? handleUpdateCliente : handleCreateCliente}>
+      {/* Formulário inline só para EDIÇÃO de cliente existente */}
+      {showNewClienteForm && editingClienteId && (
+        <form className="form-card" onSubmit={handleUpdateCliente}>
           <div className="form-row">
             <div className="form-group">
               <label>Nome *</label>
@@ -287,30 +296,18 @@ export default function ClientesList() {
           </div>
 
           <div style={{display: 'flex', gap: '1rem'}}>
-            <button type="submit" className="btn-primary">
-              {editingClienteId ? 'Atualizar Cliente' : 'Salvar Cliente'}
+            <button type="submit" className="btn-primary">Atualizar Cliente</button>
+            <button
+              type="button"
+              className="btn-danger"
+              onClick={() => {
+                setEditingClienteId(null);
+                setShowNewClienteForm(false);
+                setClienteForm({ nome: '', telefone: '', email: '', cpf: '', endereco: '', cidade: '', estado: '' });
+              }}
+            >
+              Cancelar
             </button>
-            {editingClienteId && (
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => {
-                  setEditingClienteId(null);
-                  setShowNewClienteForm(false);
-                  setClienteForm({
-                    nome: '',
-                    telefone: '',
-                    email: '',
-                    cpf: '',
-                    endereco: '',
-                    cidade: '',
-                    estado: ''
-                  });
-                }}
-              >
-                Cancelar
-              </button>
-            )}
           </div>
         </form>
       )}
