@@ -1,3 +1,6 @@
+[build]
+buildCommand = "npm install --omit=optional && cd frontend && npm install && npm run build"
+
 [deploy]
 startCommand = "node backend/server.js"
 healthcheckPath = "/api/status"
