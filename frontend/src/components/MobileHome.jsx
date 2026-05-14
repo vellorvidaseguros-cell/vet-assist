@@ -11,6 +11,7 @@ import NovaCobrancaModal from './NovaCobrancaModal'
 import './MobileHome.css'
 
 export default function MobileHome() {
+  // Force rebuild - v2.1
   const [agendamentos, setAgendamentos] = useState([])
   const [faturamentos, setFaturamentos] = useState([])
   const [loading, setLoading] = useState(true)
