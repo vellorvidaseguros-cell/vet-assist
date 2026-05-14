@@ -1,17 +1,31 @@
-# Dockerfile minimal - usa frontend já pré-buildado
+# Multi-stage Dockerfile para VetAssist
+# Stage 1: Build do frontend
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+COPY frontend/package*.json ./
+RUN npm install
+
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 2: Runtime
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copia package.json e instala dependências de produção
+# Instalar dependências de produção
 COPY package*.json ./
 RUN npm install --omit=optional --omit=dev
 
-# Copia o código backend e o frontend já pré-buildado
+# Copiar backend
 COPY backend ./backend
-COPY frontend/dist ./frontend/dist
 
-# Cria diretório de uploads
+# Copiar frontend buildado do stage anterior
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+
+# Criar diretório de uploads
 RUN mkdir -p backend/uploads
 
 ENV NODE_ENV=production
