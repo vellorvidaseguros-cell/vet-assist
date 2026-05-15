@@ -98,7 +98,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
         <div className="modal-content detalhes-modal">
           <div className="modal-header">
             <h3>Cliente não encontrado</h3>
-            <button className="btn-close" onClick={onClose}>×</button>
+            <button type="button" className="btn-close" onClick={onClose}>×</button>
           </div>
         </div>
       </div>
@@ -114,13 +114,13 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
             <h3>👤 {cliente.nome}</h3>
             <span className="detalhes-data">{cliente.Pets ? cliente.Pets.length : 0} animal(is)</span>
           </div>
-          <button className="btn-close" onClick={onClose}>×</button>
+          <button type="button" className="btn-close" onClick={onClose}>×</button>
         </div>
 
         {error && (
           <div className="error-message">
             {error}
-            <button onClick={() => setError('')}>×</button>
+            <button type="button" onClick={() => setError('')}>×</button>
           </div>
         )}
 
@@ -155,7 +155,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                   <strong>Rua:</strong> {cliente.endereco}
                 </p>
               )}
-              {cliente.cidade || cliente.estado && (
+              {(cliente.cidade || cliente.estado) && (
                 <p className="detalhes-text">
                   <strong>Localidade:</strong> {cliente.cidade}{cliente.cidade && cliente.estado ? ', ' : ''}{cliente.estado}
                 </p>
@@ -165,9 +165,10 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
 
           {/* Animais */}
           <div className="detalhes-section fotos-section">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <h4 style={{ margin: 0 }}>🐾 Animais</h4>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', width: '100%', gap: '8px' }}>
+              <h4 style={{ margin: 0, flex: '1 1 auto', minWidth: 0 }}>🐾 Animais</h4>
               <button
+                type="button"
                 style={{
                   padding: '6px 12px',
                   backgroundColor: '#007aff',
@@ -177,9 +178,11 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                   fontSize: '12px',
                   fontWeight: '600',
                   cursor: 'pointer',
-                  flex: 'none'
+                  flex: '0 0 auto',
+                  width: 'auto',
+                  whiteSpace: 'nowrap'
                 }}
-                onClick={() => setShowNovoAnimal(!showNovoAnimal)}
+                onClick={() => { if (showNovoAnimal) setError(''); setShowNovoAnimal(!showNovoAnimal); }}
               >
                 {showNovoAnimal ? '✕ Cancelar' : '+ Adicionar'}
               </button>
@@ -275,6 +278,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                 </div>
 
                 <button
+                  type="button"
                   onClick={handleAdicionarAnimal}
                   disabled={salvandoAnimal}
                   style={{
@@ -316,7 +320,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
               </div>
             )}
 
-            {!cliente.Pets || cliente.Pets.length === 0 && !showNovoAnimal && (
+            {(!cliente.Pets || cliente.Pets.length === 0) && !showNovoAnimal && (
               <p style={{ textAlign: 'center', color: '#8e8e93', fontSize: '13px', margin: '12px 0' }}>
                 Nenhum animal cadastrado
               </p>
@@ -327,6 +331,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
         {/* Footer / Ações */}
         <div className="modal-actions">
           <button
+            type="button"
             className="btn-cancelar"
             onClick={onClose}
           >

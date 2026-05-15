@@ -32,12 +32,18 @@ export default function FAB({
 
   return (
     <div className="fab-container">
+      {/* Overlay para fechar o menu ao clicar fora (renderizado primeiro para ficar atrás dos botões) */}
+      {showMenu && (
+        <div className="fab-overlay" onClick={() => onMenuToggle(false)} />
+      )}
+
       {/* Menu flutuante (aparece quando FAB está expandido) */}
       {showMenu && (
         <div className="fab-menu">
           <button
+            type="button"
             className="fab-menu-item fab-agendamento"
-            onClick={handleAgendamento}
+            onClick={(e) => { e.stopPropagation(); handleAgendamento(); }}
             title="Novo Agendamento"
           >
             <span className="fab-menu-icon">📅</span>
@@ -45,8 +51,9 @@ export default function FAB({
           </button>
 
           <button
+            type="button"
             className="fab-menu-item fab-cliente"
-            onClick={handleNovoCliente}
+            onClick={(e) => { e.stopPropagation(); handleNovoCliente(); }}
             title="Novo Cliente"
           >
             <span className="fab-menu-icon">👤</span>
@@ -54,8 +61,9 @@ export default function FAB({
           </button>
 
           <button
+            type="button"
             className="fab-menu-item fab-cobranca"
-            onClick={handleNovaCobranca}
+            onClick={(e) => { e.stopPropagation(); handleNovaCobranca(); }}
             title="Nova Cobrança"
           >
             <span className="fab-menu-icon">💰</span>
@@ -66,17 +74,13 @@ export default function FAB({
 
       {/* Botão FAB Principal */}
       <button
+        type="button"
         className={`fab-button ${showMenu ? 'ativo' : ''}`}
         onClick={handleToggleMenu}
         title="Adicionar"
       >
         <span className="fab-icon">➕</span>
       </button>
-
-      {/* Overlay para fechar o menu ao clicar fora */}
-      {showMenu && (
-        <div className="fab-overlay" onClick={() => onMenuToggle(false)} />
-      )}
     </div>
   )
 }
