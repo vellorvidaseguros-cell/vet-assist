@@ -141,15 +141,10 @@ async function importar() {
 
     console.log('🔄 Importando dados...\n');
 
-    // Desabilitar verificação de FK temporariamente
-    await pg.query('SET session_replication_role = replica;');
-
+    // Inserir na ordem correta (respeita foreign keys)
     for (const tabela of ORDEM) {
       await inserirTabela(tabela, dados[tabela]);
     }
-
-    // Reabilitar FK
-    await pg.query('SET session_replication_role = DEFAULT;');
 
     console.log('\n🎉 Importação concluída com sucesso!');
     console.log('   Seus dados estão agora no PostgreSQL do Railway.');
