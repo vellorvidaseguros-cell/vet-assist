@@ -16,7 +16,7 @@ export default function MobileHome() {
   const [faturamentos, setFaturamentos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [abaAtiva, setAbaAtiva] = useState('proximos') // 'proximos', 'amanha', 'semana'
+  const [abaAtiva, setAbaAtiva] = useState('proximos') // 'proximos', 'amanha', 'semana', 'passados'
   const [dataAtual, setDataAtual] = useState(new Date())
   const [searchAtivo, setSearchAtivo] = useState(false)
   const [searchResultados, setSearchResultados] = useState([])
@@ -56,8 +56,14 @@ export default function MobileHome() {
     }
   }
 
-  // Obter data em formato Date sem hora
+  // Obter data em formato Date sem hora (corrige bug de fuso horário)
   const getDataSemHora = (data) => {
+    if (!data) return new Date(NaN)
+    // Se for string no formato YYYY-MM-DD, parsear como data local (evita UTC shift)
+    if (typeof data === 'string' && /^\d{4}-\d{2}-\d{2}/.test(data)) {
+      const [year, month, day] = data.substring(0, 10).split('-').map(Number)
+      return new Date(year, month - 1, day)
+    }
     const d = new Date(data)
     return new Date(d.getFullYear(), d.getMonth(), d.getDate())
   }
@@ -88,12 +94,24 @@ export default function MobileHome() {
     return dataAgenda >= inicioSemana && dataAgenda <= fimSemana
   }).sort((a, b) => new Date(`2000-01-01 ${a.hora || '00:00'}`) - new Date(`2000-01-01 ${b.hora || '00:00'}`))
 
+  const agendasPassados = agendamentos.filter(a => {
+    const dataAgenda = getDataSemHora(a.data)
+    return dataAgenda.getTime() < hoje.getTime()
+  }).sort((a, b) => getDataSemHora(b.data) - getDataSemHora(a.data)) // mais recentes primeiro
+
+  const agendasProximos = agendamentos.filter(a => {
+    const dataAgenda = getDataSemHora(a.data)
+    return dataAgenda.getTime() > amanha.getTime() // a partir de depois de amanhã
+  }).sort((a, b) => getDataSemHora(a.data) - getDataSemHora(b.data)) // mais próximos primeiro
+
   // Filtrar agendamentos para exibição baseado na aba ativa
   const agendasParaExibir = abaAtiva === 'proximos'
     ? agendasHoje
     : abaAtiva === 'amanha'
     ? agendasAmanha
-    : agendasSemana
+    : abaAtiva === 'futuros'
+    ? agendasProximos
+    : agendasPassados
 
   // Calcular pendências
   const totalPendente = faturamentos
@@ -139,6 +157,11 @@ export default function MobileHome() {
 
   const handleFABNovaCobranca = () => {
     setShowNovaCobranca(true)
+    setShowFABMenu(false)
+  }
+
+  const handleFABHistorico = () => {
+    window.dispatchEvent(new CustomEvent('navegarPara', { detail: 'historico' }))
     setShowFABMenu(false)
   }
 
@@ -225,31 +248,39 @@ export default function MobileHome() {
         <WeatherInfo />
       </div>
 
-      {/* Título da seção */}
-      <div className="mobile-title">
-        <h2>📅 HOJE - {formatarDataCompleta(hoje)}</h2>
-      </div>
+      {/* Título da seção + Abas (bloco sticky) */}
+      <div className="mobile-title-tabs-wrapper">
+        <div className="mobile-title">
+          <h2>📅 HOJE - {formatarDataCompleta(hoje)}</h2>
+        </div>
 
-      {/* Abas */}
-      <div className="mobile-tabs">
-        <button
-          className={`mobile-tab ${abaAtiva === 'proximos' ? 'ativo' : ''}`}
-          onClick={() => setAbaAtiva('proximos')}
-        >
-          Próximos
-        </button>
-        <button
-          className={`mobile-tab ${abaAtiva === 'amanha' ? 'ativo' : ''}`}
-          onClick={() => setAbaAtiva('amanha')}
-        >
-          Amanhã
-        </button>
-        <button
-          className={`mobile-tab ${abaAtiva === 'semana' ? 'ativo' : ''}`}
-          onClick={() => setAbaAtiva('semana')}
-        >
-          Semana
-        </button>
+        {/* Abas */}
+        <div className="mobile-tabs">
+          <button
+            className={`mobile-tab ${abaAtiva === 'proximos' ? 'ativo' : ''}`}
+            onClick={() => setAbaAtiva('proximos')}
+          >
+            Hoje
+          </button>
+          <button
+            className={`mobile-tab ${abaAtiva === 'amanha' ? 'ativo' : ''}`}
+            onClick={() => setAbaAtiva('amanha')}
+          >
+            Amanhã
+          </button>
+          <button
+            className={`mobile-tab ${abaAtiva === 'futuros' ? 'ativo' : ''}`}
+            onClick={() => setAbaAtiva('futuros')}
+          >
+            Próximos
+          </button>
+          <button
+            className={`mobile-tab ${abaAtiva === 'passados' ? 'ativo' : ''}`}
+            onClick={() => setAbaAtiva('passados')}
+          >
+            Passados
+          </button>
+        </div>
       </div>
 
       {/* Cards de Agendamentos */}
@@ -259,7 +290,8 @@ export default function MobileHome() {
             <p>Nenhum agendamento {
               abaAtiva === 'proximos' ? 'para hoje' :
               abaAtiva === 'amanha' ? 'para amanhã' :
-              'para esta semana'
+              abaAtiva === 'futuros' ? 'agendado para os próximos dias' :
+              'em datas passadas'
             }</p>
           </div>
         ) : (
@@ -268,6 +300,7 @@ export default function MobileHome() {
               key={agendamento.id}
               agendamento={agendamento}
               onStatusChange={fetchData}
+              mostrarData={abaAtiva === 'passados' || abaAtiva === 'futuros'}
             />
           ))
         )}
@@ -278,30 +311,17 @@ export default function MobileHome() {
         <h3>⚠️ PENDÊNCIAS</h3>
 
         <div className="pendencia-item">
-          <div className="pendencia-icon">💰</div>
-          <div className="pendencia-info">
-            <span className="pendencia-label">Em cobranças</span>
-            <span className="pendencia-valor">
-              R$ {totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </div>
-          <button className="pendencia-link" onClick={handleVerTodasCobancas}>
-            Ver todas
-          </button>
-        </div>
-
-        {retornosAgendar > 0 && (
-          <div className="pendencia-item">
-            <div className="pendencia-icon">🔔</div>
-            <div className="pendencia-info">
-              <span className="pendencia-label">Retornos a agendar</span>
-              <span className="pendencia-valor">{retornosAgendar}</span>
-            </div>
-            <button className="pendencia-link" onClick={handleVerTodosRetornos}>
-              Ver todos
+          <div className="pendencia-top">
+            <span className="pendencia-label">💰 Em cobranças</span>
+            <button className="pendencia-link" onClick={handleVerTodasCobancas}>
+              Ver todas
             </button>
           </div>
-        )}
+          <span className="pendencia-valor">
+            R$ {totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        </div>
+
       </div>
 
       {/* Busca Rápida */}
@@ -322,6 +342,7 @@ export default function MobileHome() {
         onNovoAgendamento={handleFABNovoAgendamento}
         onNovoCliente={handleFABNovoCliente}
         onNovaCobranca={handleFABNovaCobranca}
+        onHistorico={handleFABHistorico}
       />
     </div>
   )

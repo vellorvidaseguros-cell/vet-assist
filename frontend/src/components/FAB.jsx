@@ -6,28 +6,27 @@ export default function FAB({
   showMenu,
   onNovoAgendamento,
   onNovoCliente,
-  onNovaCobranca
+  onNovaCobranca,
+  onHistorico
 }) {
   const handleToggleMenu = () => {
     onMenuToggle(!showMenu)
   }
 
   const handleAgendamento = () => {
-    if (onNovoAgendamento) {
-      onNovoAgendamento()
-    }
+    if (onNovoAgendamento) onNovoAgendamento()
   }
 
   const handleNovoCliente = () => {
-    if (onNovoCliente) {
-      onNovoCliente()
-    }
+    if (onNovoCliente) onNovoCliente()
   }
 
   const handleNovaCobranca = () => {
-    if (onNovaCobranca) {
-      onNovaCobranca()
-    }
+    if (onNovaCobranca) onNovaCobranca()
+  }
+
+  const handleHistorico = () => {
+    if (onHistorico) onHistorico()
   }
 
   return (
@@ -68,6 +67,16 @@ export default function FAB({
           >
             <span className="fab-menu-icon">💰</span>
             <span className="fab-menu-label">Cobrança</span>
+          </button>
+
+          <button
+            type="button"
+            className="fab-menu-item fab-historico"
+            onClick={(e) => { e.stopPropagation(); handleHistorico(); }}
+            title="Histórico de Pacientes"
+          >
+            <span className="fab-menu-icon">📋</span>
+            <span className="fab-menu-label">Histórico</span>
           </button>
         </div>
       )}

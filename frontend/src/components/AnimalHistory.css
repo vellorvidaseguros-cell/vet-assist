@@ -79,6 +79,321 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+/* ── LIGHTBOX (foto em tamanho real na web) ── */
+.lightbox-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.lightbox-img {
+  max-width: 90vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  cursor: default !important;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -36px;
+  right: 0;
+  background: rgba(255,255,255,0.15) !important;
+  border: 2px solid white !important;
+  color: white !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50%;
+  font-size: 14px !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.lightbox-nome {
+  color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Cursor de lupa nas thumbnails */
+.photo-thumbnail {
+  cursor: zoom-in;
+}
+
+/* Grid de fotos no mobile */
+.mobile-fotos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mobile-foto-thumb {
+  width: calc(33% - 4px);
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #f5f5f5;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  cursor: zoom-in;
+  padding: 2px;
+}
+
+.mobile-foto-thumb:active {
+  opacity: 0.8;
+}
+
+/* Não imprimir o lightbox */
+@media print {
+  .no-print { display: none !important; }
+  .photo-thumbnail { cursor: default; }
+  .mobile-foto-thumb { cursor: default; }
+}
+
+/* ── BUSCA MOBILE ── */
+.mobile-busca-container {
+  padding: 10px 12px;
+  background: #f5f5f5;
+}
+
+.mobile-busca-input {
+  width: 100%;
+  padding: 10px 14px !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 10px !important;
+  background: #ffffff;
+  font-size: 14px !important;
+  color: #333;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.mobile-busca-input:focus {
+  border-color: #007aff !important;
+  box-shadow: 0 0 0 2px rgba(0,122,255,0.1);
+}
+
+/* ── LISTA DE CLIENTES (VIEW MOBILE) ── */
+.mobile-clientes-lista {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  gap: 6px;
+}
+
+.mobile-clientes-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8e8e93;
+  border-bottom: 1px solid #e5e5ea;
+  margin-bottom: 4px;
+}
+
+.mobile-cliente-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e5ea;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.mobile-cliente-row:hover,
+.mobile-cliente-row:active {
+  background: #f0f5ff;
+  border-color: #007aff;
+}
+
+.mcr-nome {
+  font-size: 13px;
+  font-weight: 600;
+  color: #000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mcr-tel {
+  font-size: 12px;
+  color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mcr-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: #007aff;
+  background: #e8f0ff;
+  border-radius: 12px;
+  padding: 2px 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.mobile-cliente-detalhe {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── NAVEGAÇÃO MOBILE ── */
+.mobile-nav-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+.mobile-nav-header h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-back-btn {
+  background: none !important;
+  border: none !important;
+  color: #007aff !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  padding: 0 !important;
+  white-space: nowrap;
+  margin-bottom: 0 !important;
+  width: auto !important;
+}
+
+/* ── LISTA DE ATENDIMENTOS (TELA 3) ── */
+.mobile-atendimentos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.mobile-atend-card {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e5ea;
+  overflow: hidden;
+}
+
+.mobile-atend-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.mobile-atend-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mobile-atend-data {
+  font-size: 12px;
+  color: #8e8e93;
+  font-weight: 500;
+}
+
+.mobile-atend-tipo {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+}
+
+.mobile-atend-valor {
+  font-size: 13px;
+  font-weight: 700;
+  color: #34c759;
+}
+
+.mobile-atend-body {
+  padding: 10px 12px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 13px;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── FIM LISTA CLIENTES ── */
+
+.date-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.date-clientes-lista {
+  margin-top: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.date-cliente-linha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.date-cliente-nome {
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+}
+
+.date-cliente-tel {
+  color: #666;
+  flex-shrink: 0;
+}
+
 .date-accordion-header {
   display: flex;
   align-items: center;
@@ -263,6 +578,18 @@
   color: #555;
   font-size: 0.9rem;
   font-weight: 500;
+}
+
+.cliente-clicavel {
+  cursor: pointer;
+  color: #007aff !important;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cliente-clicavel:hover {
+  color: #0051d5 !important;
 }
 
 .animal {
@@ -486,11 +813,24 @@
   }
 
   .date-accordion-header {
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 0.75rem;
+    gap: 0.5rem;
   }
 
   .date-accordion-header .date-label {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
+  }
+
+  .date-cliente-linha {
+    font-size: 0.75rem;
+  }
+
+  .date-cliente-nome {
+    font-size: 0.75rem;
+  }
+
+  .date-cliente-tel {
+    font-size: 0.73rem;
   }
 
   .other-dates-tabs {

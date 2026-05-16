@@ -4,7 +4,6 @@
   background-color: #f5f5f5;
   min-height: 100vh;
   padding-bottom: 100px; /* Espaço para bottom navigation */
-  padding-top: calc(56px + env(safe-area-inset-top)); /* Espaço para header fixed */
 }
 
 .mobile-error {
@@ -65,8 +64,17 @@
   font-weight: 500;
 }
 
+/* WRAPPER do título e abas para ficar junto como bloco sticky */
+.mobile-title-tabs-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 51;
+  background-color: #ffffff;
+  padding-top: calc(56px + env(safe-area-inset-top)); /* Espaço para header fixed */
+}
+
 .mobile-title {
-  padding: 16px;
+  padding: 12px 16px;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e5ea;
 }
@@ -78,15 +86,13 @@
   color: #000;
 }
 
-/* ABAS - não são sticky, rolam com o conteúdo */
+/* ABAS - dentro do wrapper sticky */
 .mobile-tabs {
   display: flex;
   gap: 0;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e5ea;
   padding: 0;
-  position: relative;
-  z-index: 50;
 }
 
 .mobile-tab {
@@ -157,10 +163,9 @@
 
 .pendencia-item {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
   border-top: 1px solid #f0f0f0;
   border-left: 4px solid #ffcc00;
 }
@@ -169,51 +174,53 @@
   border-bottom: none;
 }
 
-.pendencia-icon {
-  font-size: 20px;
-  flex-shrink: 0;
-  width: 28px;
-  text-align: center;
-}
-
-.pendencia-info {
-  flex: 1;
+.pendencia-top {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 .pendencia-label {
-  font-size: 10px;
+  font-size: 11px;
   color: #8e8e93;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   white-space: nowrap;
+  flex: 1;
 }
 
 .pendencia-valor {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: #000;
-  white-space: nowrap;
 }
 
 .pendencia-link {
-  background: none;
-  border: none;
-  color: #007aff;
-  font-size: 12px;
+  height: 32px !important;
+  width: auto !important;
+  padding: 0 12px !important;
+  border-radius: 8px !important;
+  border: 2px solid #007aff !important;
+  background-color: transparent !important;
+  color: #007aff !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
   cursor: pointer;
-  padding: 4px 0;
+  transition: all 0.2s ease;
   white-space: nowrap;
-  font-weight: 600;
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  align-self: center;
+  line-height: 1;
+  box-sizing: border-box;
+  margin-bottom: 0 !important;
 }
 
 .pendencia-link:hover {
-  color: #0051d5;
+  background-color: #f0f5ff !important;
 }
 
 /* SEÇÃO DE BUSCA */

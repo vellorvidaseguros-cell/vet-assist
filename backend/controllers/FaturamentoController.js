@@ -1,4 +1,4 @@
-import { Faturamento, HistoricoConsulta, Cliente } from '../models/index.js'
+import { Faturamento, HistoricoConsulta, Cliente, Pet } from '../models/index.js'
 import { Op } from 'sequelize'
 
 export const listarFaturamentos = async (req, res) => {
@@ -9,7 +9,11 @@ export const listarFaturamentos = async (req, res) => {
       faturamentos = await Faturamento.findAll({
         include: [
           { model: Cliente, required: false },
-          { model: HistoricoConsulta, required: false }
+          {
+            model: HistoricoConsulta,
+            required: false,
+            include: [{ model: Pet, required: false }]
+          }
         ],
         order: [['dataEmissao', 'DESC']]
       })
@@ -149,13 +153,10 @@ export const atualizarFaturamento = async (req, res) => {
 
 export const registrarPagamento = async (req, res) => {
   try {
-    const { faturamentoId, valorPagamento, dataPagamento } = req.body
+    const { faturamentoId, valorPagamento, dataPagamento, gratuito } = req.body
 
-    if (!faturamentoId || !valorPagamento) {
-      return res.status(400).json({
-        sucesso: false,
-        erro: 'faturamentoId e valorPagamento são obrigatórios'
-      })
+    if (!faturamentoId) {
+      return res.status(400).json({ sucesso: false, erro: 'faturamentoId é obrigatório' })
     }
 
     const faturamento = await Faturamento.findByPk(faturamentoId)
@@ -163,12 +164,27 @@ export const registrarPagamento = async (req, res) => {
       return res.status(404).json({ sucesso: false, erro: 'Faturamento não encontrado' })
     }
 
+    // Gratuito: marcar como Pago com valor 0
+    if (gratuito) {
+      await faturamento.update({
+        status: 'Pago',
+        valorRecebido: 0,
+        dataPagamento: dataPagamento || new Date(),
+        dataUltimoPagamento: dataPagamento || new Date(),
+        historicoPagamentos: [{ data: dataPagamento || new Date().toISOString().split('T')[0], valor: 0, gratuito: true }]
+      })
+      const atualizado = await Faturamento.findByPk(faturamentoId, {
+        include: [{ model: Cliente, required: false }]
+      })
+      return res.json({ sucesso: true, mensagem: 'Registrado como gratuito!', data: atualizado })
+    }
+
     // Validar valor de pagamento (deve ser positivo e número válido)
     const valorPagamentoNum = parseFloat(valorPagamento)
     if (isNaN(valorPagamentoNum) || valorPagamentoNum <= 0) {
       return res.status(400).json({
         sucesso: false,
-        erro: 'Valor de pagamento deve ser um número positivo'
+        erro: 'Valor de pagamento deve ser um número positivo, ou marque como gratuito'
       })
     }
 
@@ -176,8 +192,8 @@ export const registrarPagamento = async (req, res) => {
     const novoValorRecebido = valorAtual + valorPagamentoNum
     const valorTotal = parseFloat(faturamento.valor)
 
-    // Não permitir pagar mais que o valor total
-    if (novoValorRecebido > valorTotal + 0.01) {
+    // Não permitir pagar mais que o valor total (exceto quando valor original era 0)
+    if (valorTotal > 0 && novoValorRecebido > valorTotal + 0.01) {
       return res.status(400).json({
         sucesso: false,
         erro: `Valor excede o saldo devedor (faltam R$ ${(valorTotal - valorAtual).toFixed(2)})`

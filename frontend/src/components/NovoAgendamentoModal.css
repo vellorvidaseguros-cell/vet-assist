@@ -29,9 +29,9 @@
 /* ===== HEADER ===== */
 .nam-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.5rem;
   border-bottom: 2px solid #f0f0f0;
   flex-shrink: 0;
 }
@@ -41,6 +41,8 @@
   font-size: 1.15rem;
   font-weight: 700;
   color: #1a1a2e;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .nam-close {

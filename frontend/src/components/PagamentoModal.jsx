@@ -3,21 +3,29 @@ import axios from 'axios'
 import './PagamentoModal.css'
 
 export default function PagamentoModal({ faturamento, onClose, onSuccess, isNested = false }) {
-  const [valorPagamento, setValorPagamento] = useState('')
+  const valorFaltante = parseFloat(faturamento.valor) - parseFloat(faturamento.valorRecebido || 0)
+  const valorTotal = parseFloat(faturamento.valor)
+  const semValorDefinido = valorTotal <= 0 // retorno ou agendamento sem valor
+
+  // Pré-preencher com o valor faltante (ou vazio se for 0 indefinido)
+  const [valorPagamento, setValorPagamento] = useState(
+    valorFaltante > 0 ? valorFaltante.toFixed(2) : ''
+  )
   const [dataPagamento, setDataPagamento] = useState(new Date().toISOString().split('T')[0])
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState('')
 
-  const valorFaltante = parseFloat(faturamento.valor) - parseFloat(faturamento.valorRecebido || 0)
-  const valorTotal = parseFloat(faturamento.valor)
-
   // Aumentar z-index quando renderizado dentro de outro modal
   const overlayStyle = isNested ? { zIndex: 3000 } : {}
 
-  // Validar valor em tempo real
+  const [gratuito, setGratuito] = useState(null) // null | 'retorno' | 'atendimento'
+  const isGratuito = gratuito !== null
+
+  // Quando gratuito, aceita R$0; quando tem valor, valida normalmente
   const valorNumerico = parseFloat(valorPagamento) || 0
-  const isValorValido = valorNumerico > 0 && valorNumerico <= valorFaltante
-  const mensagemErroValor = valorNumerico > valorFaltante
+  const maxPermitido = semValorDefinido ? Infinity : valorFaltante
+  const isValorValido = isGratuito || (valorNumerico > 0 && valorNumerico <= maxPermitido)
+  const mensagemErroValor = !isGratuito && !semValorDefinido && valorNumerico > valorFaltante
     ? `Máximo: R$ ${valorFaltante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
     : ''
 
@@ -25,14 +33,14 @@ export default function PagamentoModal({ faturamento, onClose, onSuccess, isNest
     e.preventDefault()
     setErro('')
 
-    const valor = parseFloat(valorPagamento)
+    const valor = isGratuito ? 0 : parseFloat(valorPagamento)
 
-    if (!valorPagamento || valor <= 0) {
-      setErro('⚠️ Insira um valor válido')
+    if (!isGratuito && (!valorPagamento || valor <= 0)) {
+      setErro('⚠️ Insira um valor válido ou selecione uma opção gratuita')
       return
     }
 
-    if (valor > valorFaltante) {
+    if (!isGratuito && !semValorDefinido && valor > valorFaltante) {
       setErro(`⚠️ Valor não pode ser maior que R$ ${valorFaltante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (valor devido)`)
       return
     }
@@ -41,8 +49,9 @@ export default function PagamentoModal({ faturamento, onClose, onSuccess, isNest
       setLoading(true)
       const response = await axios.post(`/api/faturamento/${faturamento.id}/pagamento`, {
         faturamentoId: faturamento.id,
-        valorPagamento: parseFloat(valorPagamento),
-        dataPagamento: dataPagamento
+        valorPagamento: valor,
+        dataPagamento: dataPagamento,
+        gratuito: isGratuito
       })
 
       if (response.data.sucesso) {
@@ -66,7 +75,6 @@ export default function PagamentoModal({ faturamento, onClose, onSuccess, isNest
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Registrar Pagamento</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
         <div className="modal-body">
@@ -97,22 +105,51 @@ export default function PagamentoModal({ faturamento, onClose, onSuccess, isNest
             <div className="form-row">
               <div className="form-group">
                 <label>Valor do Pagamento *</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max={valorFaltante}
-                  value={valorPagamento}
-                  onChange={(e) => setValorPagamento(e.target.value)}
-                  placeholder={`Até R$ ${valorFaltante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                  disabled={loading}
-                  style={{
-                    borderColor: valorNumerico > valorFaltante && valorNumerico > 0 ? '#ff6b6b' : 'inherit'
-                  }}
-                />
-                <small className="help-text">
-                  {mensagemErroValor || `Máximo: R$ ${valorFaltante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                </small>
+
+                {!isGratuito && (
+                  <>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      max={semValorDefinido ? undefined : valorFaltante}
+                      value={valorPagamento}
+                      onChange={(e) => setValorPagamento(e.target.value)}
+                      placeholder={semValorDefinido ? 'Informe o valor cobrado' : `R$ ${valorFaltante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                      disabled={loading}
+                      autoFocus
+                      style={{ borderColor: mensagemErroValor ? '#ff6b6b' : 'inherit' }}
+                    />
+                    {mensagemErroValor && (
+                      <small className="help-text" style={{ color: '#ff6b6b' }}>{mensagemErroValor}</small>
+                    )}
+                  </>
+                )}
+
+                {/* Opções gratuito — clique para marcar, clique novamente para desmarcar */}
+                <div className="gratuito-opcoes">
+                  {[
+                    { key: 'retorno', label: 'Retorno gratuito (R$ 0,00)' },
+                    { key: 'atendimento', label: 'Atendimento gratuito (R$ 0,00)' }
+                  ].map(({ key, label }) => (
+                    <div
+                      key={key}
+                      className={`gratuito-check ${gratuito === key ? 'selecionado' : ''}`}
+                      onClick={() => {
+                        if (gratuito === key) {
+                          setGratuito(null)
+                          setValorPagamento(valorFaltante > 0 ? valorFaltante.toFixed(2) : '')
+                        } else {
+                          setGratuito(key)
+                          setValorPagamento('')
+                        }
+                      }}
+                    >
+                      <span className="gratuito-bolinha">{gratuito === key ? '●' : '○'}</span>
+                      {label}
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="form-group">

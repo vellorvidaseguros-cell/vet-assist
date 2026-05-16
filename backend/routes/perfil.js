@@ -1,8 +1,12 @@
 import express from 'express'
-import { obterPerfil, atualizarPerfil, saveWhiteLabel, obterLogoBase64 } from '../controllers/PerfilController.js'
+import { obterPerfil, atualizarPerfil, saveWhiteLabel, obterLogoBase64, obterTabelaPrecos, atualizarTabelaPrecos } from '../controllers/PerfilController.js'
 import { upload } from '../middleware/upload.js'
 
 const router = express.Router()
+
+// Tabela de preços
+router.get('/tabela-precos', obterTabelaPrecos)
+router.put('/tabela-precos', atualizarTabelaPrecos)
 
 // Usar veterinarioId 1 como padrão (usuário logado)
 router.get('/', (req, res, next) => {

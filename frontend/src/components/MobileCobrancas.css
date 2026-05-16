@@ -220,6 +220,25 @@
   white-space: nowrap;
 }
 
+.cobranca-datas {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.cobranca-data-item {
+  font-size: 11px;
+  color: #8e8e93;
+  font-weight: 500;
+}
+
+.cobranca-data-pago {
+  color: #34c759;
+  font-weight: 600;
+}
+
 .cobranca-btn-pagar {
   padding: 10px 16px;
   background-color: #007aff;
@@ -289,4 +308,91 @@
     padding: 9px 14px;
     font-size: 11px;
   }
+}
+
+/* NOME DO MÊS NOS CARDS */
+.resumo-mes-nome {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.85;
+  margin: -2px 0;
+}
+
+/* CARD CLICÁVEL */
+.resumo-card.clicavel {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.resumo-card.clicavel:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+.resumo-card.clicavel:active {
+  transform: scale(0.97);
+}
+
+/* SELETOR DE MÊS */
+.mes-seletor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.mes-seletor-menu {
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.mes-seletor-titulo {
+  font-size: 13px;
+  font-weight: 700;
+  color: #8e8e93;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 4px;
+}
+
+.mes-seletor-opcao {
+  padding: 10px 14px !important;
+  border: 2px solid #e5e5ea !important;
+  border-radius: 8px !important;
+  background-color: #ffffff !important;
+  color: #333 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left !important;
+  width: 100% !important;
+  margin-bottom: 0 !important;
+}
+
+.mes-seletor-opcao:hover {
+  border-color: #667eea !important;
+  color: #667eea !important;
+  background-color: #f5f3ff !important;
+}
+
+.mes-seletor-opcao.ativo {
+  border-color: #667eea !important;
+  background-color: #667eea !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
 }

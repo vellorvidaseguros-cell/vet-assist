@@ -36,7 +36,13 @@ export default function Dashboard({ onLogout }) {
 
     // Navegar para uma aba específica (usado pelo MobileHome)
     const handleNavegar = (e) => {
-      handleTabChange(e.detail)
+      const detail = e.detail
+      // Suporta tanto string ("financeiro") quanto objeto ({ tab: "historico", petId: X })
+      if (typeof detail === 'string') {
+        handleTabChange(detail)
+      } else if (detail && detail.tab) {
+        handleTabChange(detail.tab)
+      }
     }
 
     window.addEventListener('historicoDeleted', handleHistoricoDeleted)

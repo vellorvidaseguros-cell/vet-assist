@@ -22,6 +22,10 @@ vet_assist.db
 *.db-shm
 *.db-wal
 
+# Arquivos de migração (contêm senhas)
+.env.migration
+backup_data.json
+
 # Uploads locais
 backend/uploads/*
 !backend/uploads/.gitkeep

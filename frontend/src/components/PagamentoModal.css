@@ -33,16 +33,17 @@
 
 .modal-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 1.25rem 1.5rem;
   border-bottom: 1px solid #eee;
 }
 
 .modal-header h2 {
   margin: 0;
   color: #333;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
+  white-space: nowrap;
 }
 
 .modal-close {
@@ -159,6 +160,45 @@
 .form-group input:disabled {
   background-color: #f5f5f5;
   cursor: not-allowed;
+}
+
+.gratuito-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.gratuito-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  padding: 8px 12px;
+  background-color: #f0fff4;
+  border-radius: 8px;
+  border: 1px solid #34c759;
+  white-space: nowrap;
+  width: 100% !important;
+  margin-bottom: 0 !important;
+  box-sizing: border-box;
+}
+
+.gratuito-bolinha {
+  font-size: 16px;
+  color: #34c759;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.gratuito-check.selecionado {
+  background-color: #d4f5de;
+  border-color: #1e9c44;
+  font-weight: 700;
+  color: #1e6b35;
 }
 
 .help-text {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { formatarData } from '../utils/dateFormatter'
 import PhotoUploadModal from './PhotoUploadModal'
@@ -8,14 +9,14 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
   const [agendamento, setAgendamento] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [editMode, setEditMode] = useState(false)
+  const [editMode, setEditMode] = useState(true)
   const [showPhotoModal, setShowPhotoModal] = useState(false)
   const [formData, setFormData] = useState({
-    medicacao: '',
-    diagnosticos: '',
-    medicamentosInsumos: '',
+    medicamentos: '',
+    diagnostico: '',
+    procedimentos: '',
     observacoes: '',
-    proximoAgendamento: ''
+    proximoRetorno: ''
   })
 
   useEffect(() => {
@@ -29,11 +30,13 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
       if (response.data.sucesso) {
         setAgendamento(response.data.data)
         setFormData({
-          medicacao: response.data.data.medicacao || '',
-          diagnosticos: response.data.data.diagnosticos || '',
-          medicamentosInsumos: response.data.data.medicamentosInsumos || '',
+          medicamentos: response.data.data.medicamentos || '',
+          diagnostico: response.data.data.diagnostico || '',
+          procedimentos: response.data.data.procedimentos || '',
           observacoes: response.data.data.observacoes || '',
-          proximoAgendamento: response.data.data.proximoAgendamento || ''
+          proximoRetorno: response.data.data.proximoRetorno
+            ? new Date(response.data.data.proximoRetorno).toISOString().split('T')[0]
+            : ''
         })
       }
     } catch (err) {
@@ -49,44 +52,55 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const [salvando, setSalvando] = useState(false)
+  const [salvoComSucesso, setSalvoComSucesso] = useState(false)
+
   const handleSave = async () => {
     try {
+      setSalvando(true)
+      setError('')
       const response = await axios.put(`/api/agendamentos/${agendamentoId}`, formData)
       if (response.data.sucesso) {
-        setEditMode(false)
+        setSalvoComSucesso(true)
         await fetchAgendamento()
         if (onSuccess) onSuccess()
+        // Fecha automaticamente após salvar
+        setTimeout(() => onClose(), 1500)
       }
     } catch (err) {
       setError('Erro ao salvar agendamento')
+    } finally {
+      setSalvando(false)
     }
   }
 
   if (loading) {
-    return (
-      <div className="modal-overlay">
-        <div className="modal-content detalhes-modal">
+    return createPortal(
+      <div className="agdet-overlay">
+        <div className="agdet-content">
           <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando...</div>
         </div>
-      </div>
+      </div>,
+      document.body
     )
   }
 
   if (!agendamento) {
-    return (
-      <div className="modal-overlay">
-        <div className="modal-content detalhes-modal">
+    return createPortal(
+      <div className="agdet-overlay">
+        <div className="agdet-content">
           <div className="modal-header">
             <h3>Agendamento não encontrado</h3>
             <button className="btn-close" onClick={onClose}>×</button>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     )
   }
 
-  return (
-    <div className="modal-overlay">
+  return createPortal(
+    <div className="agdet-overlay">
       {showPhotoModal && (
         <PhotoUploadModal
           agendamentoId={agendamentoId}
@@ -98,14 +112,11 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
         />
       )}
 
-      <div className="modal-content detalhes-modal">
+      <div className="agdet-content">
         {/* Header */}
-        <div className="modal-header">
-          <div className="detalhes-titulo">
-            <h3>Detalhes do Agendamento</h3>
-            <span className="detalhes-data">{formatarData(agendamento.data)} às {agendamento.hora}</span>
-          </div>
-          <button className="btn-close" onClick={onClose}>×</button>
+        <div className="agdet-header">
+          <h2>Detalhes do Agendamento</h2>
+          <p className="agdet-data-hora">{formatarData(agendamento.data)} às {agendamento.hora}</p>
         </div>
 
         {error && (
@@ -166,8 +177,8 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
             <div className="form-group">
               <label>💊 Medicação Prescrita</label>
               <textarea
-                name="medicacao"
-                value={formData.medicacao}
+                name="medicamentos"
+                value={formData.medicamentos}
                 onChange={handleInputChange}
                 disabled={!editMode}
                 placeholder="Ex: Amoxicilina 500mg, 2x ao dia por 7 dias"
@@ -178,8 +189,8 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
             <div className="form-group">
               <label>🔍 Diagnósticos</label>
               <textarea
-                name="diagnosticos"
-                value={formData.diagnosticos}
+                name="diagnostico"
+                value={formData.diagnostico}
                 onChange={handleInputChange}
                 disabled={!editMode}
                 placeholder="Ex: Otite externa, Inflamação leve"
@@ -188,10 +199,10 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
             </div>
 
             <div className="form-group">
-              <label>⚕️ Medicamentos e Insumos Utilizados</label>
+              <label>⚕️ Procedimentos / Insumos Utilizados</label>
               <textarea
-                name="medicamentosInsumos"
-                value={formData.medicamentosInsumos}
+                name="procedimentos"
+                value={formData.procedimentos}
                 onChange={handleInputChange}
                 disabled={!editMode}
                 placeholder="Ex: Álcool etílico, Gaze estéril, Seringa de 10ml"
@@ -214,13 +225,14 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
             <div className="form-group">
               <label>📅 Próximo Agendamento Recomendado</label>
               <input
-                type="text"
-                name="proximoAgendamento"
-                value={formData.proximoAgendamento}
+                type="date"
+                name="proximoRetorno"
+                value={formData.proximoRetorno || ''}
                 onChange={handleInputChange}
                 disabled={!editMode}
-                placeholder="Ex: Retorno em 7 dias para reavaliação"
+                min={new Date().toISOString().split('T')[0]}
                 className="form-input"
+                style={{ cursor: 'pointer' }}
               />
             </div>
           </div>
@@ -235,40 +247,24 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
         </div>
 
         {/* Footer / Ações */}
-        <div className="modal-actions">
-          {!editMode ? (
-            <>
-              <button
-                className="btn-cancelar"
-                onClick={onClose}
-              >
-                Voltar
-              </button>
-              <button
-                className="btn-registrar"
-                onClick={() => setEditMode(true)}
-              >
-                ✏️ Editar
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                className="btn-cancelar"
-                onClick={() => setEditMode(false)}
-              >
-                Cancelar
-              </button>
-              <button
-                className="btn-registrar"
-                onClick={handleSave}
-              >
-                💾 Salvar
-              </button>
-            </>
-          )}
+        <div className="agdet-footer">
+          <button
+            className="agdet-btn-cancelar"
+            onClick={onClose}
+            disabled={salvando}
+          >
+            Cancelar
+          </button>
+          <button
+            className="agdet-btn-salvar"
+            onClick={handleSave}
+            disabled={salvando}
+          >
+            {salvando ? '⏳ Salvando...' : salvoComSucesso ? '✓ Salvo!' : 'Salvar'}
+          </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

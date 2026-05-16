@@ -83,6 +83,8 @@ export default function AnimalHistory() {
   const [expandedDates, setExpandedDates] = useState({})
   const [whiteLabel, setWhiteLabel] = useState(null)
   const [logoBase64, setLogoBase64] = useState(null)
+  const [lightboxFoto, setLightboxFoto] = useState(null) // { src, nome }
+  const [buscaHistorico, setBuscaHistorico] = useState('')
 
   useEffect(() => {
     fetchClientes()
@@ -337,14 +339,14 @@ export default function AnimalHistory() {
     const wl = whiteLabel || { nomeClinica: 'VetAssist' }
     const apiBaseUrl = API_BASE_URL
 
-    // Gerar HTML das fotos
+    // Gerar HTML das fotos — grid 3 por linha
     const fotosHTML = fotos.length > 0 ? `
       <div class="section-title">📸 Fotos (${fotos.length})</div>
-      <div class="photos">
+      <div class="photos-grid">
         ${fotos.map(foto => `
-          <div>
-            <img src="${apiBaseUrl}/api/anexos/file/${foto.id}" alt="${foto.nomeArquivo}" style="max-width: 400px; margin: 10px 0; border: 1px solid #ddd; padding: 5px;" />
-            <p style="font-size: 12px; color: #666;">📷 ${foto.nomeArquivo}</p>
+          <div class="photo-item">
+            <img src="${apiBaseUrl}/api/anexos/file/${foto.id}" alt="${foto.nomeArquivo}" />
+            <p>${foto.nomeArquivo}</p>
           </div>
         `).join('')}
       </div>
@@ -405,8 +407,33 @@ export default function AnimalHistory() {
             .consultation-section { margin-bottom: 14px; }
             .section-title { background: #0d6b3a; color: white; padding: 6px 10px; margin: 10px 0 6px; font-weight: bold; font-size: 11px; letter-spacing: 0.3px; }
             .section-content { padding: 6px 10px 8px; font-size: 11px; line-height: 1.5; }
-            .photos { margin-top: 10px; }
-            .photos img { max-width: 280px; margin: 6px 0; border: 1px solid #ddd; }
+            .photos-grid {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 8px;
+              margin-top: 8px;
+            }
+            .photo-item {
+              flex: 0 0 calc(33% - 6px);
+              text-align: center;
+            }
+            .photo-item img {
+              width: 100%;
+              max-height: 180px;
+              object-fit: contain;
+              background: #f9f9f9;
+              border: 1px solid #ddd;
+              border-radius: 4px;
+              padding: 2px;
+            }
+            .photo-item p {
+              font-size: 9px;
+              color: #888;
+              margin-top: 3px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
 
             .letterhead-footer { border-top: 2px solid #0d6b3a; padding: 8px 0 0; margin-top: 20px; font-size: 9px; text-align: center; color: #666; }
             .footer-info { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; }
@@ -467,7 +494,39 @@ export default function AnimalHistory() {
       alert('⚠️ Permita pop-ups para gerar o PDF.')
       return
     }
-    printWindow.document.write(htmlContent)
+
+    // Injetar barra de navegação (não aparece na impressão)
+    const barraNavegacao = `
+      <div style="
+        position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+        background: #0d6b3a; color: white;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 16px; gap: 12px;
+        font-family: Arial, sans-serif; font-size: 14px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      " class="no-print">
+        <button onclick="window.close()" style="
+          background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4);
+          color: white; padding: 6px 14px; border-radius: 6px;
+          font-size: 14px; cursor: pointer; font-weight: 600;
+        ">← Fechar</button>
+        <span style="font-weight: 600; font-size: 13px; opacity: 0.9;">Prévia do PDF</span>
+        <button onclick="window.print()" style="
+          background: white; border: none; color: #0d6b3a;
+          padding: 6px 14px; border-radius: 6px;
+          font-size: 14px; cursor: pointer; font-weight: 700;
+        ">🖨️ Imprimir</button>
+      </div>
+      <div style="height: 48px;" class="no-print"></div>
+    `
+
+    // Injetar estilo no-print + barra de navegação
+    const estiloBarra = `<style>@media print { .no-print { display: none !important; } }</style>`
+    const htmlFinal = htmlContent
+      .replace('</head>', `${estiloBarra}</head>`)
+      .replace('</body>', `${barraNavegacao}</body>`)
+
+    printWindow.document.write(htmlFinal)
     printWindow.document.close()
 
     // Aguardar todas as imagens carregarem antes de imprimir
@@ -551,11 +610,11 @@ export default function AnimalHistory() {
 
       const fotosHTML = fotos.length > 0 ? `
         <div class="section-title">📸 Fotos (${fotos.length})</div>
-        <div class="photos">
+        <div class="photos-grid">
           ${fotos.map(foto => `
-            <div>
-              <img src="${apiBaseUrl}/api/anexos/file/${foto.id}" alt="${foto.nomeArquivo}" style="max-width: 400px; margin: 10px 0; border: 1px solid #ddd; padding: 5px;" />
-              <p style="font-size: 12px; color: #666;">📷 ${foto.nomeArquivo}</p>
+            <div class="photo-item">
+              <img src="${apiBaseUrl}/api/anexos/file/${foto.id}" alt="${foto.nomeArquivo}" />
+              <p>${foto.nomeArquivo}</p>
             </div>
           `).join('')}
         </div>
@@ -579,9 +638,7 @@ export default function AnimalHistory() {
               </div>
             </div>
 
-            <!-- Espaço em branco para anotações manuscritas -->
             <div class="main-content">
-              <div class="blank-notes-space"></div>
               <div class="consultation-section">
                 ${item.diagnostico ? `<div class="section-title">Diagnóstico</div><div class="section-content">${item.diagnostico}</div>` : ''}
                 ${item.procedimentos ? `<div class="section-title">Procedimentos Realizados</div><div class="section-content">${item.procedimentos}</div>` : ''}
@@ -717,8 +774,34 @@ export default function AnimalHistory() {
               line-height: 1.5;
             }
 
-            .photos { margin-top: 10px; }
-            .photos img { max-width: 280px; margin: 6px 0; border: 1px solid #ddd; }
+            /* Fotos em grid 3 por linha */
+            .photos-grid {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 8px;
+              margin-top: 8px;
+            }
+            .photo-item {
+              flex: 0 0 calc(33% - 6px);
+              text-align: center;
+            }
+            .photo-item img {
+              width: 100%;
+              max-height: 160px;
+              object-fit: contain;
+              background: #f9f9f9;
+              border: 1px solid #ddd;
+              border-radius: 4px;
+              padding: 2px;
+            }
+            .photo-item p {
+              font-size: 9px;
+              color: #888;
+              margin-top: 3px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
 
             /* ====== RODAPÉ ====== */
             .letterhead-footer {
@@ -773,24 +856,13 @@ export default function AnimalHistory() {
             .page-break {
               page-break-after: always;
               break-after: page;
-              page-break-inside: avoid;
-              break-inside: avoid;
-              display: flex;
-              flex-direction: column;
-              min-height: 100vh;
-              height: 100%;
             }
             .page-break:last-child {
               page-break-after: avoid;
               break-after: avoid;
             }
             .letterhead-page {
-              page-break-inside: avoid;
-              break-inside: avoid;
-              display: flex;
-              flex-direction: column;
-              min-height: 100%;
-              justify-content: space-between;
+              padding-bottom: 16px;
             }
 
             @media print {
@@ -819,10 +891,206 @@ export default function AnimalHistory() {
   // Obter datas únicas ordenadas (mais recentes primeiro)
   const uniqueDates = Object.keys(groupedByDate).sort().reverse()
 
+  // Agrupar histórico por cliente para view mobile
+  const clientesComHistorico = Object.values(
+    allHistory.reduce((acc, item) => {
+      const id = item.clienteId
+      if (!acc[id]) {
+        acc[id] = {
+          id,
+          nome: item.Cliente?.nome || 'Sem nome',
+          telefone: item.Cliente?.telefone || '',
+          animais: new Set()
+        }
+      }
+      if (item.petId) acc[id].animais.add(item.petId)
+      return acc
+    }, {})
+  ).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+
+  const isMobile = window.innerWidth < 768
+
   if (loading) return <div className="loading">Carregando histórico...</div>
 
+  // ────────── VIEW MOBILE: 3 telas ──────────
+  if (isMobile) {
+    // Tela 3: Atendimentos do animal
+    if (selectedPetId) {
+      const petAtendimentos = filteredHistory
+      const petNome = pets.find(p => p.id === parseInt(selectedPetId))?.nome || 'Animal'
+
+      return (
+        <div className="history-container">
+
+          {/* LIGHTBOX mobile */}
+          {lightboxFoto && (
+            <div className="lightbox-overlay no-print" onClick={() => setLightboxFoto(null)}>
+              <div className="lightbox-content" onClick={e => e.stopPropagation()}>
+                <button className="lightbox-close" onClick={() => setLightboxFoto(null)}>✕</button>
+                <img src={lightboxFoto.src} alt={lightboxFoto.nome} className="lightbox-img" />
+                <p className="lightbox-nome">{lightboxFoto.nome}</p>
+              </div>
+            </div>
+          )}
+          <div className="mobile-nav-header">
+            <button className="mobile-back-btn" onClick={() => setSelectedPetId('')}>← Voltar</button>
+            <h2>🐾 {petNome}</h2>
+            {petAtendimentos.length > 0 && (
+              <button className="btn-pdf" style={{ padding: '6px 10px', fontSize: '11px' }} onClick={() => generatePDFMultiple(petAtendimentos)}>
+                📄 PDF Geral
+              </button>
+            )}
+          </div>
+
+          <div className="mobile-atendimentos-lista">
+            {petAtendimentos.length === 0 ? (
+              <p style={{ padding: '20px', textAlign: 'center', color: '#8e8e93' }}>Nenhum atendimento encontrado</p>
+            ) : petAtendimentos.map(item => (
+              <div key={item.id} className="mobile-atend-card">
+                <div className="mobile-atend-header" onClick={() => toggleExpanded(item.id)}>
+                  <div className="mobile-atend-info">
+                    <span className="mobile-atend-data">
+                      {(() => { const s = typeof item.data === 'string' ? item.data : new Date(item.data).toISOString(); const [y,m,d] = s.substring(0,10).split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'}) })()}
+                    </span>
+                    <span className="mobile-atend-tipo">{item.tipoAtendimento}</span>
+                    <span className="mobile-atend-valor">R$ {item.valor?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}</span>
+                  </div>
+                  <button className="btn-pdf" onClick={(e) => { e.stopPropagation(); generatePDF(item) }} style={{ padding: '5px 9px', fontSize: '11px' }}>
+                    📄 PDF
+                  </button>
+                </div>
+                {expandedId === item.id && (
+                  <div className="mobile-atend-body">
+                    {item.diagnostico && <p><strong>Diagnóstico:</strong> {item.diagnostico}</p>}
+                    {item.procedimentos && <p><strong>Procedimentos:</strong> {item.procedimentos}</p>}
+                    {item.medicamentos && <p><strong>Medicamentos:</strong> {item.medicamentos}</p>}
+                    {item.observacoes && <p><strong>Observações:</strong> {item.observacoes}</p>}
+
+                    {/* Fotos do atendimento */}
+                    {photosByHistorico[item.id] && photosByHistorico[item.id].length > 0 && (
+                      <div style={{ marginTop: '8px' }}>
+                        <p style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>
+                          📸 Fotos ({photosByHistorico[item.id].length})
+                        </p>
+                        <div className="mobile-fotos-grid">
+                          {photosByHistorico[item.id].map(foto => (
+                            <img
+                              key={foto.id}
+                              src={`/api/anexos/file/${foto.id}`}
+                              alt={foto.nomeArquivo}
+                              className="mobile-foto-thumb"
+                              onClick={() => setLightboxFoto({ src: `/api/anexos/file/${foto.id}`, nome: foto.nomeArquivo })}
+                              title="Toque para ampliar"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    // Tela 2: Animais do cliente
+    if (selectedClienteId) {
+      const clienteNome = clientesComHistorico.find(c => c.id === parseInt(selectedClienteId))?.nome || ''
+
+      return (
+        <div className="history-container">
+          <div className="mobile-nav-header">
+            <button className="mobile-back-btn" onClick={() => { setSelectedClienteId(''); setSelectedPetId('') }}>← Voltar</button>
+            <h2>👤 {clienteNome}</h2>
+          </div>
+
+          <div className="mobile-clientes-lista">
+            <div className="mobile-clientes-header">
+              <span>Animal</span>
+              <span>Espécie</span>
+              <span>Atend.</span>
+            </div>
+            {pets.map(pet => {
+              const qtd = allHistory.filter(h => h.petId === pet.id).length
+              if (qtd === 0) return null
+              return (
+                <div key={pet.id} className="mobile-cliente-row" onClick={() => setSelectedPetId(pet.id.toString())}>
+                  <span className="mcr-nome">🐾 {pet.nome}</span>
+                  <span className="mcr-tel">{pet.especie || '—'}</span>
+                  <span className="mcr-count">{qtd}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )
+    }
+
+    // Tela 1: Lista de clientes
+    const clientesFiltrados = clientesComHistorico.filter(cli =>
+      cli.nome.toLowerCase().includes(buscaHistorico.toLowerCase()) ||
+      (cli.telefone || '').includes(buscaHistorico)
+    )
+
+    return (
+      <div className="history-container">
+        <div className="history-header">
+          <h2>📋 Histórico</h2>
+        </div>
+
+        {/* Campo de busca */}
+        <div className="mobile-busca-container">
+          <input
+            type="text"
+            className="mobile-busca-input"
+            placeholder="🔍  Buscar cliente..."
+            value={buscaHistorico}
+            onChange={e => setBuscaHistorico(e.target.value)}
+          />
+        </div>
+
+        <div className="mobile-clientes-lista">
+          <div className="mobile-clientes-header">
+            <span>Nome</span>
+            <span>Telefone</span>
+            <span>Animais</span>
+          </div>
+          {clientesFiltrados.map(cli => (
+            <div key={cli.id} className="mobile-cliente-row" onClick={() => setSelectedClienteId(cli.id.toString())}>
+              <span className="mcr-nome">👤 {cli.nome}</span>
+              <span className="mcr-tel">{cli.telefone || '—'}</span>
+              <span className="mcr-count">{cli.animais.size}</span>
+            </div>
+          ))}
+          {clientesFiltrados.length === 0 && (
+            <p style={{ padding: '20px', textAlign: 'center', color: '#8e8e93', fontSize: '13px' }}>
+              Nenhum cliente encontrado
+            </p>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // ────────── VIEW WEB (mantém igual) ──────────
   return (
     <div className="history-container">
+
+      {/* LIGHTBOX — foto em tamanho real, só na tela (não na impressão) */}
+      {lightboxFoto && (
+        <div
+          className="lightbox-overlay no-print"
+          onClick={() => setLightboxFoto(null)}
+        >
+          <div className="lightbox-content" onClick={e => e.stopPropagation()}>
+            <button className="lightbox-close" onClick={() => setLightboxFoto(null)}>✕</button>
+            <img src={lightboxFoto.src} alt={lightboxFoto.nome} className="lightbox-img" />
+            <p className="lightbox-nome">{lightboxFoto.nome}</p>
+          </div>
+        </div>
+      )}
       <div className="history-header">
         <h2>📋 Histórico Finalizado</h2>
       </div>
@@ -983,6 +1251,8 @@ export default function AnimalHistory() {
                                 src={`/api/anexos/file/${foto.id}`}
                                 alt={foto.nomeArquivo}
                                 className="photo-thumbnail"
+                                title="Clique para ampliar"
+                                onClick={() => setLightboxFoto({ src: `/api/anexos/file/${foto.id}`, nome: foto.nomeArquivo })}
                               />
                               <button
                                 className="btn-delete-photo"
@@ -1021,14 +1291,26 @@ export default function AnimalHistory() {
                 <button
                   className="toggle-date-btn"
                   title={expandedDates[date] ? 'Recolher' : 'Expandir'}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    toggleDateExpanded(date)
-                  }}
+                  onClick={(e) => { e.stopPropagation(); toggleDateExpanded(date) }}
                 >
                   {expandedDates[date] ? '▼' : '▶'}
                 </button>
-                <span className="date-label">{formatarDataComDia(date)}</span>
+                <div className="date-header-info">
+                  <span className="date-label">{formatarDataComDia(date)}</span>
+                  {/* Clientes do dia — uma linha por cliente */}
+                  <div className="date-clientes-lista">
+                    {[...new Map(groupedByDate[date].map(i => [i.clienteId, i.Cliente])).entries()].map(([id, cli]) => (
+                      cli && (
+                        <div key={id} className="date-cliente-linha">
+                          <span className="date-cliente-nome">👤 {cli.nome}</span>
+                          {cli.telefone && (
+                            <span className="date-cliente-tel">📞 {cli.telefone}</span>
+                          )}
+                        </div>
+                      )
+                    ))}
+                  </div>
+                </div>
                 <span className="count-badge">{groupedByDate[date].length}</span>
               </div>
 
@@ -1051,19 +1333,35 @@ export default function AnimalHistory() {
                     <span className="toggle-icon">
                       {expandedId === item.id ? '▼' : '▶'}
                     </span>
-                    <span className="time">
-                      {new Date(item.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                    <span className="type">{item.tipoAtendimento}</span>
-                    <span className="client-name">
-                      👤 {item.Cliente?.nome}
-                    </span>
-                    <span className="animal">
-                      🐾 {item.Pet?.nome}
-                    </span>
-                    <span className="valor">
-                      R$ {item.valor?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}
-                    </span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                        <span className="time">
+                          {new Date(item.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        <span className="type">{item.tipoAtendimento}</span>
+                        <span className="animal">🐾 {item.Pet?.nome}</span>
+                        <span className="valor">
+                          R$ {item.valor?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '4px', flexWrap: 'wrap' }}>
+                        <span
+                          className="client-name cliente-clicavel"
+                          title="Filtrar por este proprietário"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedClienteId(item.clienteId?.toString())
+                          }}
+                        >
+                          👤 {item.Cliente?.nome}
+                        </span>
+                        {item.Cliente?.telefone && (
+                          <span style={{ fontSize: '0.85rem', color: '#555' }}>
+                            📞 {item.Cliente.telefone}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
                     <button
@@ -1129,6 +1427,8 @@ export default function AnimalHistory() {
                                 src={`/api/anexos/file/${foto.id}`}
                                 alt={foto.nomeArquivo}
                                 className="photo-thumbnail"
+                                title="Clique para ampliar"
+                                onClick={() => setLightboxFoto({ src: `/api/anexos/file/${foto.id}`, nome: foto.nomeArquivo })}
                               />
                               <button
                                 className="btn-delete-photo"

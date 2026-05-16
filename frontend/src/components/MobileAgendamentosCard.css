@@ -2,44 +2,33 @@
   background-color: #ffffff;
   border: 1px solid #e5e5ea;
   border-radius: 12px;
-  padding: 12px;
+  padding: 10px 10px 8px;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .mobile-agendamento-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.mobile-agendamento-card.status-pendente {
-  border-left: 4px solid #ffcc00;
-}
+.mobile-agendamento-card.status-pendente  { border-left: 4px solid #ffcc00; }
+.mobile-agendamento-card.status-confirmado { border-left: 4px solid #34c759; }
+.mobile-agendamento-card.status-concluido  { border-left: 4px solid #007aff; }
+.mobile-agendamento-card.status-cancelado  { border-left: 4px solid #ff3b30; opacity: 0.6; }
+.mobile-agendamento-card.status-reagendado { border-left: 4px solid #5856d6; }
 
-.mobile-agendamento-card.status-confirmado {
-  border-left: 4px solid #34c759;
-}
-
-.mobile-agendamento-card.status-concluido {
-  border-left: 4px solid #007aff;
-}
-
-.mobile-agendamento-card.status-cancelado {
-  border-left: 4px solid #ff3b30;
-  opacity: 0.6;
-}
-
+/* ERRO */
 .card-error {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #ff3b30;
   color: white;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 8px;
   margin-bottom: 8px;
   font-size: 12px;
 }
-
 .card-error button {
   background: none;
   border: none;
@@ -47,246 +36,191 @@
   font-size: 16px;
   cursor: pointer;
   padding: 0;
-  width: 16px;
-  height: 16px;
 }
 
-/* HEADER DO CARD */
-.card-header {
+/* LINHA SUPERIOR: horário grande + botões do mesmo tamanho */
+.card-top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .card-horario {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  flex: 1;
 }
 
-.horario-icon {
-  font-size: 16px;
+.data-texto {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8e8e93;
+  display: block;
+  line-height: 1;
+  margin-bottom: 1px;
 }
 
 .horario-texto {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: #000;
+  line-height: 1;
 }
 
-.card-status {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
+.card-acoes {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Botão de status — mesma altura que Detalhes */
+.card-status-btn {
+  height: 32px !important;
+  width: auto !important;
+  padding: 0 10px !important;
+  border-radius: 8px !important;
+  border: 2px solid !important;
+  background-color: transparent !important;
+  font-size: 11px !important;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.card-status.status-pendente {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.card-status.status-confirmado {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.card-status.status-concluido {
-  background-color: #d1ecf1;
-  color: #0c5460;
-}
-
-.card-status.status-cancelado {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-/* CONTENT DO CARD */
-.card-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.card-pet {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pet-emoji {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.pet-info {
-  font-size: 13px;
-  color: #000;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.card-tutor {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #8e8e93;
-}
-
-.tutor-icon {
-  font-size: 14px;
-}
-
-.tutor-nome {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.card-valor {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #000;
-}
-
-.valor-icon {
-  font-size: 16px;
-}
-
-.valor-texto {
-  flex: 1;
-}
-
-/* AÇÕES */
-.card-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.btn-acao {
-  flex: 1;
-  min-width: 100px;
-  padding: 10px 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
+  letter-spacing: 0.4px;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  text-align: center;
+  box-sizing: border-box;
+  line-height: 1;
+  margin-bottom: 0 !important;
 }
 
-.btn-acao:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.card-status-btn.status-pendente  { border-color: #ffcc00; color: #8a6000; }
+.card-status-btn.status-confirmado { border-color: #34c759; color: #1a6b2e; }
+.card-status-btn.status-concluido  { border-color: #007aff; color: #0051d5; }
+.card-status-btn.status-cancelado  { border-color: #ff3b30; color: #c0392b; }
+.card-status-btn.status-reagendado { border-color: #5856d6; color: #3c2a6b; }
+
+.card-status-btn:hover:not(:disabled) { opacity: 0.8; }
+.card-status-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Botão Detalhes — mesma altura que status */
+.card-detalhes-btn {
+  height: 32px !important;
+  width: auto !important;
+  padding: 0 10px !important;
+  border-radius: 8px !important;
+  border: 2px solid #ff3b30 !important;
+  background-color: transparent !important;
+  color: #ff3b30 !important;
+  font-size: 11px !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+  line-height: 1;
+  margin-bottom: 0 !important;
+}
+.card-detalhes-btn:hover:not(:disabled) { background-color: #fff0f0 !important; }
+.card-detalhes-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* LINHAS DE INFO: duas por linha, esquerda e direita */
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
 }
 
-.btn-confirmar {
-  background-color: #34c759;
-  color: white;
-}
-
-.btn-confirmar:hover:not(:disabled) {
-  background-color: #30b550;
-  transform: scale(1.02);
-}
-
-.btn-concluir {
-  background-color: #007aff;
-  color: white;
-}
-
-.btn-concluir:hover:not(:disabled) {
-  background-color: #0051d5;
-  transform: scale(1.02);
-}
-
-.btn-historico {
-  background-color: #f5f5f5;
-  color: #007aff;
-}
-
-.btn-historico:hover:not(:disabled) {
-  background-color: #e5e5ea;
-  transform: scale(1.02);
-}
-
-.btn-editar {
-  background-color: #f5f5f5;
-  color: #007aff;
+.card-cliente {
+  font-size: 13px;
+  font-weight: 600;
+  color: #000;
   flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.btn-editar:hover:not(:disabled) {
-  background-color: #e5e5ea;
-  transform: scale(1.02);
+.card-animal {
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  text-align: right;
+  flex-shrink: 0;
+  max-width: 48%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.btn-detalhes {
-  background-color: #007aff;
-  color: white;
+.card-tipo {
+  font-size: 12px;
+  color: #8e8e93;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.btn-detalhes:hover:not(:disabled) {
-  background-color: #0051d5;
-  transform: scale(1.02);
+.card-valor-txt {
+  font-size: 13px;
+  font-weight: 700;
+  color: #000;
+  text-align: right;
+  flex-shrink: 0;
 }
 
-/* RESPONSIVIDADE */
-@media (max-width: 480px) {
-  .mobile-agendamento-card {
-    padding: 10px;
-  }
-
-  .card-header {
-    margin-bottom: 10px;
-  }
-
-  .horario-texto {
-    font-size: 14px;
-  }
-
-  .card-status {
-    font-size: 10px;
-    padding: 3px 6px;
-  }
-
-  .card-content {
-    gap: 6px;
-    margin-bottom: 10px;
-  }
-
-  .pet-emoji {
-    font-size: 16px;
-  }
-
-  .pet-info {
-    font-size: 12px;
-  }
-
-  .card-tutor,
-  .card-valor {
-    font-size: 12px;
-  }
-
-  .btn-acao {
-    padding: 8px 10px;
-    font-size: 11px;
-    min-width: 90px;
-  }
-
-  .card-actions {
-    gap: 6px;
-  }
+/* MODAL DE STATUS */
+.status-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
 }
+
+.status-menu {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 280px;
+  min-width: 220px;
+}
+
+.status-option {
+  padding: 10px 14px;
+  border: 2px solid #e5e5ea;
+  border-radius: 8px;
+  background-color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.status-option:hover:not(:disabled) {
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-option:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.status-option.status-pendente   { border-color: #ffcc00; color: #8a6000; }
+.status-option.status-confirmado  { border-color: #34c759; color: #1a6b2e; }
+.status-option.status-concluido   { border-color: #007aff; color: #0051d5; }
+.status-option.status-cancelado   { border-color: #ff3b30; color: #c0392b; }
+.status-option.status-reagendado  { border-color: #5856d6; color: #3c2a6b; }

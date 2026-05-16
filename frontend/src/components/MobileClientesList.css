@@ -42,20 +42,86 @@
   background-color: #5a6fd6;
 }
 
-.mobile-clientes-search {
-  position: relative;
-  padding: 12px 16px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e5ea;
+/* Lista no estilo histórico */
+.mobile-clientes-lista {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  gap: 6px;
 }
 
-.mobile-clientes-input {
-  width: 100%;
-  padding: 10px 36px 10px 12px;
+.mobile-clientes-lista-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8e8e93;
+  border-bottom: 1px solid #e5e5ea;
+  margin-bottom: 4px;
+}
+
+.mobile-cliente-row-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 10px;
   border: 1px solid #e5e5ea;
-  border-radius: 8px;
-  font-size: 14px;
-  background-color: #f5f5f5;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.mobile-cliente-row-item:active {
+  background: #f0f5ff;
+  border-color: #007aff;
+}
+
+.mcri-nome {
+  font-size: 13px;
+  font-weight: 600;
+  color: #000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mcri-tel {
+  font-size: 12px;
+  color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mcri-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: #007aff;
+  background: #e8f0ff;
+  border-radius: 12px;
+  padding: 2px 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.mobile-btn-novo-cliente {
+  padding: 8px 12px !important;
+  background-color: #667eea;
+  color: white;
+  border: none !important;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-bottom: 0 !important;
+  width: auto !important;
 }
 
 .mobile-clientes-input:focus {

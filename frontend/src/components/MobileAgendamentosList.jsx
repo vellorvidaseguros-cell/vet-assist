@@ -3,6 +3,7 @@ import axios from 'axios'
 import PhotoUploadModal from './PhotoUploadModal'
 import StatusMenu from './StatusMenu'
 import { formatarData } from '../utils/dateFormatter'
+import { HORARIOS } from '../utils/horariosDisponiveis'
 import './MobileAgendamentosList.css'
 
 const DEFAULT_PRICES = {
@@ -300,13 +301,17 @@ export default function MobileAgendamentosList() {
             </div>
             <div className="mobile-form-group">
               <label>Hora *</label>
-              <input
-                type="time"
+              <select
                 name="hora"
                 value={formData.hora}
                 onChange={handleInputChange}
                 required
-              />
+              >
+                <option value="">Selecione</option>
+                {HORARIOS.map(h => (
+                  <option key={h} value={h}>{h}</option>
+                ))}
+              </select>
             </div>
           </div>
 

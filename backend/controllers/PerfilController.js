@@ -155,6 +155,39 @@ export const saveWhiteLabel = async (req, res) => {
   }
 }
 
+// Tabela de preços - retorna apenas os preços
+export const obterTabelaPrecos = async (req, res) => {
+  try {
+    const veterinario = await Veterinario.findByPk(1, {
+      attributes: ['tabelaPrecos']
+    })
+    if (!veterinario) return res.status(404).json({ sucesso: false, erro: 'Veterinário não encontrado' })
+
+    let tabela = veterinario.tabelaPrecos || {}
+    if (typeof tabela === 'string') {
+      try { tabela = JSON.parse(tabela) } catch (e) { tabela = {} }
+    }
+
+    res.json({ sucesso: true, data: tabela })
+  } catch (erro) {
+    res.status(500).json({ sucesso: false, erro: erro.message })
+  }
+}
+
+// Tabela de preços - atualiza apenas os preços
+export const atualizarTabelaPrecos = async (req, res) => {
+  try {
+    const veterinario = await Veterinario.findByPk(1)
+    if (!veterinario) return res.status(404).json({ sucesso: false, erro: 'Veterinário não encontrado' })
+
+    await veterinario.update({ tabelaPrecos: req.body })
+
+    res.json({ sucesso: true, mensagem: 'Tabela de preços atualizada!', data: req.body })
+  } catch (erro) {
+    res.status(500).json({ sucesso: false, erro: erro.message })
+  }
+}
+
 // Nova rota: retorna logo do veterinário direto como Base64 (sem CORS, sem timing)
 export const obterLogoBase64 = async (req, res) => {
   try {

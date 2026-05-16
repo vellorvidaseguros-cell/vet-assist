@@ -67,74 +67,51 @@ export default function MobileClientesList() {
         </div>
       )}
 
-      {/* Header com botão Novo Cliente */}
+      {/* Header */}
       <div className="mobile-clientes-header">
-        <h2>Clientes</h2>
-        <button
-          className="mobile-btn-novo-cliente"
-          onClick={() => setShowNovoClienteModal(true)}
-        >
-          + Novo Cliente
+        <h2>👤 Clientes</h2>
+        <button className="mobile-btn-novo-cliente" onClick={() => setShowNovoClienteModal(true)}>
+          + Novo
         </button>
       </div>
 
       {/* Barra de busca */}
-      <div className="mobile-clientes-search">
+      <div className="mobile-busca-container">
         <input
           type="text"
-          placeholder="Buscar cliente..."
+          className="mobile-busca-input"
+          placeholder="🔍  Buscar cliente..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="mobile-clientes-input"
         />
-        {searchTerm && (
-          <button
-            className="mobile-clientes-clear"
-            onClick={() => setSearchTerm('')}
-          >
-            ×
-          </button>
-        )}
       </div>
 
-      {/* Lista de clientes */}
-      {clientesFiltrados.length === 0 ? (
-        <div className="mobile-clientes-empty">
-          {clientes.length === 0
-            ? 'Nenhum cliente cadastrado'
-            : 'Nenhum cliente encontrado'}
+      {/* Lista no estilo histórico */}
+      <div className="mobile-clientes-lista">
+        <div className="mobile-clientes-lista-header">
+          <span>Nome</span>
+          <span>Telefone</span>
+          <span>Animais</span>
         </div>
-      ) : (
-        <div className="mobile-clientes-list">
-          {clientesFiltrados.map(cliente => (
+
+        {clientesFiltrados.length === 0 ? (
+          <p style={{ padding: '20px', textAlign: 'center', color: '#8e8e93', fontSize: '13px' }}>
+            {clientes.length === 0 ? 'Nenhum cliente cadastrado' : 'Nenhum cliente encontrado'}
+          </p>
+        ) : (
+          clientesFiltrados.map(cliente => (
             <div
               key={cliente.id}
-              className="mobile-cliente-item"
+              className="mobile-cliente-row-item"
               onClick={() => handleClienteClick(cliente.id)}
             >
-              <div className="cliente-avatar">
-                {cliente.nome.charAt(0).toUpperCase()}
-              </div>
-
-              <div className="cliente-info">
-                <div className="cliente-header-row">
-                  <div className="cliente-nome">{cliente.nome}</div>
-                  {cliente.telefone && (
-                    <div className="cliente-telefone">📱 {cliente.telefone}</div>
-                  )}
-                </div>
-                {cliente.Pets && cliente.Pets.length > 0 && (
-                  <div className="cliente-pets">
-                    🐾 {cliente.Pets.length} animal{cliente.Pets.length !== 1 ? 's' : ''}
-                  </div>
-                )}
-              </div>
-
-              <div className="cliente-arrow">›</div>
+              <span className="mcri-nome">👤 {cliente.nome}</span>
+              <span className="mcri-tel">{cliente.telefone || '—'}</span>
+              <span className="mcri-count">{cliente.Pets?.length || 0}</span>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   )
 }

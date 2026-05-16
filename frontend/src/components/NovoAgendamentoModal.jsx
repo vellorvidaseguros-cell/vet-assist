@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { HORARIOS } from '../utils/horariosDisponiveis'
 import './NovoAgendamentoModal.css'
 
 const AGENDAMENTO_VAZIO = {
@@ -35,6 +36,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(true)
+  const [tabelaPrecos, setTabelaPrecos] = useState({})
 
   useEffect(() => {
     carregarDados()
@@ -57,19 +59,17 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
   const carregarDados = async () => {
     try {
       setCarregando(true)
-      const [clientesRes, petsRes] = await Promise.all([
+      const [clientesRes, petsRes, precosRes] = await Promise.all([
         axios.get('/api/clientes'),
-        axios.get('/api/pets')
+        axios.get('/api/pets'),
+        axios.get('/api/perfil/tabela-precos')
       ])
 
-      if (clientesRes.data.sucesso) {
-        setClientes(clientesRes.data.data || [])
-      }
-      if (petsRes.data.sucesso) {
-        setPets(petsRes.data.data || [])
-      }
+      if (clientesRes.data.sucesso) setClientes(clientesRes.data.data || [])
+      if (petsRes.data.sucesso) setPets(petsRes.data.data || [])
+      if (precosRes.data.sucesso) setTabelaPrecos(precosRes.data.data || {})
     } catch (err) {
-      setErro('Erro ao carregar dados de clientes e pets')
+      setErro('Erro ao carregar dados')
       console.error(err)
     } finally {
       setCarregando(false)
@@ -78,6 +78,17 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
+
+    // Auto-preencher valor ao selecionar tipo de atendimento
+    if (name === 'tipoAtendimento' && value && tabelaPrecos[value] !== undefined) {
+      setAgendamentoForm(prev => ({
+        ...prev,
+        [name]: value,
+        valor: parseFloat(tabelaPrecos[value]).toFixed(2)
+      }))
+      return
+    }
+
     setAgendamentoForm(prev => ({ ...prev, [name]: value }))
   }
 
@@ -143,7 +154,6 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
         <div className="nam-modal">
           <div className="nam-header">
             <h2>📅 Novo Agendamento</h2>
-            <button className="nam-close" onClick={onClose} title="Fechar">×</button>
           </div>
           <div className="nam-body">
             <p style={{ textAlign: 'center', color: '#8e8e93' }}>Carregando dados...</p>
@@ -159,7 +169,6 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
         {/* HEADER */}
         <div className="nam-header">
           <h2>📅 Novo Agendamento</h2>
-          <button className="nam-close" onClick={onClose} title="Fechar">×</button>
         </div>
 
         {/* BODY */}
@@ -225,12 +234,17 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
 
               <div className="nam-group">
                 <label>Hora *</label>
-                <input
-                  type="time"
+                <select
                   name="hora"
                   value={agendamentoForm.hora}
                   onChange={handleInputChange}
-                />
+                  required
+                >
+                  <option value="">Selecione</option>
+                  {HORARIOS.map(h => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
