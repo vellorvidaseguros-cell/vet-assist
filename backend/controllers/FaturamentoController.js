@@ -213,7 +213,7 @@ export const registrarPagamento = async (req, res) => {
     let novoStatus = 'Pendente'
     let dataPagamentoAtualizada = faturamento.dataPagamento
 
-    console.log('[DEBUG] Comparação:', { novoValorRecebido, valorTotal, `${novoValorRecebido} >= ${valorTotal}?`: novoValorRecebido >= valorTotal })
+    console.log('[DEBUG] Comparação:', { novoValorRecebido, valorTotal, condicao: novoValorRecebido >= valorTotal })
 
     if (novoValorRecebido >= valorTotal) {
       novoStatus = 'Pago'

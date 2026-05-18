@@ -137,31 +137,32 @@ async function iniciarServidor() {
     app.use('/api/perfil', perfilRoutes);
     app.use('/api/anexos', anexosRoutes);
 
+    // Servir service-worker.js explicitamente
+    app.get('/service-worker.js', (req, res) => {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.sendFile(path.join(__dirname, '../frontend/public/service-worker.js'));
+    });
+
+    // Servir manifest.json explicitamente
+    app.get('/manifest.json', (req, res) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.sendFile(path.join(__dirname, '../frontend/public/manifest.json'));
+    });
+
     // Servir frontend React buildado
     const frontendDist = path.join(__dirname, '../frontend/dist');
     app.use(express.static(frontendDist));
 
-    // Para qualquer rota que não seja API, retorna index.html (SPA routing)
-    // IMPORTANTE: chama next() para rotas /api ou /backend caírem no 404 handler abaixo
+    // Fallback para rotas SPA - serve index.html para rotas desconhecidas
+    // O express.static já serve arquivos estáticos, então isso só pega rotas que não existem
     app.get('*', (req, res, next) => {
+      // Ignorar rotas de API
       if (req.path.startsWith('/api') || req.path.startsWith('/backend') || req.path.startsWith('/test-')) {
         return next();
       }
       const indexPath = path.join(frontendDist, 'index.html');
       if (fs.existsSync(indexPath)) {
         res.sendFile(indexPath);
-      } else {
-        res.status(404).send(`
-          <!DOCTYPE html>
-          <html>
-          <head><title>Frontend não encontrado</title></head>
-          <body>
-            <h1>❌ Frontend não encontrado</h1>
-            <p>Arquivo esperado: ${indexPath}</p>
-            <p><a href="/app">Verificar status</a></p>
-          </body>
-          </html>
-        `);
       }
     });
 
