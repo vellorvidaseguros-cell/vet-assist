@@ -213,11 +213,15 @@ export const registrarPagamento = async (req, res) => {
     let novoStatus = 'Pendente'
     let dataPagamentoAtualizada = faturamento.dataPagamento
 
+    console.log('[DEBUG] Comparação:', { novoValorRecebido, valorTotal, `${novoValorRecebido} >= ${valorTotal}?`: novoValorRecebido >= valorTotal })
+
     if (novoValorRecebido >= valorTotal) {
       novoStatus = 'Pago'
       dataPagamentoAtualizada = dataPagamento || new Date()
+      console.log('[DEBUG] Status definido como PAGO')
     } else if (novoValorRecebido > 0) {
       novoStatus = 'Parcialmente Pago'
+      console.log('[DEBUG] Status definido como PARCIALMENTE PAGO')
     }
 
     // Atualizar faturamento
