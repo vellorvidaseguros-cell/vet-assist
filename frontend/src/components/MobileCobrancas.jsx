@@ -77,11 +77,18 @@ export default function MobileCobrancas() {
     return f.status === filtro
   }), [faturamentosDoMes, filtro])
 
-  // À Receber = pendentes do período selecionado
+  // À Receber = pendentes + saldo remanescente de parcialmente pagos
   const totalPendente = useMemo(() =>
-    faturamentosDoMes
-      .filter(f => f.status === 'Pendente')
-      .reduce((sum, f) => sum + parseFloat(f.valor || 0), 0)
+    faturamentosDoMes.reduce((sum, f) => {
+      if (f.status === 'Pendente') {
+        return sum + parseFloat(f.valor || 0)
+      }
+      if (f.status === 'Parcialmente Pago') {
+        const saldo = parseFloat(f.valor || 0) - parseFloat(f.valorRecebido || 0)
+        return sum + saldo
+      }
+      return sum
+    }, 0)
   , [faturamentosDoMes])
 
   // Total faturado no período
@@ -233,12 +240,12 @@ export default function MobileCobrancas() {
                   )}
                 </div>
 
-                {cobranca.status === 'Pendente' && (
+                {(cobranca.status === 'Pendente' || cobranca.status === 'Parcialmente Pago') && (
                   <button
                     className="cobranca-btn-pagar"
                     onClick={() => setPagamentoModalFat(cobranca)}
                   >
-                    Registrar Pagamento
+                    {cobranca.status === 'Pendente' ? 'Registrar Pagamento' : 'Adicionar Pagamento'}
                   </button>
                 )}
               </div>
