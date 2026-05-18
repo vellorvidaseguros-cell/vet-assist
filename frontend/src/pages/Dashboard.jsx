@@ -34,6 +34,11 @@ export default function Dashboard({ onLogout }) {
       setRefreshKey(prev => prev + 1)
     }
 
+    // Recarregar dados quando um pagamento é registrado
+    const handlePagamentoRegistrado = () => {
+      setRefreshKey(prev => prev + 1)
+    }
+
     // Navegar para uma aba específica (usado pelo MobileHome)
     const handleNavegar = (e) => {
       const detail = e.detail
@@ -46,10 +51,12 @@ export default function Dashboard({ onLogout }) {
     }
 
     window.addEventListener('historicoDeleted', handleHistoricoDeleted)
+    window.addEventListener('pagamentoRegistrado', handlePagamentoRegistrado)
     window.addEventListener('navegarPara', handleNavegar)
 
     return () => {
       window.removeEventListener('historicoDeleted', handleHistoricoDeleted)
+      window.removeEventListener('pagamentoRegistrado', handlePagamentoRegistrado)
       window.removeEventListener('navegarPara', handleNavegar)
     }
   }, [])

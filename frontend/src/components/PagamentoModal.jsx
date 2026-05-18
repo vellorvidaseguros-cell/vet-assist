@@ -63,6 +63,8 @@ export default function PagamentoModal({ faturamento, onClose, onSuccess, isNest
         setValorPagamento('')
         // Chamar callback ANTES de fechar para que o histórico possa se atualizar
         onSuccess(response.data.data)
+        // Disparar evento para recarregar Dashboard (MobileHome + MobileCobrancas)
+        window.dispatchEvent(new CustomEvent('pagamentoRegistrado'))
         // Pequeno delay para garantir que setState foi processado
         setTimeout(() => {
           onClose()
