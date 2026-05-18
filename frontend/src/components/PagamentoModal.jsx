@@ -29,6 +29,11 @@ export default function PagamentoModal({ faturamento, onClose, onSuccess, isNest
     ? `Máximo: R$ ${valorFaltante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
     : ''
 
+  // Histórico de pagamentos anteriores
+  const historicoPagamentos = Array.isArray(faturamento.historicoPagamentos)
+    ? faturamento.historicoPagamentos
+    : []
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setErro('')
@@ -100,6 +105,29 @@ export default function PagamentoModal({ faturamento, onClose, onSuccess, isNest
               </span>
             </div>
           </div>
+
+          {/* Histórico de pagamentos anteriores */}
+          {historicoPagamentos.length > 0 && (
+            <div className="historico-pagamentos">
+              <div className="historico-titulo">Pagamentos Anteriores</div>
+              <div className="historico-lista">
+                {historicoPagamentos.map((pag, idx) => (
+                  <div key={idx} className="historico-item">
+                    <div className="historico-data">
+                      {new Date(pag.data + 'T00:00:00').toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      })}
+                    </div>
+                    <div className="historico-valor">
+                      {pag.gratuito ? '(Gratuito)' : `R$ ${parseFloat(pag.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <div className="form-row">

@@ -210,6 +210,10 @@ export default function MobileCobrancas() {
               return new Date(y, m - 1, d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
             })()
 
+            const valorTotal = parseFloat(cobranca.valor)
+            const valorRecebido = parseFloat(cobranca.valorRecebido || 0)
+            const valorFaltante = valorTotal - valorRecebido
+
             return (
               <div key={cobranca.id} className="mobile-cobranca-item">
                 <div className="cobranca-header">
@@ -229,6 +233,15 @@ export default function MobileCobrancas() {
                     R$ {parseFloat(cobranca.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
                 </div>
+
+                {/* Resumo para Parcialmente Pago */}
+                {cobranca.status === 'Parcialmente Pago' && (
+                  <div className="cobranca-resumo-parcial">
+                    <span>Total: R$ {valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    <span>Pago: R$ {valorRecebido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    <span className="falta">Falta: R$ {valorFaltante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                )}
 
                 {/* Datas */}
                 <div className="cobranca-datas">

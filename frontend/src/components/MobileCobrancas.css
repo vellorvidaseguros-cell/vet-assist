@@ -220,6 +220,28 @@
   white-space: nowrap;
 }
 
+.cobranca-resumo-parcial {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  background-color: #fff9e6;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+  flex-wrap: wrap;
+}
+
+.cobranca-resumo-parcial span {
+  display: flex;
+  align-items: center;
+}
+
+.cobranca-resumo-parcial span.falta {
+  color: #ff3b30;
+  font-weight: 600;
+}
+
 .cobranca-datas {
   display: flex;
   flex-direction: column;
