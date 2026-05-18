@@ -1,11 +1,20 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import { registerServiceWorker, requestNotificationPermission } from './utils/serviceWorkerUtils'
 import './App.css'
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'))
+
+  useEffect(() => {
+    // Registrar Service Worker e pedir permissão para notificações
+    if (isAuthenticated) {
+      registerServiceWorker()
+      requestNotificationPermission()
+    }
+  }, [isAuthenticated])
 
   const handleLogin = (token) => {
     localStorage.setItem('token', token)

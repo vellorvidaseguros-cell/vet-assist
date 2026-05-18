@@ -6,7 +6,10 @@ import sequelize from './database.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import http from 'http';
+import { Server } from 'socket.io';
 import { Veterinario, Cliente, Pet, Agendamento, Consulta, Vacina, HistoricoConsulta, Anexo, Faturamento, Veiculo, Despesa } from './models/index.js';
+import { initLembretesJob, startCleanup } from './jobs/lembretesJob.js';
 
 // Rotas
 import veterinariosRoutes from './routes/veterinarios.js';
@@ -192,10 +195,38 @@ async function iniciarServidor() {
       }
     });
 
-    app.listen(PORT, '0.0.0.0', () => {
+    // Criar servidor HTTP para Socket.IO
+    const server = http.createServer(app);
+    const io = new Server(server, {
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+      }
+    });
+
+    // Configurar Socket.IO
+    io.on('connection', (socket) => {
+      console.log(`[Socket] Cliente conectado: ${socket.id}`);
+
+      socket.on('disconnect', () => {
+        console.log(`[Socket] Cliente desconectado: ${socket.id}`);
+      });
+
+      // Ouvir eventos do cliente
+      socket.on('ativarLembretes', () => {
+        console.log(`[Socket] Cliente ${socket.id} ativou lembretes`);
+      });
+    });
+
+    // Iniciar job de lembretes
+    initLembretesJob(io);
+    startCleanup();
+
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`\n[OK] Servidor rodando na porta ${PORT}`);
       console.log(`[INFO] Ambiente: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`[INFO] Status: http://localhost:${PORT}/api/status\n`);
+      console.log(`[INFO] Status: http://localhost:${PORT}/api/status`);
+      console.log(`[INFO] WebSocket: ws://localhost:${PORT}\n`);
     });
   } catch (err) {
     console.error('[ERROR] Erro ao iniciar servidor:', err);

@@ -13,6 +13,7 @@ import MobileHome from '../components/MobileHome'
 import MobileClientesList from '../components/MobileClientesList'
 import MobileCobrancas from '../components/MobileCobrancas'
 import MobileAgendamentosList from '../components/MobileAgendamentosList'
+import LembretesListener from '../components/LembretesListener'
 import './Dashboard.css'
 
 export default function Dashboard({ onLogout }) {
@@ -66,33 +67,40 @@ export default function Dashboard({ onLogout }) {
   }
 
   const renderContent = () => {
-    // Mobile - mostrar componentes mobile
-    if (isMobile) {
-      switch (activeTab) {
-        case 'dashboard':
-          return <MobileHome key={refreshKey} />
-        case 'clientes':
-          return <MobileClientesList />
-        case 'agendamentos':
-          return <MobileAgendamentosList />
-        case 'historico':
-          return <AnimalHistory />
-        case 'perfil':
-          return <Perfil />
-        case 'financeiro':
-          return <MobileCobrancas key={refreshKey} />
-        case 'cursos':
-          return <Cursos />
-        case 'marketplace':
-          return <Marketplace />
-        case 'comunidades':
-          return <Comunidades />
-        default:
-          return <MobileHome key={refreshKey} />
-      }
-    }
+    return (
+      <>
+        <LembretesListener />
+        {isMobile ? renderMobileContent() : renderDesktopContent()}
+      </>
+    )
+  }
 
-    // Desktop - componentes normais
+  const renderMobileContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <MobileHome key={refreshKey} />
+      case 'clientes':
+        return <MobileClientesList />
+      case 'agendamentos':
+        return <MobileAgendamentosList />
+      case 'historico':
+        return <AnimalHistory />
+      case 'perfil':
+        return <Perfil />
+      case 'financeiro':
+        return <MobileCobrancas key={refreshKey} />
+      case 'cursos':
+        return <Cursos />
+      case 'marketplace':
+        return <Marketplace />
+      case 'comunidades':
+        return <Comunidades />
+      default:
+        return <MobileHome key={refreshKey} />
+    }
+  }
+
+  const renderDesktopContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return <DashboardHome key={refreshKey} />
