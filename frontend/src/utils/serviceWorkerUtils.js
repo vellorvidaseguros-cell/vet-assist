@@ -4,16 +4,20 @@
  */
 
 export async function registerServiceWorker() {
+  console.log('[SW] Verificando suporte...')
+  console.log('[SW] navigator.serviceWorker:', 'serviceWorker' in navigator)
+
   if (!('serviceWorker' in navigator)) {
-    console.log('[SW] Service Worker não suportado')
+    console.log('[SW] ❌ Service Worker não suportado neste navegador')
     return
   }
 
   try {
+    console.log('[SW] 📝 Tentando registrar service-worker.js...')
     const registration = await navigator.serviceWorker.register('/service-worker.js', {
       scope: '/'
     })
-    console.log('[SW] ✅ Service Worker registrado:', registration)
+    console.log('[SW] ✅ Service Worker registrado com sucesso:', registration)
 
     // Verificar updates
     registration.addEventListener('updatefound', () => {
@@ -28,7 +32,8 @@ export async function registerServiceWorker() {
 
     return registration
   } catch (err) {
-    console.error('[SW] ❌ Erro ao registrar:', err)
+    console.error('[SW] ❌ Erro ao registrar:', err.message || err)
+    console.error('[SW] Stack:', err.stack)
   }
 }
 
