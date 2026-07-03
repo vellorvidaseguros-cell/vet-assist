@@ -31,7 +31,7 @@ const Agendamento = sequelize.define('Agendamento', {
   },
   hora: {
     type: DataTypes.TIME,
-    allowNull: false,
+    allowNull: true,
   },
   tipoAtendimento: {
     type: DataTypes.STRING,

@@ -92,15 +92,15 @@ export const criarAgendamento = async (req, res) => {
   try {
     const { petId, clienteId, data, hora, tipoAtendimento, descricao, observacoes, valor } = req.body;
 
-    if (!petId || !clienteId || !data || !hora) {
-      return res.status(400).json({ sucesso: false, erro: 'PetId, clienteId, data e hora são obrigatórios' });
+    if (!petId || !clienteId || !data) {
+      return res.status(400).json({ sucesso: false, erro: 'PetId, clienteId e data são obrigatórios' });
     }
 
     const agendamento = await Agendamento.create({
       petId,
       clienteId,
       data,
-      hora,
+      hora: hora && String(hora).trim() ? hora : null,
       tipoAtendimento: tipoAtendimento || 'Consulta',
       descricao,
       observacoes,

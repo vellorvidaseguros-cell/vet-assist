@@ -3,6 +3,7 @@ import axios from 'axios'
 import PhotoUploadModal from './PhotoUploadModal'
 import StatusMenu from './StatusMenu'
 import DiagnosisModal from './DiagnosisModal'
+import ConfirmModal from './ConfirmModal'
 import { formatarData } from '../utils/dateFormatter'
 import './DashboardHome.css'
 
@@ -14,6 +15,16 @@ export default function DashboardHome() {
   const [showPhotoModal, setShowPhotoModal] = useState(false)
   const [showDiagnosisModal, setShowDiagnosisModal] = useState(false)
   const [selectedAgendamentoId, setSelectedAgendamentoId] = useState(null)
+  const [confirm, setConfirm] = useState({
+    open: false,
+    title: '',
+    message: '',
+    confirmText: 'Confirmar',
+    cancelText: 'Cancelar',
+    confirmColor: 'primary',
+    onConfirm: () => {},
+    onCancel: () => {}
+  })
 
   useEffect(() => {
     fetchData(true)
@@ -122,6 +133,31 @@ export default function DashboardHome() {
     fetchData(false)
   }
 
+  const handleDeleteAgendamento = (agendamentoId) => {
+    setConfirm({
+      open: true,
+      title: 'Deletar Agendamento',
+      message: 'Tem certeza que deseja deletar este agendamento? Esta ação não pode ser desfeita.',
+      confirmText: 'Deletar',
+      cancelText: 'Cancelar',
+      confirmColor: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await axios.delete(`/api/agendamentos/${agendamentoId}`)
+          if (response.data.sucesso) {
+            setError('')
+            await fetchData(false)
+            setConfirm({ ...confirm, open: false })
+          }
+        } catch (err) {
+          setError('Erro ao deletar agendamento')
+          setConfirm({ ...confirm, open: false })
+        }
+      },
+      onCancel: () => setConfirm({ ...confirm, open: false })
+    })
+  }
+
   if (loading) return <div className="loading">Carregando...</div>
 
   return (
@@ -143,6 +179,8 @@ export default function DashboardHome() {
           onSave={handleDiagnosisSave}
         />
       )}
+
+      <ConfirmModal {...confirm} />
 
       {/* Cards de Resumo Financeiro */}
       <div className="resumo-cards">
@@ -213,6 +251,13 @@ export default function DashboardHome() {
                       title="Adicionar fotos"
                     >
                       📸
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteAgendamento(agendamento.id)}
+                      title="Deletar agendamento"
+                    >
+                      🗑️
                     </button>
                   </div>
                   <div className="col-data">

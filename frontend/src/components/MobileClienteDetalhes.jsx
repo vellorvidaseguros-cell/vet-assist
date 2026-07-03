@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import './MobileClienteDetalhes.css'
+import AnimalHistoryModal from './AnimalHistoryModal'
+import QuoteModal from './QuoteModal'
+import { calcularIdade } from '../utils/idadeUtils'
 
-const ANIMAL_VAZIO = { nome: '', especie: '', raca: '', sexo: '', porte: '', idade: '', cor: '', microchip: '' }
+const ANIMAL_VAZIO = { nome: '', especie: '', raca: '', sexo: '', porte: '', cor: '', microchip: '', dataNascimento: '' }
 
 export default function MobileClienteDetalhes({ clienteId, onClose }) {
   const [cliente, setCliente] = useState(null)
@@ -21,7 +25,24 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
   const [petEditId, setPetEditId] = useState(null)
   const [petEdit, setPetEdit] = useState(ANIMAL_VAZIO)
 
+  // Histórico de animal
+  const [showHistorico, setShowHistorico] = useState(false)
+  const [historicoAnimal, setHistoricoAnimal] = useState(null)
+
+  // Orçamento
+  const [showOrcamento, setShowOrcamento] = useState(false)
+  const [orcamentoAnimal, setOrcamentoAnimal] = useState(null)
+
   useEffect(() => { fetchCliente() }, [clienteId])
+
+  // Bloquear scroll do body quando modal está aberto
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [])
 
   const fetchCliente = async () => {
     try {
@@ -75,7 +96,18 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
     setSalvandoAnimal(true)
     setError('')
     try {
-      const res = await axios.post('/api/pets', { ...novoAnimal, clienteId: parseInt(clienteId) })
+      const payload = {
+        nome: novoAnimal.nome,
+        especie: novoAnimal.especie,
+        raca: novoAnimal.raca,
+        sexo: novoAnimal.sexo,
+        porte: novoAnimal.porte,
+        cor: novoAnimal.cor,
+        microchip: novoAnimal.microchip,
+        dataNascimento: novoAnimal.dataNascimento || null,
+        clienteId: parseInt(clienteId)
+      }
+      const res = await axios.post('/api/pets', payload)
       if (res.data.sucesso) {
         setShowNovoAnimal(false)
         setNovoAnimal(ANIMAL_VAZIO)
@@ -92,7 +124,20 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
 
   const handleEditarPet = (pet) => {
     setPetEditId(pet.id)
-    setPetEdit({ nome: pet.nome || '', especie: pet.especie || '', raca: pet.raca || '', sexo: pet.sexo || '', porte: pet.porte || '', idade: pet.idade || '', cor: pet.cor || '', microchip: pet.microchip || '' })
+    // Converter dataNascimento ISO para formato YYYY-MM-DD (input type=date)
+    const dataNascStr = pet.dataNascimento
+      ? new Date(pet.dataNascimento).toISOString().split('T')[0]
+      : ''
+    setPetEdit({
+      nome: pet.nome || '',
+      especie: pet.especie || '',
+      raca: pet.raca || '',
+      sexo: pet.sexo || '',
+      porte: pet.porte || '',
+      cor: pet.cor || '',
+      microchip: pet.microchip || '',
+      dataNascimento: dataNascStr
+    })
   }
 
   const handleSalvarPet = async () => {
@@ -100,27 +145,48 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
     setSalvandoAnimal(true)
     setError('')
     try {
-      const res = await axios.put(`/api/pets/${petEditId}`, petEdit)
+      const payload = {
+        nome: petEdit.nome,
+        especie: petEdit.especie,
+        raca: petEdit.raca,
+        sexo: petEdit.sexo,
+        porte: petEdit.porte,
+        cor: petEdit.cor,
+        microchip: petEdit.microchip,
+        dataNascimento: petEdit.dataNascimento || null
+      }
+      const res = await axios.put(`/api/pets/${petEditId}`, payload)
       if (res.data.sucesso) { setPetEditId(null); await fetchCliente() }
       else setError('Erro ao salvar animal')
     } catch { setError('Erro ao salvar animal') }
     finally { setSalvandoAnimal(false) }
   }
 
+  const handleAbrirHistorico = (pet) => {
+    setHistoricoAnimal(pet)
+    setShowHistorico(true)
+  }
+
+  const handleAbrirOrcamento = (pet) => {
+    setOrcamentoAnimal(pet)
+    setShowOrcamento(true)
+  }
+
   const inputStyle = { padding: '8px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }
   const gridStyle = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }
 
-  if (loading) return (
+  if (loading) return createPortal(
     <div className="modal-overlay">
       <div className="modal-content detalhes-modal">
         <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando...</div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 
   if (!cliente) return null
 
-  return (
+  return createPortal(
     <div className="modal-overlay">
       <div className="modal-content detalhes-modal">
 
@@ -185,12 +251,12 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
 
           {/* ── ANIMAIS ── */}
           <div className="detalhes-section fotos-section">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <h4 style={{ margin: 0 }}>🐾 Animais</h4>
+            <div className="animais-header">
+              <h4>🐾 Animais</h4>
               <button
                 type="button"
+                className="animais-btn-adicionar"
                 onClick={() => { setShowNovoAnimal(!showNovoAnimal); setError('') }}
-                style={{ padding: '6px 12px', backgroundColor: '#007aff', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap', width: 'auto', marginBottom: 0 }}
               >
                 {showNovoAnimal ? '✕ Cancelar' : '+ Adicionar'}
               </button>
@@ -198,7 +264,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
 
             {/* Form novo animal */}
             {showNovoAnimal && (
-              <div style={{ backgroundColor: '#f9f9f9', padding: '12px', borderRadius: '8px', marginBottom: '12px', border: '1px solid #e5e5ea' }}>
+              <div className="novo-animal-form">
                 <div style={gridStyle}>
                   <input style={inputStyle} name="nome" placeholder="Nome *" value={novoAnimal.nome} onChange={e => setNovoAnimal(p => ({ ...p, nome: e.target.value }))} />
                   <input style={inputStyle} name="especie" placeholder="Espécie *" value={novoAnimal.especie} onChange={e => setNovoAnimal(p => ({ ...p, especie: e.target.value }))} />
@@ -213,8 +279,33 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                   <input style={inputStyle} name="cor" placeholder="Cor/Pelagem" value={novoAnimal.cor} onChange={e => setNovoAnimal(p => ({ ...p, cor: e.target.value }))} />
                   <input style={inputStyle} name="microchip" placeholder="Microchip" value={novoAnimal.microchip} onChange={e => setNovoAnimal(p => ({ ...p, microchip: e.target.value }))} />
                 </div>
-                <button type="button" onClick={handleAdicionarAnimal} disabled={salvandoAnimal}
-                  style={{ width: '100%', padding: '10px', backgroundColor: '#34c759', color: 'white', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', marginBottom: 0 }}>
+                <div style={{ marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#666', fontWeight: 600, marginBottom: '4px' }}>
+                    🎂 Data de Nascimento
+                  </label>
+                  <input
+                    style={{
+                      ...inputStyle,
+                      WebkitAppearance: 'none',
+                      appearance: 'none',
+                      minHeight: '40px',
+                      lineHeight: 'normal',
+                      backgroundColor: 'white',
+                      color: novoAnimal.dataNascimento ? '#333' : '#999'
+                    }}
+                    type="date"
+                    name="dataNascimento"
+                    max={new Date().toISOString().split('T')[0]}
+                    value={novoAnimal.dataNascimento}
+                    onChange={e => setNovoAnimal(p => ({ ...p, dataNascimento: e.target.value }))}
+                  />
+                  {novoAnimal.dataNascimento && (
+                    <p style={{ fontSize: '12px', color: '#667eea', fontWeight: 600, margin: '6px 0 0 0' }}>
+                      Idade: {calcularIdade(novoAnimal.dataNascimento).texto}
+                    </p>
+                  )}
+                </div>
+                <button type="button" className="novo-animal-btn-save" onClick={handleAdicionarAnimal} disabled={salvandoAnimal}>
                   {salvandoAnimal ? 'Salvando...' : '✓ Adicionar Animal'}
                 </button>
               </div>
@@ -225,7 +316,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
               <div key={pet.id}>
                 {petEditId === pet.id ? (
                   // Form edição do pet
-                  <div style={{ backgroundColor: '#f0f8ff', padding: '12px', borderRadius: '8px', marginBottom: '8px', border: '1px solid #007aff' }}>
+                  <div className="pet-edit-form">
                     <div style={gridStyle}>
                       <input style={inputStyle} placeholder="Nome *" value={petEdit.nome} onChange={e => setPetEdit(p => ({ ...p, nome: e.target.value }))} />
                       <input style={inputStyle} placeholder="Espécie *" value={petEdit.especie} onChange={e => setPetEdit(p => ({ ...p, especie: e.target.value }))} />
@@ -240,29 +331,70 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                       <input style={inputStyle} placeholder="Cor/Pelagem" value={petEdit.cor} onChange={e => setPetEdit(p => ({ ...p, cor: e.target.value }))} />
                       <input style={inputStyle} placeholder="Microchip" value={petEdit.microchip} onChange={e => setPetEdit(p => ({ ...p, microchip: e.target.value }))} />
                     </div>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button type="button" onClick={() => setPetEditId(null)} style={{ flex: 1, padding: '8px', backgroundColor: '#f0f0f0', color: '#333', border: 'none', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', marginBottom: 0 }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <label style={{ display: 'block', fontSize: '12px', color: '#666', fontWeight: 600, marginBottom: '4px' }}>
+                        🎂 Data de Nascimento
+                      </label>
+                      <input
+                        style={{
+                          ...inputStyle,
+                          WebkitAppearance: 'none',
+                          appearance: 'none',
+                          minHeight: '40px',
+                          lineHeight: 'normal',
+                          backgroundColor: 'white',
+                          color: petEdit.dataNascimento ? '#333' : '#999'
+                        }}
+                        type="date"
+                        max={new Date().toISOString().split('T')[0]}
+                        value={petEdit.dataNascimento}
+                        onChange={e => setPetEdit(p => ({ ...p, dataNascimento: e.target.value }))}
+                      />
+                      {petEdit.dataNascimento && (
+                        <p style={{ fontSize: '12px', color: '#667eea', fontWeight: 600, margin: '6px 0 0 0' }}>
+                          Idade: {calcularIdade(petEdit.dataNascimento).texto}
+                        </p>
+                      )}
+                    </div>
+                    <div className="pet-form-actions">
+                      <button type="button" className="pet-form-btn-cancel" onClick={() => setPetEditId(null)}>
                         Cancelar
                       </button>
-                      <button type="button" onClick={handleSalvarPet} disabled={salvandoAnimal} style={{ flex: 1, padding: '8px', backgroundColor: '#007aff', color: 'white', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', marginBottom: 0 }}>
+                      <button type="button" className="pet-form-btn-save" onClick={handleSalvarPet} disabled={salvandoAnimal}>
                         {salvandoAnimal ? 'Salvando...' : '✓ Salvar'}
                       </button>
                     </div>
                   </div>
                 ) : (
                   // Visualização do pet
-                  <div className="pet-card" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div className="pet-icon">🐾</div>
-                    <div className="pet-info-card" style={{ flex: 1 }}>
-                      <p className="pet-name">{pet.nome}</p>
-                      <p className="pet-details">
-                        {[pet.especie && `Espécie: ${pet.especie}`, pet.raca && `Raça: ${pet.raca}`, pet.sexo && `Sexo: ${pet.sexo === 'M' ? 'Macho' : 'Fêmea'}`].filter(Boolean).join(' | ')}
-                      </p>
+                  <div className="pet-card">
+                    <div className="pet-header">
+                      <div className="pet-icon">🐾</div>
+                      <div className="pet-info-card">
+                        <p className="pet-name">{pet.nome}</p>
+                        <p className="pet-details">
+                          {[pet.especie && `Espécie: ${pet.especie}`, pet.raca && `Raça: ${pet.raca}`, pet.sexo && `Sexo: ${pet.sexo === 'M' ? 'Macho' : 'Fêmea'}`].filter(Boolean).join(' | ')}
+                        </p>
+                        {(pet.dataNascimento || pet.idade) && (
+                          <p className="pet-details" style={{ color: '#667eea', fontWeight: 600 }}>
+                            🎂 {pet.dataNascimento
+                              ? calcularIdade(pet.dataNascimento).texto
+                              : `${pet.idade} ano${pet.idade !== 1 ? 's' : ''}`}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <button type="button" onClick={() => handleEditarPet(pet)}
-                      style={{ background: 'none', border: '1px solid #007aff', color: '#007aff', borderRadius: '6px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', width: 'auto', marginBottom: 0 }}>
-                      ✏️ Editar
-                    </button>
+                    <div style={{ display: 'flex', gap: '6px', width: '100%', flexWrap: 'wrap' }}>
+                      <button type="button" className="pet-edit-btn pet-btn-responsive" onClick={() => handleEditarPet(pet)}>
+                        ✏️ Editar
+                      </button>
+                      <button type="button" className="pet-history-btn pet-btn-responsive" onClick={() => handleAbrirHistorico(pet)}>
+                        📋 Histórico
+                      </button>
+                      <button type="button" className="pet-quote-btn pet-btn-responsive" onClick={() => handleAbrirOrcamento(pet)}>
+                        💰 Orçamento
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -297,6 +429,30 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
           )}
         </div>
       </div>
-    </div>
+
+      {showHistorico && historicoAnimal && (
+        <AnimalHistoryModal
+          petId={historicoAnimal.id}
+          petName={historicoAnimal.nome}
+          onClose={() => {
+            setShowHistorico(false)
+            setHistoricoAnimal(null)
+          }}
+        />
+      )}
+
+      {showOrcamento && orcamentoAnimal && (
+        <QuoteModal
+          cliente={cliente}
+          pet={orcamentoAnimal}
+          veterinario={{ clinica: 'Clínica Veterinária', cnpj: '00.000.000/0000-00', telefone: '(00) 0000-0000', email: 'contato@clinica.com', endereco: 'Endereço da Clínica' }}
+          onClose={() => {
+            setShowOrcamento(false)
+            setOrcamentoAnimal(null)
+          }}
+        />
+      )}
+    </div>,
+    document.body
   )
 }

@@ -28,12 +28,28 @@ const storage = multer.diskStorage({
 
 // Filtro de arquivos - apenas imagens
 const fileFilter = (req, file, cb) => {
-  const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  const allowedMimes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/heic',
+    'image/heif',
+    'image/heic-sequence',
+    'image/heif-sequence',
+    'application/octet-stream' // alguns iOS enviam HEIC como octet-stream
+  ];
 
-  if (allowedMimes.includes(file.mimetype)) {
+  // Verificar pelo mimetype OU pela extensão (fallback para iPhone)
+  const ext = path.extname(file.originalname).toLowerCase();
+  const allowedExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif'];
+
+  if (allowedMimes.includes(file.mimetype) || allowedExts.includes(ext)) {
     cb(null, true);
   } else {
-    cb(new Error('Apenas arquivos de imagem são permitidos (JPEG, PNG, GIF, WebP)'));
+    console.log('[UPLOAD] Arquivo rejeitado:', file.originalname, '- mimetype:', file.mimetype, '- ext:', ext);
+    cb(new Error(`Tipo não permitido: ${file.mimetype}. Use JPG, PNG, GIF, WebP ou HEIC.`));
   }
 };
 
@@ -42,6 +58,6 @@ export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB
+    fileSize: 15 * 1024 * 1024 // 15MB (suporta fotos modernas de iPhone)
   }
 });

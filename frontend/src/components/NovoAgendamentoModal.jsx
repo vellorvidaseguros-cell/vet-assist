@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { HORARIOS } from '../utils/horariosDisponiveis'
 import './NovoAgendamentoModal.css'
+
+// Hook que bloqueia o scroll do body enquanto o modal está aberto
+function useLockBodyScroll() {
+  useEffect(() => {
+    const original = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = original }
+  }, [])
+}
 
 const AGENDAMENTO_VAZIO = {
   clienteId: '',
@@ -29,14 +39,71 @@ const TIPOS_ATENDIMENTO = [
 ]
 
 export default function NovoAgendamentoModal({ onClose, onSuccess }) {
+  useLockBodyScroll()  // Trava scroll do app de fundo
+
   const [agendamentoForm, setAgendamentoForm] = useState(AGENDAMENTO_VAZIO)
+  // Array de objetos: [{ tipo: 'Consulta', valor: '150.00', descricao: '...' }, ...]
+  const [tiposSelecionados, setTiposSelecionados] = useState([{ tipo: '', valor: '', descricao: '' }])
   const [clientes, setClientes] = useState([])
   const [pets, setPets] = useState([])
   const [petsFiltrados, setPetsFiltrados] = useState([])
+  const [agendamentos, setAgendamentos] = useState([])
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(true)
   const [tabelaPrecos, setTabelaPrecos] = useState({})
+
+  // Calcular valor total
+  const valorTotal = tiposSelecionados.reduce((sum, item) => {
+    return sum + (parseFloat(item.valor) || 0)
+  }, 0)
+
+  // Adicionar mais um tipo de atendimento
+  const adicionarTipo = () => {
+    setTiposSelecionados(prev => [...prev, { tipo: '', valor: '', descricao: '' }])
+  }
+
+  // Remover um tipo
+  const removerTipo = (index) => {
+    setTiposSelecionados(prev => {
+      const novo = prev.filter((_, i) => i !== index)
+      return novo.length === 0 ? [{ tipo: '', valor: '', descricao: '' }] : novo
+    })
+  }
+
+  // Atualizar o tipo de um atendimento (auto-preenche valor da tabela)
+  const atualizarTipo = (index, tipo) => {
+    setTiposSelecionados(prev => {
+      const novo = [...prev]
+      const precoSugerido = tabelaPrecos[tipo]
+      novo[index] = {
+        ...novo[index],
+        tipo: tipo,
+        valor: precoSugerido !== undefined && precoSugerido !== null
+          ? parseFloat(precoSugerido).toFixed(2)
+          : novo[index].valor
+      }
+      return novo
+    })
+  }
+
+  // Atualizar o valor de um atendimento manualmente
+  const atualizarValorTipo = (index, valor) => {
+    setTiposSelecionados(prev => {
+      const novo = [...prev]
+      novo[index] = { ...novo[index], valor }
+      return novo
+    })
+  }
+
+  // Atualizar a descrição de um atendimento
+  const atualizarDescricaoTipo = (index, descricao) => {
+    setTiposSelecionados(prev => {
+      const novo = [...prev]
+      novo[index] = { ...novo[index], descricao }
+      return novo
+    })
+  }
 
   useEffect(() => {
     carregarDados()
@@ -59,15 +126,17 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
   const carregarDados = async () => {
     try {
       setCarregando(true)
-      const [clientesRes, petsRes, precosRes] = await Promise.all([
+      const [clientesRes, petsRes, precosRes, agendRes] = await Promise.all([
         axios.get('/api/clientes'),
         axios.get('/api/pets'),
-        axios.get('/api/perfil/tabela-precos')
+        axios.get('/api/perfil/tabela-precos').catch(() => ({ data: { sucesso: false } })),
+        axios.get('/api/agendamentos').catch(() => ({ data: { sucesso: false } }))
       ])
 
       if (clientesRes.data.sucesso) setClientes(clientesRes.data.data || [])
       if (petsRes.data.sucesso) setPets(petsRes.data.data || [])
       if (precosRes.data.sucesso) setTabelaPrecos(precosRes.data.data || {})
+      if (agendRes.data.sucesso) setAgendamentos(agendRes.data.data || [])
     } catch (err) {
       setErro('Erro ao carregar dados')
       console.error(err)
@@ -92,30 +161,63 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
     setAgendamentoForm(prev => ({ ...prev, [name]: value }))
   }
 
+  const scrollErrorIntoView = () => {
+    // Pequeno delay para garantir que o erro foi renderizado
+    setTimeout(() => {
+      const errorEl = document.querySelector('.nam-error')
+      if (errorEl) {
+        errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 100)
+  }
+
+  const setErroComScroll = (msg) => {
+    setErro(msg)
+    scrollErrorIntoView()
+  }
+
   const handleSalvar = async () => {
+    console.log('[Agendamento] Iniciando salvamento...', agendamentoForm)
+
     // Validações
-    if (!agendamentoForm.clienteId.trim()) {
-      setErro('Cliente é obrigatório')
+    if (!agendamentoForm.clienteId.toString().trim()) {
+      setErroComScroll('Cliente é obrigatório')
       return
     }
-    if (!agendamentoForm.petId.trim()) {
-      setErro('Pet é obrigatório')
+    if (!agendamentoForm.petId.toString().trim()) {
+      setErroComScroll('Pet é obrigatório')
       return
     }
     if (!agendamentoForm.data.trim()) {
-      setErro('Data é obrigatória')
+      setErroComScroll('Data é obrigatória')
       return
     }
-    if (!agendamentoForm.hora.trim()) {
-      setErro('Hora é obrigatória')
+    // Filtrar tipos vazios e validar
+    const tiposValidos = tiposSelecionados.filter(item => item.tipo && item.tipo.trim())
+    if (tiposValidos.length === 0) {
+      setErroComScroll('Selecione pelo menos um tipo de atendimento')
       return
     }
-    if (!agendamentoForm.tipoAtendimento.trim()) {
-      setErro('Tipo de atendimento é obrigatório')
-      return
+    // Concatenar tipos com " + "
+    const tipoConcatenado = tiposValidos.map(t => t.tipo).join(' + ')
+    agendamentoForm.tipoAtendimento = tipoConcatenado
+
+    // Concatenar descrições de cada atendimento (formato: "Tipo: descrição")
+    const descricoesConcatenadas = tiposValidos
+      .filter(item => item.descricao && item.descricao.trim())
+      .map(item => `${item.tipo}: ${item.descricao.trim()}`)
+      .join('\n\n')
+    if (descricoesConcatenadas) {
+      agendamentoForm.descricao = descricoesConcatenadas
+    }
+
+    // Calcular valor total automaticamente
+    const valorCalculado = tiposValidos.reduce((sum, item) => sum + (parseFloat(item.valor) || 0), 0)
+    if (valorCalculado > 0) {
+      agendamentoForm.valor = valorCalculado.toFixed(2)
     }
     if (!agendamentoForm.valor || parseFloat(agendamentoForm.valor) <= 0) {
-      setErro('Valor deve ser maior que zero')
+      setErroComScroll('Valor deve ser maior que zero')
       return
     }
 
@@ -123,22 +225,30 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
     setErro('')
 
     try {
-      const response = await axios.post('/api/agendamentos', {
+      const payload = {
         ...agendamentoForm,
         clienteId: parseInt(agendamentoForm.clienteId),
         petId: parseInt(agendamentoForm.petId),
         valor: parseFloat(agendamentoForm.valor)
-      })
+      }
+      console.log('[Agendamento] Enviando para API:', payload)
+
+      const response = await axios.post('/api/agendamentos', payload)
+      console.log('[Agendamento] Resposta da API:', response.data)
 
       if (response.data.sucesso) {
+        console.log('[Agendamento] ✅ Sucesso!')
         onSuccess()
         onClose()
       } else {
-        setErro(response.data.erro || 'Erro ao criar agendamento')
+        console.error('[Agendamento] ❌ Falha:', response.data.erro)
+        setErroComScroll(response.data.erro || 'Erro ao criar agendamento')
       }
     } catch (err) {
-      setErro(err.response?.data?.erro || 'Erro ao salvar agendamento. Tente novamente.')
-      console.error(err)
+      console.error('[Agendamento] ❌ Erro:', err)
+      console.error('[Agendamento] Response:', err.response?.data)
+      const msg = err.response?.data?.erro || err.message || 'Erro ao salvar agendamento. Tente novamente.'
+      setErroComScroll(msg)
     } finally {
       setSalvando(false)
     }
@@ -149,7 +259,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
   }
 
   if (carregando) {
-    return (
+    return createPortal(
       <div className="nam-overlay" onClick={handleOverlayClick}>
         <div className="nam-modal">
           <div className="nam-header">
@@ -159,11 +269,12 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
             <p style={{ textAlign: 'center', color: '#8e8e93' }}>Carregando dados...</p>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     )
   }
 
-  return (
+  return createPortal(
     <div className="nam-overlay" onClick={handleOverlayClick}>
       <div className="nam-modal">
         {/* HEADER */}
@@ -229,18 +340,18 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
                   name="data"
                   value={agendamentoForm.data}
                   onChange={handleInputChange}
+                  min={new Date().toISOString().split('T')[0]}
                 />
               </div>
 
               <div className="nam-group">
-                <label>Hora *</label>
+                <label>Hora <span className="optional">(opcional)</span></label>
                 <select
                   name="hora"
                   value={agendamentoForm.hora}
                   onChange={handleInputChange}
-                  required
                 >
-                  <option value="">Selecione</option>
+                  <option value="">Sem horário definido</option>
                   {HORARIOS.map(h => (
                     <option key={h} value={h}>{h}</option>
                   ))}
@@ -251,58 +362,87 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
 
           {/* ATENDIMENTO */}
           <div className="nam-section">
-            <h3 className="nam-section-title">🏥 Tipo de Atendimento</h3>
+            <h3 className="nam-section-title">🏥 Tipos de Atendimento</h3>
 
-            <div className="nam-row single">
-              <div className="nam-group">
-                <label>Tipo de Atendimento *</label>
-                <select
-                  name="tipoAtendimento"
-                  value={agendamentoForm.tipoAtendimento}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Selecione um tipo</option>
-                  {TIPOS_ATENDIMENTO.map(tipo => (
-                    <option key={tipo} value={tipo}>
-                      {tipo}
-                    </option>
-                  ))}
-                </select>
+            {tiposSelecionados.map((item, index) => (
+              <div key={index} className="tipo-item">
+                <div className="tipo-item-header">
+                  <label className="tipo-item-label">
+                    {index === 0 ? `Atendimento 1 *` : `Atendimento ${index + 1}`}
+                  </label>
+                  {tiposSelecionados.length > 1 && (
+                    <button
+                      type="button"
+                      className="btn-remover-tipo"
+                      onClick={() => removerTipo(index)}
+                      title="Remover este atendimento"
+                    >
+                      ✕ Remover
+                    </button>
+                  )}
+                </div>
+                <div className="tipo-field">
+                  <label className="tipo-field-label">Tipo</label>
+                  <select
+                    className="tipo-select"
+                    value={item.tipo}
+                    onChange={(e) => atualizarTipo(index, e.target.value)}
+                  >
+                    <option value="">Selecione um tipo</option>
+                    {TIPOS_ATENDIMENTO.map(t => (
+                      <option key={t} value={t}>
+                        {t}{tabelaPrecos[t] ? ` - R$ ${parseFloat(tabelaPrecos[t]).toFixed(2)}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="tipo-field">
+                  <label className="tipo-field-label">Valor (R$)</label>
+                  <input
+                    type="number"
+                    className="tipo-input"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    value={item.valor}
+                    onChange={(e) => atualizarValorTipo(index, e.target.value)}
+                  />
+                </div>
+                <div className="tipo-field">
+                  <label className="tipo-field-label">Descrição</label>
+                  <textarea
+                    className="tipo-textarea"
+                    placeholder="Detalhes deste atendimento (opcional)"
+                    value={item.descricao}
+                    onChange={(e) => atualizarDescricaoTipo(index, e.target.value)}
+                    rows="2"
+                  />
+                </div>
               </div>
-            </div>
+            ))}
 
-            <div className="nam-row single">
-              <div className="nam-group">
-                <label>Descrição</label>
-                <textarea
-                  name="descricao"
-                  placeholder="Descrição do atendimento (opcional)"
-                  value={agendamentoForm.descricao}
-                  onChange={handleInputChange}
-                  rows="3"
-                />
-              </div>
-            </div>
+            {/* Botão Adicionar - sempre após o último atendimento */}
+            <button
+              type="button"
+              className="btn-adicionar-tipo"
+              onClick={adicionarTipo}
+            >
+              ➕ Adicionar outro tipo de atendimento
+            </button>
           </div>
 
-          {/* VALOR */}
+          {/* VALOR TOTAL */}
           <div className="nam-section">
-            <h3 className="nam-section-title">💰 Valor</h3>
-
-            <div className="nam-row single">
-              <div className="nam-group">
-                <label>Valor da Consulta *</label>
-                <input
-                  type="number"
-                  name="valor"
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0"
-                  value={agendamentoForm.valor}
-                  onChange={handleInputChange}
-                />
-              </div>
+            <h3 className="nam-section-title">💰 Valor Total</h3>
+            <div className="valor-total-box">
+              <span className="valor-total-label">Valor Total da Consulta</span>
+              <span className="valor-total-amount">
+                R$ {valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
             </div>
+            <p className="valor-total-hint">
+              Soma automática dos valores dos atendimentos acima
+            </p>
           </div>
         </div>
 
@@ -320,6 +460,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

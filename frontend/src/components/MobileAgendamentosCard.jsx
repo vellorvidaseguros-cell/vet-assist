@@ -8,6 +8,7 @@ export default function MobileAgendamentosCard({ agendamento, onStatusChange, mo
   const [error, setError] = useState('')
   const [showDetalhes, setShowDetalhes] = useState(false)
   const [showStatusMenu, setShowStatusMenu] = useState(false)
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
 
   // Mapeamento de emojis para tipos de pet (campo correto do backend: especie)
   const getPetEmoji = () => {
@@ -100,6 +101,23 @@ export default function MobileAgendamentosCard({ agendamento, onStatusChange, mo
     }))
   }
 
+  // Função para deletar agendamento
+  const handleDelete = async () => {
+    try {
+      setLoading(true)
+      const response = await axios.delete(`/api/agendamentos/${agendamento.id}`)
+      if (response.data.sucesso) {
+        setShowConfirmDelete(false)
+        onStatusChange()
+      }
+    } catch (err) {
+      setError('Erro ao deletar agendamento')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const status = getStatusDisplay()
   const valor = parseFloat(agendamento.valor || 0)
 
@@ -114,6 +132,31 @@ export default function MobileAgendamentosCard({ agendamento, onStatusChange, mo
             onStatusChange()
           }}
         />
+      )}
+
+      {showConfirmDelete && (
+        <div className="confirm-delete-overlay" onClick={() => setShowConfirmDelete(false)}>
+          <div className="confirm-delete-modal" onClick={e => e.stopPropagation()}>
+            <h3>Deletar Agendamento?</h3>
+            <p>Tem certeza que deseja deletar este agendamento com <strong>{agendamento.Pet?.nome}</strong>? Esta ação não pode ser desfeita.</p>
+            <div className="confirm-delete-buttons">
+              <button
+                className="btn-cancel"
+                onClick={() => setShowConfirmDelete(false)}
+                disabled={loading}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-delete-confirm"
+                onClick={handleDelete}
+                disabled={loading}
+              >
+                {loading ? 'Deletando...' : 'Deletar'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className={`mobile-agendamento-card ${status.classe}`}>
@@ -191,6 +234,14 @@ export default function MobileAgendamentosCard({ agendamento, onStatusChange, mo
               disabled={loading}
             >
               Detalhes
+            </button>
+            <button
+              className="card-delete-btn"
+              onClick={() => setShowConfirmDelete(true)}
+              disabled={loading}
+              title="Deletar agendamento"
+            >
+              🗑️
             </button>
           </div>
         </div>

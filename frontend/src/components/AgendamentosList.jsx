@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import PhotoUploadModal from './PhotoUploadModal'
+import ConfirmModal from './ConfirmModal'
 import StatusMenu from './StatusMenu'
 import { formatarData } from '../utils/dateFormatter'
 import { HORARIOS } from '../utils/horariosDisponiveis'
@@ -30,6 +31,7 @@ export default function AgendamentosList() {
   const [showPhotoModal, setShowPhotoModal] = useState(false)
   const [selectedAgendamentoId, setSelectedAgendamentoId] = useState(null)
   const [editingAgendamentoId, setEditingAgendamentoId] = useState(null)
+  const [confirm, setConfirm] = useState({ open: false })
   const [tabelaPrecos, setTabelaPrecos] = useState({})
   const [formData, setFormData] = useState({
     petId: '',
@@ -148,34 +150,56 @@ export default function AgendamentosList() {
     ? pets.filter(p => p.clienteId === parseInt(selectedCliente))
     : []
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Tem certeza que deseja deletar este agendamento?')) {
-      try {
-        const response = await axios.delete(`/api/agendamentos/${id}`)
-        if (response.data.sucesso) {
-          setError('')
-          await fetchData()
+  const handleDelete = (id) => {
+    setConfirm({
+      open: true,
+      title: 'Deletar Agendamento',
+      message: 'Tem certeza que deseja deletar este agendamento? Esta ação não pode ser desfeita.',
+      confirmText: 'Deletar',
+      cancelText: 'Cancelar',
+      confirmColor: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await axios.delete(`/api/agendamentos/${id}`)
+          if (response.data.sucesso) {
+            setError('')
+            await fetchData()
+            setConfirm({ open: false })
+          }
+        } catch (err) {
+          setError('Erro ao deletar agendamento')
+          setConfirm({ open: false })
         }
-      } catch (err) {
-        setError('Erro ao deletar agendamento')
-      }
-    }
+      },
+      onCancel: () => setConfirm({ open: false })
+    })
   }
 
-  const handleStatusChange = async (agendamentoId, novoStatus) => {
-    if (window.confirm(`Tem certeza que deseja marcar como ${novoStatus}?`)) {
-      try {
-        const response = await axios.put(`/api/agendamentos/${agendamentoId}`, {
-          status: novoStatus
-        })
-        if (response.data.sucesso) {
-          setError('')
-          await fetchData()
+  const handleStatusChange = (agendamentoId, novoStatus) => {
+    setConfirm({
+      open: true,
+      title: 'Alterar Status',
+      message: `Tem certeza que deseja marcar como ${novoStatus}?`,
+      confirmText: 'Confirmar',
+      cancelText: 'Cancelar',
+      confirmColor: 'primary',
+      onConfirm: async () => {
+        try {
+          const response = await axios.put(`/api/agendamentos/${agendamentoId}`, {
+            status: novoStatus
+          })
+          if (response.data.sucesso) {
+            setError('')
+            await fetchData()
+            setConfirm({ open: false })
+          }
+        } catch (err) {
+          setError('Erro ao atualizar status')
+          setConfirm({ open: false })
         }
-      } catch (err) {
-        setError(err.response?.data?.erro || 'Erro ao atualizar status')
-      }
-    }
+      },
+      onCancel: () => setConfirm({ open: false })
+    })
   }
 
   const handlePhotoButtonClick = (agendamentoId) => {
@@ -433,6 +457,8 @@ export default function AgendamentosList() {
           </table>
         )}
       </div>
+
+      <ConfirmModal {...confirm} />
     </div>
   )
 }

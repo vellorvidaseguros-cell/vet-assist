@@ -16,7 +16,9 @@ export default function MobileHome() {
   const [faturamentos, setFaturamentos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [abaAtiva, setAbaAtiva] = useState('proximos') // 'proximos', 'amanha', 'semana', 'passados'
+  const [abaAtiva, setAbaAtiva] = useState('proximos') // 'proximos', 'futuros', 'passados'
+  const [statusFilter, setStatusFilter] = useState([]) // filtro de status selecionados
+  const [showFilterMenu, setShowFilterMenu] = useState(false)
   const [dataAtual, setDataAtual] = useState(new Date())
   const [searchAtivo, setSearchAtivo] = useState(false)
   const [searchResultados, setSearchResultados] = useState([])
@@ -105,13 +107,18 @@ export default function MobileHome() {
   }).sort((a, b) => getDataSemHora(a.data) - getDataSemHora(b.data)) // mais próximos primeiro
 
   // Filtrar agendamentos para exibição baseado na aba ativa
-  const agendasParaExibir = abaAtiva === 'proximos'
+  let agendasParaExibir = abaAtiva === 'proximos'
     ? agendasHoje
     : abaAtiva === 'amanha'
     ? agendasAmanha
     : abaAtiva === 'futuros'
     ? agendasProximos
     : agendasPassados
+
+  // Aplicar filtro de status se houver algum selecionado
+  if (statusFilter.length > 0) {
+    agendasParaExibir = agendasParaExibir.filter(a => statusFilter.includes(a.status))
+  }
 
   // Calcular pendências
   const totalPendente = faturamentos
@@ -133,6 +140,16 @@ export default function MobileHome() {
 
   const handleBusca = (resultados) => {
     setSearchResultados(resultados)
+  }
+
+  const toggleStatusFilter = (status) => {
+    setStatusFilter(prev => {
+      if (prev.includes(status)) {
+        return prev.filter(s => s !== status)
+      } else {
+        return [...prev, status]
+      }
+    })
   }
 
   const handleVerTodasCobancas = () => {
@@ -263,12 +280,6 @@ export default function MobileHome() {
             Hoje
           </button>
           <button
-            className={`mobile-tab ${abaAtiva === 'amanha' ? 'ativo' : ''}`}
-            onClick={() => setAbaAtiva('amanha')}
-          >
-            Amanhã
-          </button>
-          <button
             className={`mobile-tab ${abaAtiva === 'futuros' ? 'ativo' : ''}`}
             onClick={() => setAbaAtiva('futuros')}
           >
@@ -278,10 +289,82 @@ export default function MobileHome() {
             className={`mobile-tab ${abaAtiva === 'passados' ? 'ativo' : ''}`}
             onClick={() => setAbaAtiva('passados')}
           >
-            Passados
+            Anteriores
+          </button>
+          <button
+            type="button"
+            className={`mobile-tab mobile-tab-filtro ${showFilterMenu ? 'ativo' : ''} ${statusFilter.length > 0 ? 'has-filter' : ''}`}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              console.log('[FILTRO] Click - showFilterMenu antes:', showFilterMenu)
+              setShowFilterMenu(prev => !prev)
+            }}
+            title="Filtrar por status"
+            aria-label="Filtrar agendamentos"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            {statusFilter.length > 0 && <span className="filter-badge">{statusFilter.length}</span>}
           </button>
         </div>
       </div>
+
+      {/* Menu de Filtros (dropdown) */}
+      {showFilterMenu && (
+        <>
+          <div className="filter-menu-backdrop" onClick={() => setShowFilterMenu(false)} />
+          <div className="filter-menu-dropdown">
+            <div className="filter-menu-header">
+              <span>Filtrar por status</span>
+              {statusFilter.length > 0 && (
+                <button
+                  className="filter-clear-link"
+                  onClick={() => { setStatusFilter([]); }}
+                >
+                  Limpar
+                </button>
+              )}
+            </div>
+            <button
+              className={`filter-menu-item ${statusFilter.includes('Pendente') ? 'ativo' : ''}`}
+              onClick={() => toggleStatusFilter('Pendente')}
+            >
+              <span className="filter-check">{statusFilter.includes('Pendente') ? '✓' : ''}</span>
+              ⏳ Pendente
+            </button>
+            <button
+              className={`filter-menu-item ${statusFilter.includes('Confirmado') ? 'ativo' : ''}`}
+              onClick={() => toggleStatusFilter('Confirmado')}
+            >
+              <span className="filter-check">{statusFilter.includes('Confirmado') ? '✓' : ''}</span>
+              ✓ Confirmado
+            </button>
+            <button
+              className={`filter-menu-item ${statusFilter.includes('Concluído') ? 'ativo' : ''}`}
+              onClick={() => toggleStatusFilter('Concluído')}
+            >
+              <span className="filter-check">{statusFilter.includes('Concluído') ? '✓' : ''}</span>
+              ✅ Concluído
+            </button>
+            <button
+              className={`filter-menu-item ${statusFilter.includes('Cancelado') ? 'ativo' : ''}`}
+              onClick={() => toggleStatusFilter('Cancelado')}
+            >
+              <span className="filter-check">{statusFilter.includes('Cancelado') ? '✓' : ''}</span>
+              ✗ Cancelado
+            </button>
+            <button
+              className={`filter-menu-item ${statusFilter.includes('Reagendado') ? 'ativo' : ''}`}
+              onClick={() => toggleStatusFilter('Reagendado')}
+            >
+              <span className="filter-check">{statusFilter.includes('Reagendado') ? '✓' : ''}</span>
+              📅 Reagendado
+            </button>
+          </div>
+        </>
+      )}
 
       {/* Cards de Agendamentos */}
       <div className="mobile-agendamentos-list">
@@ -289,10 +372,9 @@ export default function MobileHome() {
           <div className="mobile-empty-state">
             <p>Nenhum agendamento {
               abaAtiva === 'proximos' ? 'para hoje' :
-              abaAtiva === 'amanha' ? 'para amanhã' :
               abaAtiva === 'futuros' ? 'agendado para os próximos dias' :
-              'em datas passadas'
-            }</p>
+              'em datas anteriores'
+            }{statusFilter.length > 0 ? ' com os filtros aplicados' : ''}</p>
           </div>
         ) : (
           agendasParaExibir.map(agendamento => (

@@ -31,6 +31,8 @@ async function verificarLembretes(io) {
     const amanha = new Date(hoje)
     amanha.setDate(amanha.getDate() + 1)
 
+    console.log(`[LEMBRETE] ⏰ Verificando em ${agora.toLocaleTimeString('pt-BR')}...`)
+
     // Buscar agendamentos que não foram concluídos
     const agendamentos = await Agendamento.findAll({
       where: {
@@ -42,32 +44,54 @@ async function verificarLembretes(io) {
       ]
     })
 
+    console.log(`[LEMBRETE] 📋 Total de agendamentos Pendente/Confirmado: ${agendamentos.length}`)
+
     for (const agendamento of agendamentos) {
-      const dataAgenda = new Date(agendamento.data)
-      dataAgenda.setHours(0, 0, 0, 0)
+      // Converter data para local usando UTC para evitar problema de fuso horário
+      // Banco salva "2026-05-18T00:00:00Z" que vira "2026-05-17 21:00:00 GMT-3"
+      // Por isso usamos getUTC* para obter o dia correto
+      let ano, mes, dia
+      if (agendamento.data instanceof Date) {
+        ano = agendamento.data.getUTCFullYear()
+        mes = agendamento.data.getUTCMonth()
+        dia = agendamento.data.getUTCDate()
+      } else {
+        // String ISO: "2026-05-18" ou "2026-05-18T00:00:00.000Z"
+        const partes = agendamento.data.substring(0, 10).split('-').map(Number)
+        ano = partes[0]
+        mes = partes[1] - 1
+        dia = partes[2]
+      }
+
+      // Criar data local no timezone do servidor
+      const dataAgenda = new Date(ano, mes, dia)
 
       // Verificar se é hoje ou amanhã
       const ehHoje = dataAgenda.getTime() === hoje.getTime()
       const ehAmanha = dataAgenda.getTime() === amanha.getTime()
 
-      if (!ehHoje && !ehAmanha) continue
+      if (!ehHoje && !ehAmanha) {
+        continue
+      }
 
-      // Extrair hora do agendamento
+      // Extrair hora do agendamento e criar datetime completo
       const [hora, minuto] = (agendamento.hora || '00:00').split(':').map(Number)
-      const dataHora = new Date(agendamento.data)
-      dataHora.setHours(hora, minuto, 0, 0)
+      // Usar ano/mes/dia UTC para criar datetime local corretamente
+      const dataHora = new Date(ano, mes, dia, hora, minuto, 0, 0)
 
       // Calcular diferença em minutos
       const diffMinutos = Math.round((dataHora.getTime() - agora.getTime()) / 60000)
 
-      // Enviar lembrete 5 minutos antes
-      if (diffMinutos >= 4 && diffMinutos <= 6) {
-        enviarLembrete(agendamento, io)
-      }
+      console.log(`[LEMBRETE] ⏱️ Diferença: ${diffMinutos}min (agendado ${dataHora.toLocaleTimeString('pt-BR')}, agora: ${agora.toLocaleTimeString('pt-BR')})`)
 
-      // Enviar lembrete 30 minutos antes (opcional)
-      if (diffMinutos >= 29 && diffMinutos <= 31) {
+      if (diffMinutos >= 4 && diffMinutos <= 6) {
+        console.log(`[LEMBRETE] ✅ ENVIANDO LEMBRETE 5min para agendamento ${agendamento.id}`)
+        enviarLembrete(agendamento, io)
+      } else if (diffMinutos >= 29 && diffMinutos <= 31) {
+        console.log(`[LEMBRETE] ✅ ENVIANDO LEMBRETE 30min para agendamento ${agendamento.id}`)
         enviarLembrete(agendamento, io, '30min')
+      } else {
+        console.log(`[LEMBRETE] ⏭️ Agendamento fora da janela de lembrete (faltam ${diffMinutos}min)`)
       }
     }
   } catch (err) {
@@ -80,6 +104,7 @@ function enviarLembrete(agendamento, io, tipo = '5min') {
 
   // Evitar duplicatas
   if (lembretesEnviados.has(chave)) {
+    console.log(`[LEMBRETE] ⚠️ Lembrete duplicado ignorado: ${chave}`)
     return
   }
 
@@ -102,20 +127,32 @@ function enviarLembrete(agendamento, io, tipo = '5min') {
     mensagem = `📬 Próxima consulta: ${cliente} - ${pet} (${tipoAtend}) daqui a 30 minutos`
   }
 
-  console.log(`[LEMBRETE] 📢 ${mensagem}`)
-
   // Enviar para todos os clientes conectados via WebSocket
   if (io) {
-    io.emit('lembrete', {
-      id: agendamento.id,
-      titulo: `Lembrete de Consulta - ${tipo}`,
-      body: mensagem,
-      cliente,
-      pet,
-      hora: agendamento.hora,
-      tipo: tipo,
-      timestamp: new Date().toISOString()
-    })
+    try {
+      const payload = {
+        id: agendamento.id,
+        titulo: `Lembrete de Consulta - ${tipo}`,
+        body: mensagem,
+        cliente,
+        pet,
+        hora: agendamento.hora,
+        tipo: tipo,
+        timestamp: new Date().toISOString()
+      }
+
+      // Log antes de emitir
+      const clientCount = io.engine.clientsCount || Object.keys(io.sockets.sockets).length
+      console.log(`[LEMBRETE] 🚀 Emitindo evento (${clientCount} clientes conectados):`)
+      console.log(`[LEMBRETE]    ID: ${agendamento.id}, Cliente: ${cliente}, Pet: ${pet}, Tipo: ${tipo}`)
+
+      io.emit('lembrete', payload)
+      console.log(`[LEMBRETE] ✅ Evento emitido com sucesso!`)
+    } catch (err) {
+      console.error(`[LEMBRETE] ❌ Erro ao emitir: ${err.message}`)
+    }
+  } else {
+    console.error(`[LEMBRETE] ❌ IO não inicializado!`)
   }
 }
 

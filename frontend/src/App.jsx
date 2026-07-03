@@ -2,17 +2,18 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
-import { registerServiceWorker, requestNotificationPermission } from './utils/serviceWorkerUtils'
+import { registerServiceWorker } from './utils/serviceWorkerUtils'
 import './App.css'
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'))
 
   useEffect(() => {
-    // Registrar Service Worker e pedir permissão para notificações
+    // Registrar Service Worker (NÃO pedir permissão automaticamente!
+    // No iOS, requestPermission sem user gesture marca como denied para sempre.
+    // O LembretesListener pede permissão SOMENTE quando o usuário toca no botão.)
     if (isAuthenticated) {
       registerServiceWorker()
-      requestNotificationPermission()
     }
   }, [isAuthenticated])
 

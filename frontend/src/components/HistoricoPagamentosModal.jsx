@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { formatarData } from '../utils/dateFormatter'
 import PagamentoModal from './PagamentoModal'
+import ConfirmModal from './ConfirmModal'
 import './HistoricoPagamentosModal.css'
 
 export default function HistoricoPagamentosModal({ faturamento, onClose, onPaymentSuccess }) {
   const [showPagamentoModal, setShowPagamentoModal] = useState(false)
   const [faturamentoAtualizado, setFaturamentoAtualizado] = useState(faturamento)
   const [deletando, setDeletando] = useState(false)
+  const [confirm, setConfirm] = useState({ open: false })
   const [refreshKey, setRefreshKey] = useState(0)
 
   // Recarregar dados do servidor quando o modal é aberto novamente
@@ -77,38 +80,50 @@ export default function HistoricoPagamentosModal({ faturamento, onClose, onPayme
     }
   }
 
-  const handleDeletarPagamento = async (index) => {
-    if (!window.confirm('Deseja deletar este pagamento?')) return
-
-    try {
-      setDeletando(true)
-      const response = await axios.delete(`/api/faturamento/${faturamento.id}/pagamento/${index}`)
-      if (response.data.sucesso) {
-        // Atualizar estado com os dados retornados, forçando novo objeto
-        setFaturamentoAtualizado({ ...response.data.data })
-        setRefreshKey(prev => prev + 1)
-
-        // Recarregar também do servidor para dupla sincronização
-        const refreshResponse = await axios.get(`/api/faturamento`)
-        if (refreshResponse.data.sucesso) {
-          const faturamentoRecarregado = refreshResponse.data.data.find(f => f.id === faturamento.id)
-          if (faturamentoRecarregado) {
-            setFaturamentoAtualizado({ ...faturamentoRecarregado })
+  const handleDeletarPagamento = (index) => {
+    setConfirm({
+      open: true,
+      title: 'Deletar Pagamento',
+      message: 'Tem certeza que deseja deletar este pagamento?',
+      confirmText: 'Deletar',
+      cancelText: 'Cancelar',
+      confirmColor: 'danger',
+      loading: deletando,
+      onConfirm: async () => {
+        try {
+          setDeletando(true)
+          const response = await axios.delete(`/api/faturamento/${faturamento.id}/pagamento/${index}`)
+          if (response.data.sucesso) {
+            // Atualizar estado com os dados retornados, forçando novo objeto
+            setFaturamentoAtualizado({ ...response.data.data })
             setRefreshKey(prev => prev + 1)
-          }
-        }
 
-        // Notificar pai para atualizar a lista também
-        if (onPaymentSuccess) {
-          onPaymentSuccess()
+            // Recarregar também do servidor para dupla sincronização
+            const refreshResponse = await axios.get(`/api/faturamento`)
+            if (refreshResponse.data.sucesso) {
+              const faturamentoRecarregado = refreshResponse.data.data.find(f => f.id === faturamento.id)
+              if (faturamentoRecarregado) {
+                setFaturamentoAtualizado({ ...faturamentoRecarregado })
+                setRefreshKey(prev => prev + 1)
+              }
+            }
+
+            // Notificar pai para atualizar a lista também
+            if (onPaymentSuccess) {
+              onPaymentSuccess()
+            }
+            setConfirm({ open: false })
+          }
+        } catch (err) {
+          console.error('Erro ao deletar pagamento:', err)
+          alert('Erro ao deletar pagamento')
+          setConfirm({ open: false })
+        } finally {
+          setDeletando(false)
         }
-      }
-    } catch (err) {
-      console.error('Erro ao deletar pagamento:', err)
-      alert('Erro ao deletar pagamento')
-    } finally {
-      setDeletando(false)
-    }
+      },
+      onCancel: () => setConfirm({ open: false })
+    })
   }
 
   return (
@@ -122,7 +137,8 @@ export default function HistoricoPagamentosModal({ faturamento, onClose, onPayme
         />
       )}
 
-      <div className="modal-overlay" onClick={onClose}>
+      {createPortal(
+        <div className="modal-overlay" onClick={onClose}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
             <h2>Histórico de Pagamentos</h2>
@@ -208,7 +224,11 @@ export default function HistoricoPagamentosModal({ faturamento, onClose, onPayme
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+        document.body
+      )}
+
+      <ConfirmModal {...confirm} />
     </>
   )
 }

@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
+import ConfirmModal from './ConfirmModal'
+import PromptModal from './PromptModal'
 import './PricingModal.css'
 
 const DEFAULT_SERVICES = [
@@ -41,6 +44,8 @@ export default function PricingModal({ isOpen, onClose }) {
   const [newService, setNewService] = useState({ nome: '', valor: '' })
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingService, setEditingService] = useState(null) // {id, nome}
+  const [confirm, setConfirm] = useState({ open: false })
+  const [promptData, setPromptData] = useState({ open: false, initialValue: '', title: '' })
 
   useEffect(() => {
     if (isOpen) {
@@ -106,41 +111,62 @@ export default function PricingModal({ isOpen, onClose }) {
     const num = parseInputValue(newService.valor)
     if (!num) { setError('Valor inválido.'); return }
 
-    const newId = Math.max(...services.map(s => s.id), 0) + 1
-    const serviceToAdd = { id: newId, nome: newService.nome.trim(), padrao: num }
+    const nomeKey = newService.nome.trim()
+    // Usa o próprio nome como ID para garantir que a chave salva é o nome
+    const serviceToAdd = { id: nomeKey, nome: nomeKey, padrao: num }
 
     setServices(prev => [...prev, serviceToAdd])
-    setCustomValues(prev => ({ ...prev, [newId]: num }))
-    setInputValues(prev => ({ ...prev, [newId]: formatBR(num) }))
+    setCustomValues(prev => ({ ...prev, [nomeKey]: num }))
+    setInputValues(prev => ({ ...prev, [nomeKey]: formatBR(num) }))
     setNewService({ nome: '', valor: '' })
     setShowAddForm(false)
     setError('')
   }
 
   const handleRemoveService = (serviceId) => {
-    if (window.confirm('Tem certeza que deseja remover este serviço?')) {
-      setServices(prev => prev.filter(s => s.id !== serviceId))
-      const newCV = { ...customValues }; delete newCV[serviceId]
-      const newIV = { ...inputValues };  delete newIV[serviceId]
-      setCustomValues(newCV)
-      setInputValues(newIV)
-    }
+    setConfirm({
+      open: true,
+      title: 'Remover Serviço',
+      message: 'Tem certeza que deseja remover este serviço?',
+      confirmText: 'Remover',
+      cancelText: 'Cancelar',
+      confirmColor: 'danger',
+      onConfirm: () => {
+        setServices(prev => prev.filter(s => s.id !== serviceId))
+        const newCV = { ...customValues }; delete newCV[serviceId]
+        const newIV = { ...inputValues };  delete newIV[serviceId]
+        setCustomValues(newCV)
+        setInputValues(newIV)
+        setConfirm({ open: false })
+      },
+      onCancel: () => setConfirm({ open: false })
+    })
   }
 
   const handleEditService = (serviceId) => {
     const service = services.find(s => s.id === serviceId)
     if (!service) return
-    const novoNome = window.prompt('Editar nome do serviço:', service.nome)
-    if (novoNome === null) return // usuário cancelou
-    const nomeTrimmed = novoNome.trim()
-    if (!nomeTrimmed) {
-      setError('Nome do serviço não pode ser vazio.')
-      return
-    }
-    setServices(prev => prev.map(s =>
-      s.id === serviceId ? { ...s, nome: nomeTrimmed } : s
-    ))
-    setError('')
+    setPromptData({
+      open: true,
+      title: 'Editar Nome do Serviço',
+      message: '',
+      initialValue: service.nome,
+      confirmText: 'OK',
+      cancelText: 'Cancelar',
+      onConfirm: (novoNome) => {
+        const nomeTrimmed = novoNome.trim()
+        if (!nomeTrimmed) {
+          setError('Nome do serviço não pode ser vazio.')
+          return
+        }
+        setServices(prev => prev.map(s =>
+          s.id === serviceId ? { ...s, nome: nomeTrimmed } : s
+        ))
+        setError('')
+        setPromptData({ open: false })
+      },
+      onCancel: () => setPromptData({ open: false })
+    })
   }
 
   const handleSave = async () => {
@@ -149,8 +175,19 @@ export default function PricingModal({ isOpen, onClose }) {
       setError('')
       setSuccess('')
 
+      // Constrói objeto com nome do serviço como chave (nunca ID numérico)
+      const tabelaFinal = {}
+      services.forEach(s => {
+        const val = customValues[s.nome] !== undefined ? customValues[s.nome]
+                  : customValues[s.id] !== undefined ? customValues[s.id]
+                  : null
+        if (val != null && val > 0) {
+          tabelaFinal[s.nome] = val
+        }
+      })
+
       const res = await axios.put('/api/perfil', {
-        tabelaPrecos: customValues
+        tabelaPrecos: tabelaFinal
       })
 
       if (res.data.sucesso) {
@@ -174,7 +211,7 @@ export default function PricingModal({ isOpen, onClose }) {
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
     <div className="pricing-modal-overlay">
       <div className="pricing-modal">
         {/* Header */}
@@ -318,6 +355,9 @@ export default function PricingModal({ isOpen, onClose }) {
           </>
         )}
       </div>
-    </div>
+      <ConfirmModal {...confirm} />
+      <PromptModal {...promptData} />
+    </div>,
+    document.body
   )
 }

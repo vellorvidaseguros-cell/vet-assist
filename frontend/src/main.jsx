@@ -5,20 +5,17 @@ import App from './App.jsx'
 import { API_BASE_URL } from './utils/apiConfig'
 import './index.css'
 
-// Em produção (Railway), o frontend é servido pelo mesmo origin do backend,
-// então paths relativos como "/api/..." funcionam sem baseURL.
-// Em dev (localhost:5173 com proxy Vite), também funciona.
-// Em outros casos (IPs, ngrok), forçamos a baseURL para garantir.
-const isLocalDevWithProxy =
-  window.location.hostname === 'localhost' &&
-  window.location.port === '5173'
+// Usar SEMPRE URLs relativas. Em todos os ambientes:
+// - Dev (localhost ou IP da rede): Vite proxy resolve /api → backend
+// - Ngrok: faz proxy de tudo para o Vite
+// - Produção: backend serve frontend no mesmo origin
+// Não setar baseURL = axios usa o origin atual automaticamente.
+console.log('[Axios] Usando URLs relativas. Origin:', window.location.origin)
 
-const isProductionSameOrigin = API_BASE_URL === window.location.origin
-
-if (!isLocalDevWithProxy && !isProductionSameOrigin) {
-  axios.defaults.baseURL = API_BASE_URL
-  console.log('[Axios] baseURL configurada:', API_BASE_URL)
-}
+// Adicionar header anti-cache em todas as requisições GET
+// (evita problemas de cache em PWA + API)
+axios.defaults.headers.common['Cache-Control'] = 'no-cache'
+axios.defaults.headers.common['Pragma'] = 'no-cache'
 
 // Interceptor: anexar token JWT a todas as requests (se houver)
 axios.interceptors.request.use((config) => {

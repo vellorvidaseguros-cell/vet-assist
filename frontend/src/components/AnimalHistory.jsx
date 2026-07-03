@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { formatarData, formatarDataComDia } from '../utils/dateFormatter'
 import { apiUrl, API_BASE_URL } from '../utils/apiConfig'
+import ConfirmModal from './ConfirmModal'
 import './AnimalHistory.css'
 
 // O backend já converte os paths, então apenas garantir que começa com /
@@ -76,6 +77,7 @@ export default function AnimalHistory() {
   const [filteredHistory, setFilteredHistory] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [confirm, setConfirm] = useState({ open: false })
   const [expandedId, setExpandedId] = useState(null)
   const [photosByHistorico, setPhotosByHistorico] = useState({})
   const [selectedDateTab, setSelectedDateTab] = useState(null)
@@ -298,36 +300,59 @@ export default function AnimalHistory() {
     }))
   }
 
-  const deletePhoto = async (anexoId) => {
-    if (window.confirm('Tem certeza que deseja deletar esta foto?')) {
-      try {
-        const res = await axios.delete(`/api/anexos/${anexoId}`)
-        if (res.data.sucesso) {
-          setError('')
-          fetchAllHistory()
+  const deletePhoto = (anexoId) => {
+    setConfirm({
+      open: true,
+      title: 'Deletar Foto',
+      message: 'Tem certeza que deseja deletar esta foto?',
+      confirmText: 'Deletar',
+      cancelText: 'Cancelar',
+      confirmColor: 'danger',
+      onConfirm: async () => {
+        try {
+          const res = await axios.delete(`/api/anexos/${anexoId}`)
+          if (res.data.sucesso) {
+            setError('')
+            fetchAllHistory()
+            setConfirm({ open: false })
+          }
+        } catch (err) {
+          setError('Erro ao deletar foto')
+          setConfirm({ open: false })
         }
-      } catch (err) {
-        setError('Erro ao deletar foto')
-      }
-    }
+      },
+      onCancel: () => setConfirm({ open: false })
+    })
   }
 
-  const deleteHistorico = async (historicoId, petName) => {
-    if (window.confirm(`Tem certeza que deseja deletar o histórico de ${petName}? Esta ação não pode ser desfeita.`)) {
-      try {
-        const res = await axios.delete(`/api/historico/${historicoId}`)
-        if (res.data.sucesso) {
-          setError('')
-          await fetchAllHistory()
-          // Disparar evento para atualizar o Dashboard e Financeiro
-          window.dispatchEvent(new Event('historicoDeleted'))
-        } else {
-          setError('Erro ao deletar histórico')
+  const deleteHistorico = (historicoId, petName) => {
+    setConfirm({
+      open: true,
+      title: 'Deletar Histórico',
+      message: `Tem certeza que deseja deletar o histórico de ${petName}? Esta ação não pode ser desfeita.`,
+      confirmText: 'Deletar',
+      cancelText: 'Cancelar',
+      confirmColor: 'danger',
+      onConfirm: async () => {
+        try {
+          const res = await axios.delete(`/api/historico/${historicoId}`)
+          if (res.data.sucesso) {
+            setError('')
+            await fetchAllHistory()
+            // Disparar evento para atualizar o Dashboard e Financeiro
+            window.dispatchEvent(new Event('historicoDeleted'))
+            setConfirm({ open: false })
+          } else {
+            setError('Erro ao deletar histórico')
+            setConfirm({ open: false })
+          }
+        } catch (err) {
+          setError('Erro ao deletar histórico: ' + (err.response?.data?.erro || err.message))
+          setConfirm({ open: false })
         }
-      } catch (err) {
-        setError('Erro ao deletar histórico: ' + (err.response?.data?.erro || err.message))
-      }
-    }
+      },
+      onCancel: () => setConfirm({ open: false })
+    })
   }
 
   const generatePDF = (historicoItem) => {
@@ -1459,6 +1484,8 @@ export default function AnimalHistory() {
           <p>Nenhuma consulta finalizada no histórico</p>
         </div>
       )}
+
+      <ConfirmModal {...confirm} />
     </div>
   )
 }

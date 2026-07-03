@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import ConfirmModal from './ConfirmModal'
 import './StatusMenu.css'
 
 const STATUS_OPTIONS = [
@@ -12,6 +13,7 @@ const STATUS_OPTIONS = [
 export default function StatusMenu({ currentStatus, onStatusChange, agendamentoId }) {
   const [isOpen, setIsOpen] = useState(false)
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
+  const [confirm, setConfirm] = useState({ open: false })
   const menuRef = useRef(null)
   const buttonRef = useRef(null)
   const portalRef = useRef(null)
@@ -55,14 +57,24 @@ export default function StatusMenu({ currentStatus, onStatusChange, agendamentoI
     if (isProcessingRef.current) return
 
     if (status !== currentStatus) {
-      if (window.confirm(`Tem certeza que deseja marcar como ${status}?`)) {
-        isProcessingRef.current = true
-        onStatusChange(agendamentoId, status)
-        // Reseta após 500ms
-        setTimeout(() => {
-          isProcessingRef.current = false
-        }, 500)
-      }
+      setConfirm({
+        open: true,
+        title: 'Alterar Status',
+        message: `Tem certeza que deseja marcar como ${status}?`,
+        confirmText: 'Confirmar',
+        cancelText: 'Cancelar',
+        confirmColor: 'primary',
+        onConfirm: async () => {
+          isProcessingRef.current = true
+          onStatusChange(agendamentoId, status)
+          // Reseta após 500ms
+          setTimeout(() => {
+            isProcessingRef.current = false
+            setConfirm({ open: false })
+          }, 500)
+        },
+        onCancel: () => setConfirm({ open: false })
+      })
     }
     setIsOpen(false)
   }
@@ -107,6 +119,8 @@ export default function StatusMenu({ currentStatus, onStatusChange, agendamentoI
         </div>,
         document.body
       )}
+
+      <ConfirmModal {...confirm} />
     </>
   )
 }

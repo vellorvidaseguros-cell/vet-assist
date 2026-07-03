@@ -240,7 +240,8 @@
 .btn-status.concluído:hover { background-color: #ccd9ff; }
 
 .btn-photo,
-.btn-diagnosis {
+.btn-diagnosis,
+.btn-delete {
   background: none;
   border: none;
   cursor: pointer;
@@ -252,7 +253,8 @@
 }
 
 .btn-photo:hover,
-.btn-diagnosis:hover {
+.btn-diagnosis:hover,
+.btn-delete:hover {
   transform: scale(1.15);
   background: rgba(0,0,0,0.05);
 }

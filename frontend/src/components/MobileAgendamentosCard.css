@@ -124,6 +124,33 @@
 .card-detalhes-btn:hover:not(:disabled) { background-color: #fff0f0 !important; }
 .card-detalhes-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* Botão Delete — ícone */
+.card-delete-btn {
+  height: 32px !important;
+  width: 32px !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
+  border: 2px solid transparent !important;
+  background-color: transparent !important;
+  color: #ff3b30 !important;
+  font-size: 16px !important;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+  line-height: 1;
+  margin-bottom: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-delete-btn:hover:not(:disabled) {
+  background-color: rgba(255, 59, 48, 0.1) !important;
+  border-color: #ff3b30 !important;
+}
+.card-delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* LINHAS DE INFO: duas por linha, esquerda e direita */
 .card-row {
   display: flex;
@@ -224,3 +251,84 @@
 .status-option.status-concluido   { border-color: #007aff; color: #0051d5; }
 .status-option.status-cancelado   { border-color: #ff3b30; color: #c0392b; }
 .status-option.status-reagendado  { border-color: #5856d6; color: #3c2a6b; }
+
+/* MODAL DE CONFIRMAÇÃO DE DELETE */
+.confirm-delete-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 12px;
+}
+
+.confirm-delete-modal {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  max-width: 320px;
+  width: 100%;
+}
+
+.confirm-delete-modal h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+}
+
+.confirm-delete-modal p {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.confirm-delete-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-delete-buttons .btn-cancel,
+.confirm-delete-buttons .btn-delete-confirm {
+  flex: 1;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-delete-buttons .btn-cancel {
+  background-color: #f0f0f0;
+  color: #333;
+}
+.confirm-delete-buttons .btn-cancel:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+.confirm-delete-buttons .btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirm-delete-buttons .btn-delete-confirm {
+  background-color: #ff3b30;
+  color: #ffffff;
+}
+.confirm-delete-buttons .btn-delete-confirm:hover:not(:disabled) {
+  background-color: #d63c2e;
+}
+.confirm-delete-buttons .btn-delete-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

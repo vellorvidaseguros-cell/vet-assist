@@ -4,14 +4,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  background-color: #ffffff;
   z-index: 9999;
-  padding-bottom: 100px;
   animation: fadeIn 0.3s ease-in-out;
   overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 @keyframes fadeIn {
@@ -23,21 +21,26 @@
   }
 }
 
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 .modal-content {
   background-color: #ffffff;
-  border-radius: 16px 16px 0 0;
-  max-height: 85vh;
   width: 100%;
   max-width: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  min-height: 100vh;
+  display: block;
+  padding-bottom: 80px;
 }
 
 .modal-content.detalhes-modal {
-  border-radius: 16px 16px 0 0;
-  display: flex;
-  flex-direction: column;
+  display: block;
 }
 
 .modal-header {
@@ -46,6 +49,7 @@
   align-items: flex-start;
   gap: 12px;
   padding: 16px;
+  padding-top: max(16px, env(safe-area-inset-top));
   border-bottom: 1px solid #e5e5ea;
   background-color: #f5f5f5;
 }
@@ -117,11 +121,12 @@
 }
 
 .detalhes-body {
-  flex: 1;
   padding: 12px 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .detalhes-section {
@@ -130,6 +135,7 @@
   margin: 0 12px;
   border-radius: 12px;
   border: 1px solid #e5e5ea;
+  box-sizing: border-box;
 }
 
 .detalhes-section h4 {
@@ -161,6 +167,79 @@
   background-color: #f9f9f9;
 }
 
+.animais-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.animais-header h4 {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.animais-btn-adicionar {
+  padding: 6px 12px;
+  background-color: #007aff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 1;
+  transition: all 0.2s ease;
+  min-width: 0;
+}
+
+.animais-btn-adicionar:active {
+  background-color: #0051d5;
+  transform: scale(0.95);
+}
+
+.novo-animal-form {
+  background-color: #f9f9f9;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #e5e5ea;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.novo-animal-btn-save {
+  width: 100%;
+  padding: 10px;
+  background-color: #34c759;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.novo-animal-btn-save:active:not(:disabled) {
+  background-color: #30b24d;
+  transform: scale(0.98);
+}
+
+.novo-animal-btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Pets List */
 .pets-list {
   display: flex;
@@ -170,36 +249,184 @@
 
 .pet-card {
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  gap: 10px;
   padding: 12px;
   background-color: #ffffff;
   border-radius: 8px;
   border: 1px solid #e5e5ea;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.pet-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
 }
 
 .pet-icon {
   font-size: 24px;
   flex-shrink: 0;
+  line-height: 1;
+  margin-top: 2px;
 }
 
 .pet-info-card {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .pet-name {
   font-size: 14px;
   font-weight: 600;
   color: #000;
-  margin: 0 0 4px 0;
+  margin: 0;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .pet-details {
   font-size: 12px;
   color: #8e8e93;
   margin: 0;
-  line-height: 1.3;
+  line-height: 1.4;
   word-break: break-word;
+  white-space: normal;
+}
+
+.pet-edit-btn {
+  background: white;
+  border: 1.5px solid #007aff;
+  color: #007aff;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+.pet-edit-btn:active {
+  background-color: #f0f8ff;
+  transform: scale(0.98);
+}
+
+.pet-history-btn {
+  background: white;
+  border: 1.5px solid #34c759;
+  color: #34c759;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+.pet-history-btn:active {
+  background-color: #f0fdf4;
+  transform: scale(0.98);
+}
+
+.pet-quote-btn {
+  background: white;
+  border: 1.5px solid #ff9500;
+  color: #ff9500;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+.pet-quote-btn:active {
+  background-color: #fffaf0;
+  transform: scale(0.98);
+}
+
+.pet-btn-responsive {
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .pet-btn-responsive {
+    min-width: calc((100% - 12px) / 3);
+    flex: 0 1 calc((100% - 12px) / 3) !important;
+  }
+}
+
+.pet-form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pet-form-btn-cancel {
+  flex: 1;
+  padding: 8px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pet-form-btn-cancel:active {
+  background-color: #e0e0e0;
+  transform: scale(0.98);
+}
+
+.pet-form-btn-save {
+  flex: 1;
+  padding: 8px;
+  background-color: #007aff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pet-form-btn-save:active:not(:disabled) {
+  background-color: #0051d5;
+  transform: scale(0.98);
+}
+
+.pet-form-btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pet-edit-form {
+  background-color: #f0f8ff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #007aff;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 /* Modal Actions */
@@ -207,10 +434,12 @@
   display: flex;
   gap: 10px;
   padding: 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
   border-top: 1px solid #e5e5ea;
-  background-color: #f5f5f5;
-  position: sticky;
-  bottom: 0;
+  background-color: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 12px;
 }
 
 .btn-cancelar {
@@ -233,7 +462,8 @@
 
 @media (max-width: 480px) {
   .modal-content {
-    max-height: 95vh;
+    min-height: 100vh;
+    padding-bottom: 100px;
   }
 
   .modal-header {
@@ -252,6 +482,10 @@
   .detalhes-body {
     gap: 10px;
     padding: 10px 0;
+  }
+
+  .modal-actions {
+    padding: 10px 12px;
   }
 
   .detalhes-section {
@@ -291,4 +525,37 @@
     padding: 10px 12px;
     font-size: 13px;
   }
+}
+
+/* Padronizar inputs do tipo date para combinar com outros campos */
+.novo-animal-form input[type="date"],
+.pet-edit-form input[type="date"] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background-color: #ffffff !important;
+  padding: 8px !important;
+  border: 1px solid #ddd !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  line-height: normal !important;
+  text-align: left !important;
+  display: block !important;
+  font-family: inherit !important;
+}
+
+/* iOS específico - remover botão padrão e fazer alinhamento certo */
+.novo-animal-form input[type="date"]::-webkit-date-and-time-value,
+.pet-edit-form input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+  min-height: 1.5em;
+}
+
+.novo-animal-form input[type="date"]::-webkit-calendar-picker-indicator,
+.pet-edit-form input[type="date"]::-webkit-calendar-picker-indicator {
+  margin-left: auto;
+  cursor: pointer;
 }

@@ -5,21 +5,40 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2147483647;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  z-index: 1000;
+  padding: 0;
 }
 
 .modal-content {
   background: white;
   border-radius: 8px;
   padding: 2rem;
+  padding-top: max(2rem, env(safe-area-inset-top));
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
   max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
+  width: 100%;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .modal-overlay {
+    align-items: center;
+    padding: 20px;
+  }
+  .modal-content {
+    min-height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 90%;
+  }
 }
 
 .modal-header {

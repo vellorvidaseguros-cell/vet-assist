@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { API_BASE_URL } from '../utils/apiConfig'
 import './PhotoUploadModal.css'
@@ -164,7 +165,7 @@ export default function PhotoUploadModal({ historicoId, agendamentoId, onClose, 
     }
   }
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
@@ -247,6 +248,7 @@ export default function PhotoUploadModal({ historicoId, agendamentoId, onClose, 
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

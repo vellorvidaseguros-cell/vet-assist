@@ -1,8 +1,19 @@
 .diagnosis-modal {
-  max-height: 90vh;
-  overflow-y: auto;
-  width: 90%;
-  max-width: 600px;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  background-color: #ffffff;
+  padding-bottom: 20px;
+}
+
+/* Em telas grandes, comporta como modal normal */
+@media (min-width: 768px) {
+  .diagnosis-modal {
+    max-width: 600px;
+    min-height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
 }
 
 .diagnosis-form {
@@ -95,7 +106,10 @@
   gap: 1rem;
   justify-content: flex-end;
   padding: 1rem 1.5rem;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
   border-top: 1px solid #eee;
+  background-color: #ffffff;
+  margin-top: 12px;
 }
 
 @media (max-width: 600px) {

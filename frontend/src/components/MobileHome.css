@@ -93,6 +93,7 @@
   background-color: #ffffff;
   border-bottom: 1px solid #e5e5ea;
   padding: 0;
+  position: relative;
 }
 
 .mobile-tab {
@@ -116,6 +117,157 @@
 .mobile-tab.ativo {
   color: #007aff;
   border-bottom-color: #007aff;
+}
+
+/* BOTÃO DE FILTRO NA ABA */
+.mobile-tab-filtro {
+  flex: 0 0 auto !important;
+  min-width: 50px !important;
+  max-width: 60px !important;
+  padding: 12px 8px !important;
+  position: relative;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #8e8e93;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-tab-filtro svg {
+  display: block;
+  pointer-events: none;
+}
+
+.mobile-tab-filtro.has-filter {
+  color: #007aff !important;
+}
+
+.mobile-tab-filtro.ativo {
+  color: #007aff !important;
+}
+
+.filter-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background-color: #ff3b30;
+  color: white;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+/* DROPDOWN DO FILTRO */
+.filter-menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 9998;
+  animation: fadeIn 0.15s ease;
+}
+
+.filter-menu-dropdown {
+  position: fixed;
+  top: calc(120px + env(safe-area-inset-top));
+  right: 12px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  min-width: 220px;
+  z-index: 9999;
+  padding: 6px;
+  animation: dropdownIn 0.2s ease;
+  border: 1px solid #e5e5ea;
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-clear-link {
+  background: none;
+  border: none;
+  color: #ff3b30;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.filter-clear-link:active {
+  opacity: 0.6;
+}
+
+.filter-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.filter-menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+.filter-menu-item:active {
+  background-color: #e8e8e8;
+}
+
+.filter-menu-item.ativo {
+  background-color: #e8f0ff;
+  color: #007aff;
+  font-weight: 600;
+}
+
+.filter-check {
+  display: inline-block;
+  width: 20px;
+  color: #007aff;
+  font-weight: 700;
+  margin-right: 8px;
 }
 
 /* LISTA DE AGENDAMENTOS */

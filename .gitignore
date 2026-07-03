@@ -18,9 +18,14 @@ yarn.lock
 
 # Banco de dados local (não subir para produção)
 vet_assist.db
+vet_assist.db.bak*
 *.db-journal
 *.db-shm
 *.db-wal
+
+# Artefatos de runtime e ferramentas locais
+.backend-port
+.codex/
 
 # Arquivos de migração (contêm senhas)
 .env.migration

@@ -11,6 +11,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
   const [error, setError] = useState('')
   const [editMode, setEditMode] = useState(true)
   const [showPhotoModal, setShowPhotoModal] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [formData, setFormData] = useState({
     medicamentos: '',
     diagnostico: '',
@@ -19,9 +20,64 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
     proximoRetorno: ''
   })
 
+  // Upload direto de foto (sem modal intermediário)
+  const handleFotoUpload = async (e) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+
+    setUploadingPhoto(true)
+    setError('')
+    let sucessos = 0
+    let falhas = []
+
+    for (const file of files) {
+      try {
+        const formData = new FormData()
+        formData.append('arquivo', file)
+        formData.append('agendamentoId', agendamentoId)
+
+        const res = await axios.post('/api/anexos/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 60000
+        })
+
+        if (res.data.sucesso) {
+          sucessos++
+        } else {
+          falhas.push(res.data.erro || file.name)
+        }
+      } catch (err) {
+        const msg = err.response?.data?.erro || err.message || 'Erro desconhecido'
+        falhas.push(`${file.name}: ${msg}`)
+        console.error('[FOTO]', file.name, err)
+      }
+    }
+
+    setUploadingPhoto(false)
+    if (sucessos > 0) {
+      await fetchAgendamento()
+    }
+    if (falhas.length > 0) {
+      setError(`${sucessos} enviada(s), ${falhas.length} com erro: ${falhas[0]}`)
+    } else {
+      setError('')
+    }
+    // Limpar input para permitir re-selecionar mesma foto
+    e.target.value = ''
+  }
+
   useEffect(() => {
     fetchAgendamento()
   }, [agendamentoId])
+
+  // Bloquear scroll do body quando modal está aberto
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [])
 
   const fetchAgendamento = async () => {
     try {
@@ -152,14 +208,31 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
           <div className="detalhes-section fotos-section">
             <div className="section-header">
               <h4>📸 Fotos e Anexos</h4>
-              <button
-                className="btn-adicionar-foto"
-                onClick={() => setShowPhotoModal(true)}
-              >
-                + Foto
-              </button>
+              <label className="btn-adicionar-foto" htmlFor={`foto-input-${agendamentoId}`}>
+                {uploadingPhoto ? '⏳ Enviando...' : '+ Foto'}
+              </label>
+              <input
+                id={`foto-input-${agendamentoId}`}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFotoUpload}
+                disabled={uploadingPhoto}
+                style={{ position: 'absolute', left: '-9999px', opacity: 0 }}
+              />
             </div>
-            {agendamento.photos && agendamento.photos.length > 0 ? (
+            {agendamento.Anexos && agendamento.Anexos.length > 0 ? (
+              <div className="fotos-grid">
+                {agendamento.Anexos.map(anexo => (
+                  <div key={anexo.id} className="foto-item">
+                    <img
+                      src={anexo.caminhoArquivo || `/api/anexos/file/${anexo.id}`}
+                      alt={anexo.nomeArquivo}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : agendamento.photos && agendamento.photos.length > 0 ? (
               <div className="fotos-grid">
                 {agendamento.photos.map(photo => (
                   <div key={photo.id} className="foto-item">

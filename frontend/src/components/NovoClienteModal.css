@@ -1,35 +1,65 @@
 /* ===== OVERLAY ===== */
 .ncm-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
+  z-index: 999999;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 1rem;
 }
 
 /* ===== MODAL BOX ===== */
 .ncm-modal {
   background: white;
-  border-radius: 12px;
+  border-radius: 0;
   width: 100%;
-  max-width: 700px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
+  max-width: 100%;
+  min-height: 100vh;
+  display: block;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .ncm-overlay {
+    align-items: center;
+    padding: 1rem;
+  }
+  .ncm-modal {
+    max-width: 700px;
+    min-height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 12px;
+    padding-bottom: 0;
+  }
+}
+
+/* Anti-scroll horizontal */
+.ncm-modal,
+.ncm-body,
+.ncm-section,
+.ncm-row,
+.ncm-group {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.ncm-row {
+  min-width: 0;
 }
 
 /* ===== HEADER ===== */
 .ncm-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: 1.25rem 1.5rem;
   border-bottom: 2px solid #f0f0f0;
@@ -41,23 +71,6 @@
   font-size: 1.15rem;
   font-weight: 700;
   color: #1a1a2e;
-}
-
-.ncm-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #999;
-  line-height: 1;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  transition: color 0.2s, background 0.2s;
-}
-
-.ncm-close:hover {
-  color: #333;
-  background: #f0f0f0;
 }
 
 /* ===== BODY (scrollable) ===== */
@@ -313,19 +326,35 @@
 
 /* ===== RESPONSIVO ===== */
 @media (max-width: 768px) {
+  /* Overlay vira container scrollable - tudo rola junto */
   .ncm-overlay {
-    align-items: flex-end;
+    display: block;
     padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    align-items: initial;
+    justify-content: initial;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
   }
 
   .ncm-modal {
     width: 100%;
-    border-radius: 12px 12px 0 0;
-    max-height: 90vh;
+    min-height: 100%;
+    max-height: none;
+    height: auto;
+    border-radius: 0;
+    display: block;
+    overflow: visible;
+    box-shadow: none;
   }
 
   .ncm-header {
-    padding: 1rem 1.25rem;
+    padding: calc(env(safe-area-inset-top, 0px) + 0.85rem) 1.25rem 1rem;
+    flex-shrink: initial;
+    overflow: visible;
   }
 
   .ncm-header h2 {
@@ -335,6 +364,10 @@
   .ncm-body {
     padding: 1rem;
     gap: 1rem;
+    flex: initial;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
   }
 
   .ncm-section {
@@ -387,14 +420,23 @@
   }
 
   .ncm-footer {
-    padding: 1rem 1.25rem;
-    gap: 0.5rem;
+    padding: 1rem 1.25rem calc(env(safe-area-inset-bottom, 0px) + 1rem);
+    gap: 0.6rem;
+    position: static;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    flex-shrink: initial;
+    display: flex;
+    flex-direction: column-reverse;
   }
 
   .ncm-btn-salvar,
   .ncm-btn-cancelar {
-    padding: 0.55rem 1rem;
-    font-size: 0.85rem;
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
+    min-height: 48px;
+    width: 100%;
+    text-align: center;
   }
 }
 
@@ -403,28 +445,11 @@
     grid-template-columns: 1fr;
   }
 
-  .ncm-modal {
-    max-height: 95vh;
-  }
-
-  .ncm-footer {
-    flex-direction: column-reverse;
-  }
-
-  .ncm-btn-salvar,
-  .ncm-btn-cancelar {
-    width: 100%;
-    text-align: center;
-  }
 }
 
 @media (max-width: 480px) {
-  .ncm-modal {
-    border-radius: 12px 12px 0 0;
-  }
-
   .ncm-header {
-    padding: 0.85rem 1rem;
+    padding: calc(env(safe-area-inset-top, 0px) + 0.85rem) 1rem 0.85rem;
     border-bottom: 1px solid #f0f0f0;
   }
 
@@ -432,15 +457,10 @@
     font-size: 0.95rem;
   }
 
-  .ncm-close {
-    width: 28px;
-    height: 28px;
-    font-size: 1.3rem;
-  }
-
   .ncm-body {
     padding: 0.85rem;
     gap: 0.85rem;
+    padding-bottom: 1.5rem;
   }
 
   .ncm-section-title {
@@ -449,13 +469,13 @@
   }
 
   .ncm-group label {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 
   .ncm-group input,
   .ncm-group select {
-    padding: 0.55rem 0.6rem;
-    font-size: 0.85rem;
+    padding: 0.7rem 0.75rem;
+    font-size: max(0.95rem, 16px);
   }
 
   .ncm-animal-card-info p {
@@ -468,17 +488,18 @@
   }
 
   .ncm-footer {
-    padding: 0.85rem 1rem;
+    padding: 0.85rem 1rem calc(env(safe-area-inset-bottom, 0px) + 0.85rem);
   }
 
   .ncm-btn-salvar,
   .ncm-btn-cancelar {
-    padding: 0.5rem 0.9rem;
-    font-size: 0.8rem;
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
+    min-height: 44px;
   }
 
   .ncm-error {
     padding: 0.65rem 0.85rem;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 }

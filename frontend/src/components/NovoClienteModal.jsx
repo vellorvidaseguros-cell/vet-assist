@@ -1,6 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import './NovoClienteModal.css'
+
+function useLockBodyScroll() {
+  useEffect(() => {
+    const original = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = original }
+  }, [])
+}
 
 const ANIMAL_VAZIO = {
   nome: '',
@@ -24,6 +33,8 @@ const CLIENTE_VAZIO = {
 }
 
 export default function NovoClienteModal({ onClose, onSuccess }) {
+  useLockBodyScroll()
+
   const [clienteForm, setClienteForm] = useState(CLIENTE_VAZIO)
   const [animais, setAnimais] = useState([])
   const [showAnimalForm, setShowAnimalForm] = useState(false)
@@ -93,13 +104,12 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
     if (e.target === e.currentTarget) onClose()
   }
 
-  return (
+  return createPortal(
     <div className="ncm-overlay" onClick={handleOverlayClick}>
       <div className="ncm-modal">
         {/* HEADER */}
         <div className="ncm-header">
           <h2>👤 Novo Cliente</h2>
-          <button className="ncm-close" onClick={onClose} title="Fechar">×</button>
         </div>
 
         {/* BODY */}
@@ -360,6 +370,7 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

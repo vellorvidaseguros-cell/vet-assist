@@ -1,6 +1,15 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import './NovoClienteModal.css'
+
+function useLockBodyScroll() {
+  useEffect(() => {
+    const original = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = original }
+  }, [])
+}
 
 const COBRANCA_VAZIA = {
   historicoConsultaId: '',
@@ -11,6 +20,8 @@ const COBRANCA_VAZIA = {
 }
 
 export default function NovaCobrancaModal({ onClose, onSuccess }) {
+  useLockBodyScroll()
+
   const [cobrancaForm, setCobrancaForm] = useState(COBRANCA_VAZIA)
   const [historicos, setHistoricos] = useState([])
   const [salvando, setSalvando] = useState(false)
@@ -90,7 +101,7 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
   }
 
   if (carregando) {
-    return (
+    return createPortal(
       <div className="ncm-overlay" onClick={handleOverlayClick}>
         <div className="ncm-modal">
           <div className="ncm-header">
@@ -101,11 +112,12 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
             <p style={{ textAlign: 'center', color: '#8e8e93' }}>Carregando históricos...</p>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     )
   }
 
-  return (
+  return createPortal(
     <div className="ncm-overlay" onClick={handleOverlayClick}>
       <div className="ncm-modal">
         {/* HEADER */}
@@ -228,6 +240,7 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

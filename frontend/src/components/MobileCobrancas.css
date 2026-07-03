@@ -262,7 +262,8 @@
 }
 
 .cobranca-btn-pagar {
-  padding: 10px 16px;
+  flex: 1.2;
+  padding: 10px 8px;
   background-color: #007aff;
   color: white;
   border: none;
@@ -271,6 +272,8 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
 }
 
 .cobranca-btn-pagar:hover {
@@ -279,6 +282,195 @@
 
 .cobranca-btn-pagar:active {
   transform: scale(0.98);
+}
+
+/* Linha de botões de ação */
+.cobranca-acoes {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.cobranca-btn-detalhes,
+.cobranca-btn-enviar {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.cobranca-btn-detalhes {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.cobranca-btn-detalhes:active {
+  background-color: #e0e0e0;
+  transform: scale(0.98);
+}
+
+.cobranca-btn-enviar {
+  background-color: #34c759;
+  color: white;
+}
+
+.cobranca-btn-enviar:active {
+  background-color: #2eb04f;
+  transform: scale(0.98);
+}
+
+/* ===== MODAL DE ENVIO ===== */
+.enviar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.enviar-modal {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+.enviar-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.enviar-header h3 {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+}
+
+.enviar-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.enviar-info {
+  background-color: #f5f5f7;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.enviar-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.enviar-info-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.enviar-info-valor {
+  font-weight: 700;
+  color: #34c759;
+  font-size: 15px;
+}
+
+.enviar-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.enviar-opcao-whatsapp,
+.enviar-opcao-email {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 2px solid #e5e5ea;
+  border-radius: 10px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+}
+
+.enviar-opcao-whatsapp:active {
+  background-color: #e8f7eb;
+  border-color: #25d366;
+  transform: scale(0.98);
+}
+
+.enviar-opcao-email:active {
+  background-color: #e8f0ff;
+  border-color: #007aff;
+  transform: scale(0.98);
+}
+
+.enviar-opcao-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.enviar-opcao-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.enviar-opcao-texto strong {
+  font-size: 15px;
+  color: #000;
+}
+
+.enviar-opcao-texto small {
+  font-size: 12px;
+  color: #888;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.enviar-cancelar {
+  width: 100%;
+  padding: 12px;
+  background-color: transparent;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.enviar-cancelar:active {
+  background-color: #f0f0f0;
 }
 
 @media (max-width: 480px) {
@@ -417,4 +609,260 @@
   background-color: #667eea !important;
   color: #ffffff !important;
   font-weight: 700 !important;
+}
+
+/* ===== MODAL DE DETALHES DO HISTÓRICO ===== */
+.historico-cobranca-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  animation: fadeIn 0.2s ease;
+  overflow-y: auto;
+}
+
+.historico-cobranca-modal {
+  background-color: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 460px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.historico-cobranca-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e5e5ea;
+  background-color: #f5f5f7;
+}
+
+.historico-cobranca-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+}
+
+.historico-cobranca-close {
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: #8e8e93;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.historico-cobranca-close:active {
+  transform: scale(0.9);
+}
+
+.historico-cobranca-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.hc-section {
+  background-color: #f9f9fb;
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid #e5e5ea;
+}
+
+.hc-section h4 {
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #667eea;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.hc-section p {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.hc-meta {
+  font-size: 12px !important;
+  color: #8e8e93 !important;
+  margin-top: 4px !important;
+}
+
+.hc-tipo {
+  display: inline-block;
+  margin-top: 6px !important;
+  padding: 4px 10px;
+  background-color: #007aff;
+  color: white !important;
+  border-radius: 12px;
+  font-size: 12px !important;
+  font-weight: 600;
+}
+
+.hc-content {
+  white-space: pre-wrap;
+}
+
+.hc-fotos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.hc-foto-thumb {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e5ea;
+}
+
+.hc-valor-section {
+  background-color: #fff8e6 !important;
+  border-color: #ffd54f !important;
+}
+
+.hc-valor-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.hc-valor-row strong {
+  color: #34c759;
+  font-size: 16px;
+}
+
+.hc-status-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.hc-status-badge.status-pendente {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.hc-status-badge.status-pago {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.hc-status-badge.status-parcialmente-pago {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.historico-cobranca-footer {
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  border-top: 1px solid #e5e5ea;
+  background-color: #ffffff;
+}
+
+.hc-btn-fechar {
+  width: 100%;
+  padding: 12px;
+  background-color: #007aff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hc-btn-fechar:active {
+  background-color: #0051d5;
+  transform: scale(0.98);
+}
+
+/* ===== LIGHTBOX DE FOTO ===== */
+.hc-foto-lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 2147483648;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  animation: fadeIn 0.2s ease;
+}
+
+.hc-foto-lightbox-img {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.hc-foto-lightbox-voltar {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 10px 16px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s ease;
+}
+
+.hc-foto-lightbox-voltar:active {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(0.98);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

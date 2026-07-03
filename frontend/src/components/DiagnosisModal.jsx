@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import './DiagnosisModal.css'
 
@@ -137,7 +138,7 @@ export default function DiagnosisModal({ agendamentoId, historicoId, onClose, on
     }
   }
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content diagnosis-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
@@ -243,6 +244,7 @@ export default function DiagnosisModal({ agendamentoId, historicoId, onClose, on
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

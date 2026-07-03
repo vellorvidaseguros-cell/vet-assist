@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import './GastosCategoriaPieChartModal.css'
 
 export default function GastosCategoriaPieChartModal({ porCategoria, totalGastos, onClose }) {
@@ -87,7 +88,7 @@ export default function GastosCategoriaPieChartModal({ porCategoria, totalGastos
     setCategoriaSelecionada(categoriaSelecionada?.name === categoria.name ? null : categoria)
   }
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
@@ -225,6 +226,7 @@ export default function GastosCategoriaPieChartModal({ porCategoria, totalGastos
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

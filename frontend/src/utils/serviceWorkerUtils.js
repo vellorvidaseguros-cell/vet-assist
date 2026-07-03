@@ -1,118 +1,52 @@
 /**
- * Utilitários para Service Worker
- * Registra SW e configura lembretes
+ * Service Worker - Registro com auto-update
+ * IMPORTANTE: Esta função NÃO pede permissão de notificação.
+ * Permissão deve ser pedida apenas em resposta a um clique do usuário
+ * (ver LembretesListener.jsx).
  */
-
 export async function registerServiceWorker() {
-  console.log('[SW] Verificando suporte...')
-  console.log('[SW] navigator.serviceWorker:', 'serviceWorker' in navigator)
-
   if (!('serviceWorker' in navigator)) {
-    console.log('[SW] ❌ Service Worker não suportado neste navegador')
-    return
+    console.log('[SW] Service Worker não suportado neste navegador')
+    return null
   }
 
   try {
-    console.log('[SW] 📝 Tentando registrar service-worker.js...')
     const registration = await navigator.serviceWorker.register('/service-worker.js', {
-      scope: '/'
+      scope: '/',
+      updateViaCache: 'none'  // sempre buscar versão nova do SW
     })
-    console.log('[SW] ✅ Service Worker registrado com sucesso:', registration)
+    console.log('[SW] ✅ Registrado:', registration.scope)
 
-    // Verificar updates
+    // Verificar update a cada 60 segundos
+    setInterval(() => {
+      registration.update().catch(() => {})
+    }, 60000)
+
+    // Quando uma nova versão estiver disponível, ativar imediatamente
     registration.addEventListener('updatefound', () => {
       const newWorker = registration.installing
+      if (!newWorker) return
+
       newWorker.addEventListener('statechange', () => {
         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          console.log('[SW] 📦 Nova versão disponível')
-          // Notificar usuário (opcional)
+          console.log('[SW] 🔄 Nova versão disponível, atualizando...')
+          newWorker.postMessage({ type: 'SKIP_WAITING' })
         }
       })
     })
 
+    // Quando o SW ativo mudar, recarregar a página
+    let refreshing = false
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return
+      refreshing = true
+      console.log('[SW] 🔄 Recarregando com nova versão...')
+      window.location.reload()
+    })
+
     return registration
   } catch (err) {
-    console.error('[SW] ❌ Erro ao registrar:', err.message || err)
-    console.error('[SW] Stack:', err.stack)
-  }
-}
-
-/**
- * Pedir permissão para notificações
- */
-export async function requestNotificationPermission() {
-  if (!('Notification' in window)) {
-    console.log('[Notif] Notifications não suportadas')
-    return false
-  }
-
-  if (Notification.permission === 'granted') {
-    console.log('[Notif] ✅ Permissão já concedida')
-    return true
-  }
-
-  if (Notification.permission !== 'denied') {
-    try {
-      const permission = await Notification.requestPermission()
-      const granted = permission === 'granted'
-      console.log(`[Notif] ${granted ? '✅' : '❌'} Permissão:`, permission)
-      return granted
-    } catch (err) {
-      console.error('[Notif] Erro ao pedir permissão:', err)
-      return false
-    }
-  }
-
-  console.log('[Notif] ⚠️ Permissão bloqueada pelo usuário')
-  return false
-}
-
-/**
- * Iniciar sincronização periódica de lembretes
- */
-export async function startLembreteSync() {
-  if (!('serviceWorker' in navigator) || !('SyncManager' in window)) {
-    console.log('[Sync] Background Sync não suportado')
-    return
-  }
-
-  try {
-    const registration = await navigator.serviceWorker.ready
-    await registration.sync.register('sync-lembretes')
-    console.log('[Sync] ✅ Sincronização registrada')
-  } catch (err) {
-    console.error('[Sync] ❌ Erro:', err)
-  }
-}
-
-/**
- * Mostrar notificação nativa
- */
-export function showNotification(title, options = {}) {
-  if (!('Notification' in window)) return
-
-  if (Notification.permission === 'granted') {
-    try {
-      const notif = new Notification(title, {
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        vibrate: [200, 100, 200],
-        ...options
-      })
-
-      // Auto-fechar após 5 segundos
-      setTimeout(() => notif.close(), 5000)
-    } catch (err) {
-      console.error('[Notif] Erro ao mostrar:', err)
-    }
-  }
-}
-
-/**
- * Enviar mensagem para o Service Worker
- */
-export function sendMessageToSW(message) {
-  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage(message)
+    console.error('[SW] ❌ Erro ao registrar:', err.message)
+    return null
   }
 }

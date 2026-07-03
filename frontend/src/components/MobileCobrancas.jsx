@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import PagamentoModal from './PagamentoModal'
 import './MobileCobrancas.css'
@@ -11,6 +12,7 @@ export default function MobileCobrancas() {
   const [error, setError] = useState('')
   const [filtro, setFiltro] = useState('Pendente')
   const [pagamentoModalFat, setPagamentoModalFat] = useState(null)
+  const [enviarCobrancaFat, setEnviarCobrancaFat] = useState(null)
   const [showMesSeletor, setShowMesSeletor] = useState(false)
   const hoje = new Date()
   // null = todos os meses; objeto = mês específico
@@ -33,6 +35,75 @@ export default function MobileCobrancas() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Abrir PDF do histórico em nova aba
+  const abrirPDFHistorico = (cobranca) => {
+    try {
+      const historicoId = cobranca.historicoConsultaId || cobranca.HistoricoConsulta?.id
+      if (!historicoId) {
+        setError('Esta cobrança não possui histórico vinculado')
+        return
+      }
+
+      // Abrir PDF em nova aba para visualização
+      const pdfUrl = `/api/historico/pdf/${historicoId}`
+      window.open(pdfUrl, '_blank')
+    } catch (err) {
+      setError('Erro ao abrir PDF do histórico')
+      console.error(err)
+    }
+  }
+
+  // Construir mensagem de cobrança formatada
+  const construirMensagemCobranca = (cobranca) => {
+    const clienteNome = cobranca.Cliente?.nome || cobranca.HistoricoConsulta?.Cliente?.nome || 'Cliente'
+    const petNome = cobranca.HistoricoConsulta?.Pet?.nome || 'Pet'
+    const valor = parseFloat(cobranca.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    const tipo = cobranca.HistoricoConsulta?.tipoAtendimento || cobranca.descricao || 'Atendimento'
+    const dataConsulta = cobranca.HistoricoConsulta?.data
+      ? new Date(cobranca.HistoricoConsulta.data).toLocaleDateString('pt-BR')
+      : ''
+
+    return `Olá ${clienteNome}! 🐾
+
+Segue cobrança referente ao atendimento veterinário:
+
+🐾 Pet: ${petNome}
+📋 Serviço: ${tipo}${dataConsulta ? `\n📅 Data: ${dataConsulta}` : ''}
+💰 Valor: R$ ${valor}
+
+Por favor, entre em contato para confirmar o pagamento.
+
+Obrigado!`
+  }
+
+  // Enviar via WhatsApp
+  const enviarWhatsApp = (cobranca) => {
+    const telefone = (cobranca.Cliente?.telefone || cobranca.HistoricoConsulta?.Cliente?.telefone || '').replace(/\D/g, '')
+    if (!telefone) {
+      alert('⚠️ Cliente não possui telefone cadastrado')
+      return
+    }
+    // Adicionar 55 (Brasil) se não tiver
+    const numeroLimpo = telefone.startsWith('55') ? telefone : `55${telefone}`
+    const mensagem = encodeURIComponent(construirMensagemCobranca(cobranca))
+    const url = `https://wa.me/${numeroLimpo}?text=${mensagem}`
+    window.open(url, '_blank')
+    setEnviarCobrancaFat(null)
+  }
+
+  // Enviar via Email
+  const enviarEmail = (cobranca) => {
+    const email = cobranca.Cliente?.email || cobranca.HistoricoConsulta?.Cliente?.email
+    if (!email) {
+      alert('⚠️ Cliente não possui email cadastrado')
+      return
+    }
+    const assunto = encodeURIComponent('Cobrança - Atendimento Veterinário')
+    const corpo = encodeURIComponent(construirMensagemCobranca(cobranca))
+    window.location.href = `mailto:${email}?subject=${assunto}&body=${corpo}`
+    setEnviarCobrancaFat(null)
   }
 
   // Extrair data do faturamento de forma segura (usa dataEmissao ou createdAt)
@@ -253,14 +324,34 @@ export default function MobileCobrancas() {
                   )}
                 </div>
 
-                {(cobranca.status === 'Pendente' || cobranca.status === 'Parcialmente Pago') && (
+                {/* Botões de ação */}
+                <div className="cobranca-acoes">
                   <button
-                    className="cobranca-btn-pagar"
-                    onClick={() => setPagamentoModalFat(cobranca)}
+                    className="cobranca-btn-detalhes"
+                    onClick={() => abrirPDFHistorico(cobranca)}
+                    title="Visualizar PDF do histórico"
                   >
-                    {cobranca.status === 'Pendente' ? 'Registrar Pagamento' : 'Adicionar Pagamento'}
+                    📋 PDF
                   </button>
-                )}
+
+                  {(cobranca.status === 'Pendente' || cobranca.status === 'Parcialmente Pago') && (
+                    <>
+                      <button
+                        className="cobranca-btn-enviar"
+                        onClick={() => setEnviarCobrancaFat(cobranca)}
+                        title="Enviar cobrança"
+                      >
+                        📤 Enviar
+                      </button>
+                      <button
+                        className="cobranca-btn-pagar"
+                        onClick={() => setPagamentoModalFat(cobranca)}
+                      >
+                        💰 {cobranca.status === 'Pendente' ? 'Registrar' : 'Adicionar'}
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             )
           })}
@@ -277,6 +368,62 @@ export default function MobileCobrancas() {
           }}
         />
       )}
+
+      {/* Modal de escolha de envio */}
+      {enviarCobrancaFat && createPortal(
+        <div className="enviar-overlay" onClick={() => setEnviarCobrancaFat(null)}>
+          <div className="enviar-modal" onClick={e => e.stopPropagation()}>
+            <div className="enviar-header">
+              <h3>📤 Enviar Cobrança</h3>
+              <p>Como você quer enviar a cobrança?</p>
+            </div>
+
+            <div className="enviar-info">
+              <div className="enviar-info-row">
+                <span className="enviar-info-label">Cliente:</span>
+                <span>{enviarCobrancaFat.Cliente?.nome || enviarCobrancaFat.HistoricoConsulta?.Cliente?.nome || '—'}</span>
+              </div>
+              <div className="enviar-info-row">
+                <span className="enviar-info-label">Valor:</span>
+                <span className="enviar-info-valor">R$ {parseFloat(enviarCobrancaFat.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              </div>
+            </div>
+
+            <div className="enviar-opcoes">
+              <button
+                className="enviar-opcao-whatsapp"
+                onClick={() => enviarWhatsApp(enviarCobrancaFat)}
+              >
+                <span className="enviar-opcao-icon">💬</span>
+                <div className="enviar-opcao-texto">
+                  <strong>WhatsApp</strong>
+                  <small>{(enviarCobrancaFat.Cliente?.telefone || enviarCobrancaFat.HistoricoConsulta?.Cliente?.telefone) || 'Sem telefone'}</small>
+                </div>
+              </button>
+
+              <button
+                className="enviar-opcao-email"
+                onClick={() => enviarEmail(enviarCobrancaFat)}
+              >
+                <span className="enviar-opcao-icon">📧</span>
+                <div className="enviar-opcao-texto">
+                  <strong>Email</strong>
+                  <small>{(enviarCobrancaFat.Cliente?.email || enviarCobrancaFat.HistoricoConsulta?.Cliente?.email) || 'Sem email'}</small>
+                </div>
+              </button>
+            </div>
+
+            <button
+              className="enviar-cancelar"
+              onClick={() => setEnviarCobrancaFat(null)}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+
     </div>
   )
 }

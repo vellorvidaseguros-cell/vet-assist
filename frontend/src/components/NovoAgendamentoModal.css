@@ -1,29 +1,45 @@
 /* ===== OVERLAY ===== */
 .nam-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
+  z-index: 999999;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 1rem;
 }
 
 /* ===== MODAL BOX ===== */
 .nam-modal {
   background: white;
-  border-radius: 12px;
+  border-radius: 0;
   width: 100%;
-  max-width: 700px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
+  max-width: 100%;
+  min-height: 100vh;
+  display: block;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .nam-overlay {
+    align-items: center;
+    padding: 1rem;
+  }
+  .nam-modal {
+    max-width: 700px;
+    min-height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 12px;
+    padding-bottom: 0;
+  }
 }
 
 /* ===== HEADER ===== */
@@ -116,6 +132,13 @@
   color: #333;
 }
 
+.nam-group label .optional {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #8e8e93;
+  margin-left: 0.25rem;
+}
+
 .nam-group input,
 .nam-group select,
 .nam-group textarea {
@@ -126,8 +149,23 @@
   background: white;
   transition: border-color 0.2s;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
   font-family: inherit;
+}
+
+/* Previne scroll horizontal em qualquer lugar do modal */
+.nam-modal,
+.nam-body,
+.nam-section,
+.nam-row,
+.nam-group {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.nam-row {
+  min-width: 0;  /* permite que grid items shrinkam */
 }
 
 .nam-group input:focus,
@@ -207,19 +245,37 @@
 
 /* ===== RESPONSIVO ===== */
 @media (max-width: 768px) {
+  /* Overlay vira o container scrollable - TUDO rola junto */
   .nam-overlay {
-    align-items: flex-end;
+    display: block;
     padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    align-items: initial;
+    justify-content: initial;
+    /* Cobrir 100% da viewport visível (inclusive bottom-nav do app) */
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
   }
 
+  /* Modal cresce naturalmente, sem altura fixa - rola com o overlay */
   .nam-modal {
     width: 100%;
-    border-radius: 12px 12px 0 0;
-    max-height: 90vh;
+    min-height: 100%;
+    max-height: none;
+    height: auto;
+    border-radius: 0;
+    display: block;
+    overflow: visible;
+    box-shadow: none;
   }
 
   .nam-header {
-    padding: 1rem 1.25rem;
+    padding: calc(env(safe-area-inset-top, 0px) + 0.85rem) 1.25rem 1rem;
+    flex-shrink: initial;
+    overflow: visible;
   }
 
   .nam-header h2 {
@@ -229,6 +285,10 @@
   .nam-body {
     padding: 1rem;
     gap: 1rem;
+    flex: initial;
+    overflow: visible;  /* deixa o overlay rolar tudo junto */
+    display: flex;
+    flex-direction: column;
   }
 
   .nam-section {
@@ -257,14 +317,24 @@
   }
 
   .nam-footer {
-    padding: 1rem 1.25rem;
-    gap: 0.5rem;
+    padding: 1rem 1.25rem calc(env(safe-area-inset-bottom, 0px) + 1rem);
+    gap: 0.6rem;
+    /* Faz parte do flow - NÃO é sticky/fixed - rola junto com tudo */
+    position: static;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    flex-shrink: initial;
+    display: flex;
+    flex-direction: column-reverse;  /* Salvar em cima, Cancelar embaixo */
   }
 
   .nam-btn-salvar,
   .nam-btn-cancelar {
-    padding: 0.55rem 1rem;
-    font-size: 0.85rem;
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
+    min-height: 48px;
+    width: 100%;  /* botões ocupam toda largura */
+    text-align: center;
   }
 }
 
@@ -272,29 +342,11 @@
   .nam-row {
     grid-template-columns: 1fr;
   }
-
-  .nam-modal {
-    max-height: 95vh;
-  }
-
-  .nam-footer {
-    flex-direction: column-reverse;
-  }
-
-  .nam-btn-salvar,
-  .nam-btn-cancelar {
-    width: 100%;
-    text-align: center;
-  }
 }
 
 @media (max-width: 480px) {
-  .nam-modal {
-    border-radius: 12px 12px 0 0;
-  }
-
   .nam-header {
-    padding: 0.85rem 1rem;
+    padding: calc(env(safe-area-inset-top, 0px) + 0.85rem) 1rem 0.85rem;
     border-bottom: 1px solid #f0f0f0;
   }
 
@@ -311,6 +363,8 @@
   .nam-body {
     padding: 0.85rem;
     gap: 0.85rem;
+    /* Espaço extra no final para não cortar último campo */
+    padding-bottom: 1.5rem;
   }
 
   .nam-section-title {
@@ -319,28 +373,202 @@
   }
 
   .nam-group label {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 
   .nam-group input,
   .nam-group select,
   .nam-group textarea {
-    padding: 0.55rem 0.6rem;
-    font-size: 0.85rem;
+    padding: 0.7rem 0.75rem;
+    font-size: 0.95rem;
+    /* Prevenir zoom automático no iPhone (input >= 16px não dá zoom) */
+    font-size: max(0.95rem, 16px);
   }
 
   .nam-footer {
-    padding: 0.85rem 1rem;
+    padding: 0.85rem 1rem calc(env(safe-area-inset-bottom, 0px) + 0.85rem);
   }
 
   .nam-btn-salvar,
   .nam-btn-cancelar {
-    padding: 0.5rem 0.9rem;
-    font-size: 0.8rem;
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
+    min-height: 44px;
   }
 
   .nam-error {
     padding: 0.65rem 0.85rem;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
+}
+
+/* ===== MÚLTIPLOS TIPOS DE ATENDIMENTO ===== */
+.tipo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background-color: #f9f9fb;
+  border: 1px solid #e5e5ea;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tipo-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+.tipo-item-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #667eea;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.tipo-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tipo-field-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #555;
+  margin: 0;
+}
+
+.tipo-select,
+.tipo-input,
+.tipo-textarea {
+  width: 100% !important;
+  padding: 0.65rem 0.75rem !important;
+  border: 1.5px solid #ddd !important;
+  border-radius: 6px !important;
+  font-size: max(0.95rem, 16px) !important;
+  background: white !important;
+  color: #333 !important;
+  box-sizing: border-box !important;
+  font-family: inherit !important;
+  display: block !important;
+}
+
+.tipo-select {
+  -webkit-appearance: menulist !important;
+  appearance: menulist !important;
+}
+
+.tipo-input {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+.tipo-textarea {
+  resize: vertical !important;
+  min-height: 60px !important;
+  font-family: inherit !important;
+}
+
+.tipo-textarea:focus,
+.tipo-select:focus,
+.tipo-input:focus {
+  outline: none !important;
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+/* ===== VALOR TOTAL ===== */
+.valor-total-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  color: white;
+}
+
+.valor-total-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.valor-total-amount {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.valor-total-hint {
+  margin: 8px 0 0 0;
+  font-size: 0.8rem;
+  color: #888;
+  text-align: center;
+  font-style: italic;
+}
+
+.btn-remover-tipo {
+  background-color: transparent;
+  color: #ff3b30;
+  border: 1px solid #ff3b30;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1.2;
+}
+
+.btn-remover-tipo:active {
+  background-color: #ff3b30;
+  color: white;
+  transform: scale(0.95);
+}
+
+.btn-adicionar-tipo {
+  width: 100%;
+  background-color: #ffffff;
+  color: #007aff;
+  border: 1.5px dashed #007aff;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+  -webkit-tap-highlight-color: transparent;
+  display: block;
+  text-align: center;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.btn-adicionar-tipo:hover {
+  background-color: #e8f0ff;
+}
+
+.btn-adicionar-tipo:active {
+  background-color: #d0e0ff;
+  transform: scale(0.98);
 }

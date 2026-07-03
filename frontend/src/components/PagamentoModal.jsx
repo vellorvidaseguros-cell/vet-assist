@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import './PagamentoModal.css'
 
@@ -77,7 +78,7 @@ export default function PagamentoModal({ faturamento, onClose, onSuccess, isNest
     }
   }
 
-  return (
+  return createPortal(
     <div className="modal-overlay" style={overlayStyle} onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
@@ -216,6 +217,7 @@ export default function PagamentoModal({ faturamento, onClose, onSuccess, isNest
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -1,31 +1,15 @@
-// Configuração automática da URL do backend
-// Funciona com localhost, IP externo, ngrok e produção (Railway)
+// Configuração do backend
+//
+// Estratégia: SEMPRE usar URLs relativas (ex: '/api/agendamentos')
+// - Em dev (localhost ou IP de rede): o Vite faz proxy do /api → backend
+// - Em ngrok: o ngrok faz proxy de tudo para o Vite
+// - Em produção (Railway): backend serve frontend no mesmo origin
+//
+// Isso elimina problemas de hardcoded URLs e portas erradas.
 
-const getBackendURL = () => {
-  const { hostname, origin, protocol } = window.location
+export const API_BASE_URL = ''  // vazio = sempre relativo ao origin atual
 
-  // Localhost / desenvolvimento
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:5000'
-  }
+// Função helper - retorna apenas o endpoint, deixando axios resolver baseURL
+export const apiUrl = (endpoint) => endpoint
 
-  // Ngrok (tunelamento) - usa o mesmo host com HTTPS, sem porta
-  if (hostname.includes('ngrok')) {
-    return `https://${hostname}`
-  }
-
-  // IP local (rede interna)
-  if (hostname.startsWith('192.168') || hostname.startsWith('10.') || hostname.startsWith('172.')) {
-    return `${protocol}//${hostname}:5000`
-  }
-
-  // Produção (Railway, Vercel, etc.) - backend serve o frontend no mesmo origin
-  return origin
-}
-
-export const API_BASE_URL = getBackendURL()
-
-// Função helper para construir URLs
-export const apiUrl = (endpoint) => `${API_BASE_URL}${endpoint}`
-
-console.log('[API Config] Backend URL:', API_BASE_URL)
+console.log('[API Config] Usando URLs relativas (origin:', window.location.origin, ')')

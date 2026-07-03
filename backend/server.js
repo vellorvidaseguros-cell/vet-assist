@@ -34,7 +34,33 @@ if (process.env.DATABASE_URL && !process.env.NODE_ENV) {
 }
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+
+// Detectar porta disponível automaticamente
+async function encontrarPortaDisponivel(portaInicial = 5000) {
+  const { createServer } = await import('net')
+  for (let porta = portaInicial; porta < portaInicial + 20; porta++) {
+    const disponivel = await new Promise((resolve) => {
+      const srv = createServer()
+      srv.once('error', () => resolve(false))
+      srv.once('listening', () => { srv.close(); resolve(true) })
+      srv.listen(porta, '0.0.0.0')
+    })
+    if (disponivel) return porta
+  }
+  throw new Error('Nenhuma porta disponível entre ' + portaInicial + ' e ' + (portaInicial + 20))
+}
+
+// Salvar porta em arquivo para o frontend descobrir
+function salvarPorta(porta) {
+  try {
+    fs.writeFileSync(path.join(__dirname, '../.backend-port'), String(porta))
+    console.log(`[INFO] Porta salva em .backend-port: ${porta}`)
+  } catch (err) {
+    console.warn('[WARN] Não foi possível salvar .backend-port:', err.message)
+  }
+}
+
+const PORT_INICIAL = parseInt(process.env.PORT) || 5000;
 
 // Obter __dirname em módulos ES6
 const __filename = fileURLToPath(import.meta.url);
@@ -75,6 +101,12 @@ Faturamento.belongsTo(HistoricoConsulta, { foreignKey: 'historicoConsultaId' })
 Cliente.hasMany(Faturamento, { foreignKey: 'clienteId' })
 HistoricoConsulta.hasMany(Faturamento, { foreignKey: 'historicoConsultaId' })
 
+// Associações para Anexo (fotos)
+Anexo.belongsTo(Agendamento, { foreignKey: 'agendamentoId' })
+Anexo.belongsTo(HistoricoConsulta, { foreignKey: 'historicoConsultaId' })
+Agendamento.hasMany(Anexo, { foreignKey: 'agendamentoId' })
+HistoricoConsulta.hasMany(Anexo, { foreignKey: 'historicoConsultaId' })
+
 // Rota de teste para uploads
 app.get('/test-uploads/:filename', (req, res) => {
   const filePath = path.join(__dirname, 'uploads', req.params.filename);
@@ -95,7 +127,6 @@ app.get('/api/status', (req, res) => {
     version: '1.0.0'
   });
 });
-
 
 // Sincronizar banco de dados e iniciar servidor
 async function iniciarServidor() {
@@ -137,6 +168,16 @@ async function iniciarServidor() {
     app.use('/api/perfil', perfilRoutes);
     app.use('/api/anexos', anexosRoutes);
 
+    // Endpoint para o frontend descobrir a porta do backend (Socket.IO direto)
+    app.get('/api/backend-info', (req, res) => {
+      const porta = global.__BACKEND_PORT__ || 5000;
+      res.json({
+        porta,
+        socketUrl: `http://localhost:${porta}`,
+        wsUrl: `ws://localhost:${porta}`
+      });
+    });
+
     // Servir service-worker.js explicitamente
     app.get('/service-worker.js', (req, res) => {
       res.setHeader('Content-Type', 'application/javascript');
@@ -149,24 +190,49 @@ async function iniciarServidor() {
       res.sendFile(path.join(__dirname, '../frontend/public/manifest.json'));
     });
 
-    // Servir frontend React buildado
-    const frontendDist = path.join(__dirname, '../frontend/dist');
-    app.use(express.static(frontendDist));
+    // Endpoint de teste (será movido após criar Socket.IO)
+    // Placeholder para adicionar depois de Socket.IO estar disponível
 
-    // Fallback para rotas SPA - serve index.html para rotas desconhecidas
-    // O express.static já serve arquivos estáticos, então isso só pega rotas que não existem
-    app.get('*', (req, res, next) => {
-      // Ignorar rotas de API
-      if (req.path.startsWith('/api') || req.path.startsWith('/backend') || req.path.startsWith('/test-')) {
-        return next();
-      }
-      const indexPath = path.join(frontendDist, 'index.html');
-      if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-      }
+    // Criar servidor HTTP passando app direto
+    // Socket.IO será attached depois e vai interceptar /socket.io automaticamente
+    const server = http.createServer(app);
+
+    console.log('[INFO] Criando Socket.IO...');
+    const io = new Server(server, {
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+        credentials: false
+      },
+      transports: ['websocket', 'polling'],
+      pingInterval: 25000,
+      pingTimeout: 60000,
+      path: '/socket.io/'
     });
 
-    // Error handler - não vaza mensagem detalhada em produção
+    // Tornar io global para acesso em outros endpoints
+    global.io = io;
+
+    console.log('[INFO] Socket.IO criado com sucesso!')
+    console.log('[DEBUG] Registrando handlers do Socket.IO...');
+
+    // Endpoint de teste para emitir eventos Socket.IO
+    app.get('/test-emit', (req, res) => {
+      console.log('[TEST] Emitindo evento de teste via Socket.IO...');
+      io.emit('lembrete', {
+        id: 999,
+        titulo: 'Lembrete de Teste',
+        body: '🧪 Este é um lembrete de teste do sistema',
+        cliente: 'Teste',
+        pet: 'Teste',
+        hora: '17:00',
+        tipo: '5min',
+        timestamp: new Date().toISOString()
+      });
+      res.json({ sucesso: true, mensagem: 'Evento de teste emitido' });
+    });
+
+    // Error handler - deve vir ANTES do 404 handler
     app.use((err, req, res, next) => {
       console.error('[ERROR]', err);
       const isProd = process.env.NODE_ENV === 'production' || !!process.env.DATABASE_URL;
@@ -176,32 +242,32 @@ async function iniciarServidor() {
       });
     });
 
+    // Servir frontend React buildado
+    const frontendDist = path.join(__dirname, '../frontend/dist');
+    app.use(express.static(frontendDist));
+
     // 404 handler para rotas /api
     app.use((req, res) => {
       if (req.path.startsWith('/api')) {
         res.status(404).json({ sucesso: false, erro: 'Rota não encontrada' });
       } else {
-        // Para rotas não-API que chegam aqui (frontend dist não existe),
-        // retorna mensagem amigável
-        res.status(404).send(`
-          <!DOCTYPE html>
-          <html>
-          <head><title>404 - Página não encontrada</title></head>
-          <body style="font-family: Arial; text-align: center; padding: 40px;">
-            <h1>❌ Página não encontrada</h1>
-            <p><a href="/">Voltar para Home</a></p>
-          </body>
-          </html>
-        `);
-      }
-    });
-
-    // Criar servidor HTTP para Socket.IO
-    const server = http.createServer(app);
-    const io = new Server(server, {
-      cors: {
-        origin: '*',
-        methods: ['GET', 'POST']
+        // Para rotas não-API que chegam aqui, retorna index.html para SPA fallback
+        const indexPath = path.join(frontendDist, 'index.html');
+        if (fs.existsSync(indexPath)) {
+          res.sendFile(indexPath);
+        } else {
+          // Se index.html não existir, retorna 404
+          res.status(404).send(`
+            <!DOCTYPE html>
+            <html>
+            <head><title>404 - Página não encontrada</title></head>
+            <body style="font-family: Arial; text-align: center; padding: 40px;">
+              <h1>❌ Página não encontrada</h1>
+              <p><a href="/">Voltar para Home</a></p>
+            </body>
+            </html>
+          `);
+        }
       }
     });
 
@@ -222,6 +288,11 @@ async function iniciarServidor() {
     // Iniciar job de lembretes
     initLembretesJob(io);
     startCleanup();
+
+    // Encontrar porta disponível automaticamente
+    const PORT = await encontrarPortaDisponivel(PORT_INICIAL);
+    salvarPorta(PORT);
+    global.__BACKEND_PORT__ = PORT;  // disponível para /api/backend-info
 
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`\n[OK] Servidor rodando na porta ${PORT}`);
