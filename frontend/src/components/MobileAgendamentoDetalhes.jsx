@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { formatarData } from '../utils/dateFormatter'
 import PhotoUploadModal from './PhotoUploadModal'
+import { fotoUrl } from '../utils/fotoUrl'
 import './MobileAgendamentoDetalhes.css'
 
 export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSuccess }) {
@@ -226,7 +227,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
                 {agendamento.Anexos.map(anexo => (
                   <div key={anexo.id} className="foto-item">
                     <img
-                      src={anexo.caminhoArquivo || `/api/anexos/file/${anexo.id}`}
+                      src={anexo.caminhoArquivo || fotoUrl(anexo.id)}
                       alt={anexo.nomeArquivo}
                     />
                   </div>

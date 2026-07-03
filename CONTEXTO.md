@@ -103,11 +103,20 @@ Anexo → Agendamento, HistoricoConsulta
 
 ## Tarefas Recentes
 
+### 🔐 Autenticação JWT implementada (03/07/2026)
+- Middleware `backend/middleware/auth.js` protege TODAS as rotas /api
+- Rotas públicas: `/api/veterinarios/login`, `/api/status`, `/api/backend-info`
+- Token no header `Authorization: Bearer` OU query `?token=` (para PDF/imagens em nova aba)
+- Frontend já tinha login + interceptors prontos (main.jsx) — nada mudou no fluxo
+- Fotos via `/api/anexos/file/:id` usam helper `src/utils/fotoUrl.js` (anexa token)
+- ⚠️ TROCAR a senha padrão admin@vetassist.com/admin123 (está no código-fonte!)
+- Service worker: v16
+
 ### 📋 Auditoria completa (03/07/2026) — ver AUDITORIA_2026-07-03.md
 - 5 bugs corrigidos e testados (hora opcional no banco + migração, PDF inline, fotos no PDF, emojis no PDF, campos do histórico)
-- Service worker: v15
-- **Pendência crítica: API sem autenticação** (exposta via ngrok) — decidir antes de continuar
+- git em dia: commit de consolidação ba78f83
 - ngrok bloqueado pelo Windows nesta máquina ("Acesso negado") — usar WiFi local ou reinstalar
+- Próximos passos comerciais: multi-tenancy (dados por veterinarioId) → deploy Railway → pilotos → cobrança
 
 ### ✅ PDF de Histórico na Cobrança - COMPLETO
 - Botão "📋 PDF" em cobranças abre histórico em nova aba

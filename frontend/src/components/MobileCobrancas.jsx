@@ -46,8 +46,10 @@ export default function MobileCobrancas() {
         return
       }
 
-      // Abrir PDF em nova aba para visualização
-      const pdfUrl = `/api/historico/pdf/${historicoId}`
+      // Abrir PDF em nova aba para visualização.
+      // Token via query string porque nova aba não envia o header Authorization.
+      const token = localStorage.getItem('token')
+      const pdfUrl = `/api/historico/pdf/${historicoId}?token=${encodeURIComponent(token || '')}`
       window.open(pdfUrl, '_blank')
     } catch (err) {
       setError('Erro ao abrir PDF do histórico')

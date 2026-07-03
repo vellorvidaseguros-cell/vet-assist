@@ -10,6 +10,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { Veterinario, Cliente, Pet, Agendamento, Consulta, Vacina, HistoricoConsulta, Anexo, Faturamento, Veiculo, Despesa } from './models/index.js';
 import { initLembretesJob, startCleanup } from './jobs/lembretesJob.js';
+import { autenticar } from './middleware/auth.js';
 
 // Rotas
 import veterinariosRoutes from './routes/veterinarios.js';
@@ -153,6 +154,10 @@ async function iniciarServidor() {
 
     // Inserir dados de teste
     await seedTestData()
+
+    // Autenticação JWT obrigatória em todas as rotas /api
+    // (exceções públicas definidas em middleware/auth.js: login, status, backend-info)
+    app.use('/api', autenticar);
 
     // Rotas da API
     app.use('/api/veterinarios', veterinariosRoutes);

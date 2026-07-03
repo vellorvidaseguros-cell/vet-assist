@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { formatarData, formatarDataComDia } from '../utils/dateFormatter'
 import { apiUrl, API_BASE_URL } from '../utils/apiConfig'
+import { fotoUrl } from '../utils/fotoUrl'
 import ConfirmModal from './ConfirmModal'
 import './AnimalHistory.css'
 
@@ -370,7 +371,7 @@ export default function AnimalHistory() {
       <div class="photos-grid">
         ${fotos.map(foto => `
           <div class="photo-item">
-            <img src="${apiBaseUrl}/api/anexos/file/${foto.id}" alt="${foto.nomeArquivo}" />
+            <img src="${apiBaseUrl}${fotoUrl(foto.id)}" alt="${foto.nomeArquivo}" />
             <p>${foto.nomeArquivo}</p>
           </div>
         `).join('')}
@@ -638,7 +639,7 @@ export default function AnimalHistory() {
         <div class="photos-grid">
           ${fotos.map(foto => `
             <div class="photo-item">
-              <img src="${apiBaseUrl}/api/anexos/file/${foto.id}" alt="${foto.nomeArquivo}" />
+              <img src="${apiBaseUrl}${fotoUrl(foto.id)}" alt="${foto.nomeArquivo}" />
               <p>${foto.nomeArquivo}</p>
             </div>
           `).join('')}
@@ -1001,10 +1002,10 @@ export default function AnimalHistory() {
                           {photosByHistorico[item.id].map(foto => (
                             <img
                               key={foto.id}
-                              src={`/api/anexos/file/${foto.id}`}
+                              src={fotoUrl(foto.id)}
                               alt={foto.nomeArquivo}
                               className="mobile-foto-thumb"
-                              onClick={() => setLightboxFoto({ src: `/api/anexos/file/${foto.id}`, nome: foto.nomeArquivo })}
+                              onClick={() => setLightboxFoto({ src: fotoUrl(foto.id), nome: foto.nomeArquivo })}
                               title="Toque para ampliar"
                             />
                           ))}
@@ -1273,11 +1274,11 @@ export default function AnimalHistory() {
                           {photosByHistorico[item.id].map(foto => (
                             <div key={foto.id} className="photo-item">
                               <img
-                                src={`/api/anexos/file/${foto.id}`}
+                                src={fotoUrl(foto.id)}
                                 alt={foto.nomeArquivo}
                                 className="photo-thumbnail"
                                 title="Clique para ampliar"
-                                onClick={() => setLightboxFoto({ src: `/api/anexos/file/${foto.id}`, nome: foto.nomeArquivo })}
+                                onClick={() => setLightboxFoto({ src: fotoUrl(foto.id), nome: foto.nomeArquivo })}
                               />
                               <button
                                 className="btn-delete-photo"
@@ -1449,11 +1450,11 @@ export default function AnimalHistory() {
                           {photosByHistorico[item.id].map(foto => (
                             <div key={foto.id} className="photo-item">
                               <img
-                                src={`/api/anexos/file/${foto.id}`}
+                                src={fotoUrl(foto.id)}
                                 alt={foto.nomeArquivo}
                                 className="photo-thumbnail"
                                 title="Clique para ampliar"
-                                onClick={() => setLightboxFoto({ src: `/api/anexos/file/${foto.id}`, nome: foto.nomeArquivo })}
+                                onClick={() => setLightboxFoto({ src: fotoUrl(foto.id), nome: foto.nomeArquivo })}
                               />
                               <button
                                 className="btn-delete-photo"

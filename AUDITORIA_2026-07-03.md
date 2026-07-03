@@ -14,7 +14,13 @@
 
 ## 🔴 Problemas críticos EM ABERTO
 
-### 1. Segurança: API totalmente aberta (o mais grave)
+### 1. Segurança: API totalmente aberta (o mais grave) — ✅ RESOLVIDO em 03/07/2026
+> Autenticação JWT implementada e testada: todas as rotas /api exigem token
+> (401 sem ele, incluindo a rota de apagar tudo). Login já existente passou a ser
+> obrigatório. Pendências: trocar senha padrão do admin; CORS ainda aberto;
+> arquivos estáticos em /backend/uploads continuam públicos (nomes não adivinháveis).
+
+Descrição original:
 - **Nenhuma rota exige login.** Qualquer pessoa com a URL do ngrok acessa todos os dados: clientes (nomes, telefones, e-mails, endereços), pets, faturamento, fotos.
 - Existe rota destrutiva sem proteção: `DELETE /api/historico/apagar/todos` apaga TODOS os históricos e faturamentos com uma única chamada.
 - CORS liberado para qualquer origem (`origin: '*'`).
