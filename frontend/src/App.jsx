@@ -17,13 +17,17 @@ export default function App() {
     }
   }, [isAuthenticated])
 
-  const handleLogin = (token) => {
+  const handleLogin = (token, veterinario) => {
     localStorage.setItem('token', token)
+    if (veterinario) {
+      localStorage.setItem('conta', JSON.stringify(veterinario))
+    }
     setIsAuthenticated(true)
   }
 
   const handleLogout = () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('conta')
     setIsAuthenticated(false)
   }
 

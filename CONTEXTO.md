@@ -103,6 +103,20 @@ Anexo → Agendamento, HistoricoConsulta
 
 ## Tarefas Recentes
 
+### 💳 Planos, permissões e painel admin (03/07/2026)
+- Contas têm: `role` (admin/vet), `plano` (basico/plus/max), `ativo`, `permissoes` (custom)
+- Config central: `backend/config/planos.js` (recursos + presets de plano)
+- Planos: Básico (clientes+orçamentos) | Plus (+agenda+cobranças) | Max (tudo)
+- Backend bloqueia rotas por recurso via `exigirRecurso()` em server.js
+- Suspensão de conta (inadimplência): bloqueio IMEDIATO (middleware relê a conta a cada request)
+- Painel admin: aba "🔑 Administração" (só admin@vetassist.com) — criar conta,
+  mudar plano, customizar permissões por conta, suspender/reativar, redefinir senha
+- API: /api/admin/contas (GET/POST/PUT), /api/admin/planos, /api/veterinarios/me
+- Frontend esconde abas sem permissão (Sidebar + bottom nav + fallback 🔒)
+- Login não expõe mais credenciais de teste; migração: scripts/migrate-planos.js
+- Contas: admin@vetassist.com = ADMIN (⚠️ trocar senha admin123!); Camila = vet plano Max
+- Service worker: v17
+
 ### 🏢 Multi-tenancy implementado (03/07/2026)
 - `veterinarioId` em: Cliente, Pet, Agendamento, HistoricoConsulta, Faturamento, Despesa, Veiculo
 - Migração: `scripts/migrate-multitenancy.js` (executada; dados atribuídos à conta real id=1 Camila)

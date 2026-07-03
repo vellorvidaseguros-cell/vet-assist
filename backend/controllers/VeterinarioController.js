@@ -2,6 +2,7 @@ import { Veterinario } from '../models/index.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
+import { permissoesEfetivas } from '../config/planos.js'
 
 dotenv.config()
 
@@ -27,6 +28,11 @@ export const login = async (req, res) => {
       return res.status(401).json({ sucesso: false, erro: 'Email ou senha incorretos' })
     }
 
+    // Controle de assinatura: conta suspensa não entra
+    if (!veterinario.ativo) {
+      return res.status(403).json({ sucesso: false, erro: 'Conta suspensa. Entre em contato com o suporte.' })
+    }
+
     const token = jwt.sign(
       { id: veterinario.id, email: veterinario.email },
       JWT_SECRET,
@@ -40,12 +46,30 @@ export const login = async (req, res) => {
       veterinario: {
         id: veterinario.id,
         nome: veterinario.nome,
-        email: veterinario.email
+        email: veterinario.email,
+        role: veterinario.role || 'vet',
+        plano: veterinario.plano || 'basico',
+        permissoes: permissoesEfetivas(veterinario)
       }
     })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
   }
+}
+
+// Dados da conta logada (o frontend usa para atualizar permissões sem novo login)
+export const contaAtual = async (req, res) => {
+  res.json({
+    sucesso: true,
+    data: {
+      id: req.veterinario.id,
+      nome: req.veterinario.nome,
+      email: req.veterinario.email,
+      role: req.veterinario.role,
+      plano: req.veterinario.plano,
+      permissoes: req.veterinario.permissoes
+    }
+  })
 }
 
 // Multi-tenancy: cada veterinário só enxerga e gerencia a própria conta

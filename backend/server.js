@@ -10,7 +10,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { Veterinario, Cliente, Pet, Agendamento, Consulta, Vacina, HistoricoConsulta, Anexo, Faturamento, Veiculo, Despesa } from './models/index.js';
 import { initLembretesJob, startCleanup } from './jobs/lembretesJob.js';
-import { autenticar } from './middleware/auth.js';
+import { autenticar, exigirRecurso } from './middleware/auth.js';
 
 // Rotas
 import veterinariosRoutes from './routes/veterinarios.js';
@@ -26,6 +26,7 @@ import veiculosRoutes from './routes/veiculos.js';
 import despesasRoutes from './routes/despesas.js';
 import perfilRoutes from './routes/perfil.js';
 import anexosRoutes from './routes/anexos.js';
+import adminRoutes from './routes/admin.js';
 
 dotenv.config();
 
@@ -159,19 +160,21 @@ async function iniciarServidor() {
     // (exceções públicas definidas em middleware/auth.js: login, status, backend-info)
     app.use('/api', autenticar);
 
-    // Rotas da API
+    // Rotas da API — cada grupo é liberado conforme o plano da conta
+    // (config/planos.js define os recursos; admin tem acesso a tudo)
     app.use('/api/veterinarios', veterinariosRoutes);
-    app.use('/api/clientes', clientesRoutes);
-    app.use('/api/pets', petsRoutes);
-    app.use('/api/agendamentos', agendamentosRoutes);
-    app.use('/api/consultas', consultasRoutes);
-    app.use('/api/vacinas', vacinasRoutes);
-    app.use('/api/historico', historicoRoutes);
-    app.use('/api/faturamento', faturamentoRoutes);
-    app.use('/api/veiculos', veiculosRoutes);
-    app.use('/api/despesas', despesasRoutes);
+    app.use('/api/clientes', exigirRecurso('clientes'), clientesRoutes);
+    app.use('/api/pets', exigirRecurso('clientes'), petsRoutes);
+    app.use('/api/agendamentos', exigirRecurso('agenda'), agendamentosRoutes);
+    app.use('/api/consultas', exigirRecurso('agenda'), consultasRoutes);
+    app.use('/api/vacinas', exigirRecurso('agenda'), vacinasRoutes);
+    app.use('/api/historico', exigirRecurso('agenda'), historicoRoutes);
+    app.use('/api/faturamento', exigirRecurso('cobrancas'), faturamentoRoutes);
+    app.use('/api/veiculos', exigirRecurso('despesas'), veiculosRoutes);
+    app.use('/api/despesas', exigirRecurso('despesas'), despesasRoutes);
     app.use('/api/perfil', perfilRoutes);
-    app.use('/api/anexos', anexosRoutes);
+    app.use('/api/anexos', exigirRecurso('agenda'), anexosRoutes);
+    app.use('/api/admin', adminRoutes);
 
     // Endpoint para o frontend descobrir a porta do backend (Socket.IO direto)
     app.get('/api/backend-info', (req, res) => {

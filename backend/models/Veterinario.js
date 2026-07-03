@@ -35,6 +35,41 @@ const Veterinario = sequelize.define('Veterinario', {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+  // Papel da conta: 'admin' (dono do app) ou 'vet' (assinante)
+  role: {
+    type: DataTypes.STRING,
+    defaultValue: 'vet',
+  },
+  // Plano contratado: 'basico' | 'plus' | 'max' (presets em config/planos.js)
+  plano: {
+    type: DataTypes.STRING,
+    defaultValue: 'basico',
+  },
+  // Permissões customizadas pelo admin (array de chaves de recurso).
+  // NULL/vazio = usa o preset do plano.
+  permissoes: {
+    type: DataTypes.TEXT,
+    defaultValue: null,
+    get() {
+      const value = this.getDataValue('permissoes')
+      if (!value) return null
+      if (typeof value === 'string') {
+        try {
+          return JSON.parse(value)
+        } catch (e) {
+          return null
+        }
+      }
+      return value
+    },
+    set(value) {
+      if (value && typeof value === 'object') {
+        this.setDataValue('permissoes', JSON.stringify(value))
+      } else {
+        this.setDataValue('permissoes', value)
+      }
+    }
+  },
   dataNascimento: DataTypes.DATE,
   genero: DataTypes.STRING,
   endereco: DataTypes.TEXT,

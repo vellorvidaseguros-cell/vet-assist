@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { temRecurso, isAdmin } from '../utils/conta'
 import './Sidebar.css'
 
 export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
@@ -14,6 +15,19 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
   const handleNavClick = (tab) => {
     setActiveTab(tab)
     setMenuOpen(false) // Fechar menu após clicar
+  }
+
+  // Item de navegação condicionado ao recurso do plano
+  const NavItem = ({ tab, recurso, children }) => {
+    if (recurso && !temRecurso(recurso)) return null
+    return (
+      <button
+        className={`nav-item ${activeTab === tab ? 'active' : ''}`}
+        onClick={() => handleNavClick(tab)}
+      >
+        {children}
+      </button>
+    )
   }
 
   return (
@@ -32,66 +46,33 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
       </button>
 
       <nav className={`sidebar-nav ${menuOpen ? 'open' : ''}`}>
-        <button
-          className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-          onClick={() => handleNavClick('dashboard')}
-        >
-          📊 Dashboard
-        </button>
-        <button
-          className={`nav-item ${activeTab === 'clientes' ? 'active' : ''}`}
-          onClick={() => handleNavClick('clientes')}
-        >
-          👥 Clientes
-        </button>
-        <button
-          className={`nav-item ${activeTab === 'agendamentos' ? 'active' : ''}`}
-          onClick={() => handleNavClick('agendamentos')}
-        >
-          📅 Agendamentos
-        </button>
-        <button
-          className={`nav-item ${activeTab === 'historico' ? 'active' : ''}`}
-          onClick={() => handleNavClick('historico')}
-        >
-          📋 Histórico
-        </button>
+        <NavItem tab="dashboard" recurso="agenda">📊 Dashboard</NavItem>
+        <NavItem tab="clientes" recurso="clientes">👥 Clientes</NavItem>
+        <NavItem tab="agendamentos" recurso="agenda">📅 Agendamentos</NavItem>
+        <NavItem tab="historico" recurso="agenda">📋 Histórico</NavItem>
 
         <div className="sidebar-divider"></div>
 
-        <button
-          className={`nav-item ${activeTab === 'perfil' ? 'active' : ''}`}
-          onClick={() => handleNavClick('perfil')}
-        >
-          👤 Perfil
-        </button>
-        <button
-          className={`nav-item ${activeTab === 'financeiro' ? 'active' : ''}`}
-          onClick={() => handleNavClick('financeiro')}
-        >
-          💰 Financeiro
-        </button>
+        <NavItem tab="perfil">👤 Perfil</NavItem>
+        <NavItem tab="financeiro" recurso="cobrancas">💰 Financeiro</NavItem>
 
-        <div className="sidebar-divider"></div>
+        {temRecurso('extras') && <div className="sidebar-divider"></div>}
 
-        <button
-          className={`nav-item ${activeTab === 'cursos' ? 'active' : ''}`}
-          onClick={() => handleNavClick('cursos')}
-        >
-          📚 Cursos
-        </button>
-        <button
-          className={`nav-item ${activeTab === 'marketplace' ? 'active' : ''}`}
-          onClick={() => handleNavClick('marketplace')}
-        >
-          🛒 Marketplace
-        </button>
-        <button
-          className={`nav-item ${activeTab === 'comunidades' ? 'active' : ''}`}
-          onClick={() => handleNavClick('comunidades')}
-        >
-          💬 Comunidades
-        </button>
+        <NavItem tab="cursos" recurso="extras">📚 Cursos</NavItem>
+        <NavItem tab="marketplace" recurso="extras">🛒 Marketplace</NavItem>
+        <NavItem tab="comunidades" recurso="extras">💬 Comunidades</NavItem>
+
+        {isAdmin() && (
+          <>
+            <div className="sidebar-divider"></div>
+            <button
+              className={`nav-item ${activeTab === 'admin' ? 'active' : ''}`}
+              onClick={() => handleNavClick('admin')}
+            >
+              🔑 Administração
+            </button>
+          </>
+        )}
       </nav>
 
       <div className="sidebar-footer">

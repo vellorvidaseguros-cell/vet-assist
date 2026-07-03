@@ -3,8 +3,8 @@ import axios from 'axios'
 import './Login.css'
 
 export default function Login({ onLogin }) {
-  const [email, setEmail] = useState('admin@vetassist.com')
-  const [senha, setSenha] = useState('admin123')
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -16,7 +16,7 @@ export default function Login({ onLogin }) {
     try {
       const response = await axios.post('/api/veterinarios/login', { email, senha })
       if (response.data.sucesso) {
-        onLogin(response.data.token)
+        onLogin(response.data.token, response.data.veterinario)
       } else {
         setError(response.data.erro || 'Erro ao fazer login')
       }
@@ -62,12 +62,6 @@ export default function Login({ onLogin }) {
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
-
-        <div className="demo-credentials">
-          <p>Credenciais de teste:</p>
-          <p>Email: admin@vetassist.com</p>
-          <p>Senha: admin123</p>
-        </div>
       </div>
     </div>
   )

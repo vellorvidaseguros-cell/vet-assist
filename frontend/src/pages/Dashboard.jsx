@@ -14,10 +14,13 @@ import MobileClientesList from '../components/MobileClientesList'
 import MobileCobrancas from '../components/MobileCobrancas'
 import MobileAgendamentosList from '../components/MobileAgendamentosList'
 import LembretesListener from '../components/LembretesListener'
+import AdminPanel from '../components/AdminPanel'
+import { temRecurso, isAdmin, atualizarConta } from '../utils/conta'
 import './Dashboard.css'
 
 export default function Dashboard({ onLogout }) {
-  const [activeTab, setActiveTab] = useState('dashboard')
+  // A agenda é a home; contas sem esse recurso começam em Clientes
+  const [activeTab, setActiveTab] = useState(() => (temRecurso('agenda') ? 'dashboard' : 'clientes'))
   const [refreshKey, setRefreshKey] = useState(0)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
 
@@ -27,6 +30,11 @@ export default function Dashboard({ onLogout }) {
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    // Sincroniza permissões com o servidor (mudança de plano vale sem novo login)
+    atualizarConta().then(() => setRefreshKey(prev => prev + 1))
   }, [])
 
   useEffect(() => {
@@ -75,7 +83,36 @@ export default function Dashboard({ onLogout }) {
     )
   }
 
+  // Recurso exigido para cada aba (null = sempre disponível)
+  const RECURSO_DA_ABA = {
+    dashboard: 'agenda',
+    agendamentos: 'agenda',
+    historico: 'agenda',
+    clientes: 'clientes',
+    financeiro: 'cobrancas',
+    cursos: 'extras',
+    marketplace: 'extras',
+    comunidades: 'extras',
+    perfil: null,
+    admin: null, // validado por isAdmin()
+  }
+
+  const abaLiberada = (tab) => {
+    if (tab === 'admin') return isAdmin()
+    const recurso = RECURSO_DA_ABA[tab]
+    return !recurso || temRecurso(recurso)
+  }
+
+  const renderBloqueado = () => (
+    <div style={{ padding: '40px 20px', textAlign: 'center', color: '#8e8e93' }}>
+      <p style={{ fontSize: '32px', margin: '0 0 8px' }}>🔒</p>
+      <p><strong>Recurso não incluído no seu plano.</strong></p>
+      <p>Fale com o administrador para fazer upgrade.</p>
+    </div>
+  )
+
   const renderMobileContent = () => {
+    if (!abaLiberada(activeTab)) return renderBloqueado()
     switch (activeTab) {
       case 'dashboard':
         return <MobileHome key={refreshKey} />
@@ -95,12 +132,15 @@ export default function Dashboard({ onLogout }) {
         return <Marketplace />
       case 'comunidades':
         return <Comunidades />
+      case 'admin':
+        return <AdminPanel />
       default:
         return <MobileHome key={refreshKey} />
     }
   }
 
   const renderDesktopContent = () => {
+    if (!abaLiberada(activeTab)) return renderBloqueado()
     switch (activeTab) {
       case 'dashboard':
         return <DashboardHome key={refreshKey} />
@@ -120,6 +160,8 @@ export default function Dashboard({ onLogout }) {
         return <Marketplace />
       case 'comunidades':
         return <Comunidades />
+      case 'admin':
+        return <AdminPanel />
       default:
         return <DashboardHome key={refreshKey} />
     }
@@ -135,7 +177,8 @@ export default function Dashboard({ onLogout }) {
       financeiro: 'Financeiro',
       cursos: 'Cursos',
       marketplace: 'Marketplace',
-      comunidades: 'Comunidades'
+      comunidades: 'Comunidades',
+      admin: 'Administração'
     }
     return titles[tab] || 'Dashboard'
   }
@@ -149,30 +192,46 @@ export default function Dashboard({ onLogout }) {
         </main>
         {/* Bottom Navigation - será implementado na Fase 2 */}
         <nav className="mobile-bottom-nav">
-          <button
-            className={`nav-item ${activeTab === 'dashboard' ? 'ativo' : ''}`}
-            onClick={() => handleTabChange('dashboard')}
-            title="Agenda"
-          >
-            <span className="nav-icon">📅</span>
-            <span className="nav-label">Agenda</span>
-          </button>
-          <button
-            className={`nav-item ${activeTab === 'clientes' ? 'ativo' : ''}`}
-            onClick={() => handleTabChange('clientes')}
-            title="Clientes"
-          >
-            <span className="nav-icon">👥</span>
-            <span className="nav-label">Clientes</span>
-          </button>
-          <button
-            className={`nav-item ${activeTab === 'financeiro' ? 'ativo' : ''}`}
-            onClick={() => handleTabChange('financeiro')}
-            title="Cobranças"
-          >
-            <span className="nav-icon">💰</span>
-            <span className="nav-label">Cobranças</span>
-          </button>
+          {abaLiberada('dashboard') && (
+            <button
+              className={`nav-item ${activeTab === 'dashboard' ? 'ativo' : ''}`}
+              onClick={() => handleTabChange('dashboard')}
+              title="Agenda"
+            >
+              <span className="nav-icon">📅</span>
+              <span className="nav-label">Agenda</span>
+            </button>
+          )}
+          {abaLiberada('clientes') && (
+            <button
+              className={`nav-item ${activeTab === 'clientes' ? 'ativo' : ''}`}
+              onClick={() => handleTabChange('clientes')}
+              title="Clientes"
+            >
+              <span className="nav-icon">👥</span>
+              <span className="nav-label">Clientes</span>
+            </button>
+          )}
+          {abaLiberada('financeiro') && (
+            <button
+              className={`nav-item ${activeTab === 'financeiro' ? 'ativo' : ''}`}
+              onClick={() => handleTabChange('financeiro')}
+              title="Cobranças"
+            >
+              <span className="nav-icon">💰</span>
+              <span className="nav-label">Cobranças</span>
+            </button>
+          )}
+          {isAdmin() && (
+            <button
+              className={`nav-item ${activeTab === 'admin' ? 'ativo' : ''}`}
+              onClick={() => handleTabChange('admin')}
+              title="Administração"
+            >
+              <span className="nav-icon">🔑</span>
+              <span className="nav-label">Admin</span>
+            </button>
+          )}
           <button
             className={`nav-item ${activeTab === 'perfil' ? 'ativo' : ''}`}
             onClick={() => handleTabChange('perfil')}
