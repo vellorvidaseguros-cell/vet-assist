@@ -138,23 +138,38 @@ async function iniciarServidor() {
     await sequelize.sync({ force: false });
     console.log('[OK] Banco de dados sincronizado!');
 
-    // Criar veterinário padrão se não existir
+    const isProd = process.env.NODE_ENV === 'production' || !!process.env.DATABASE_URL;
+
+    // Criar conta do administrador do app se não existir.
+    // Em produção, defina ADMIN_PASSWORD nas variáveis de ambiente!
     const vetExistente = await Veterinario.findOne({ where: { email: 'admin@vetassist.com' } });
     if (!vetExistente) {
-      const senhaHasheada = await bcryptjs.hash('admin123', 10);
+      const senhaAdmin = process.env.ADMIN_PASSWORD || 'admin123';
+      if (isProd && !process.env.ADMIN_PASSWORD) {
+        console.warn('[AVISO] ADMIN_PASSWORD não definida — usando senha padrão insegura!');
+      }
+      const senhaHasheada = await bcryptjs.hash(senhaAdmin, 10);
       await Veterinario.create({
         nome: 'Administrador',
         email: 'admin@vetassist.com',
         senha: senhaHasheada,
         telefone: '(11) 9999-9999',
         cpf: '00000000000',
-        crmv: '0000000'
+        crmv: '0000000',
+        role: 'admin',
+        plano: 'max'
       });
-      console.log('[INFO] Veterinário padrão criado!');
+      console.log('[INFO] Conta do administrador criada!');
+    } else if (vetExistente.role !== 'admin') {
+      // Garante o papel de admin mesmo em bancos criados antes do sistema de planos
+      await vetExistente.update({ role: 'admin', plano: 'max' });
+      console.log('[INFO] Conta admin@vetassist.com promovida a administrador');
     }
 
-    // Inserir dados de teste
-    await seedTestData()
+    // Dados de teste: NUNCA em produção
+    if (!isProd) {
+      await seedTestData()
+    }
 
     // Autenticação JWT obrigatória em todas as rotas /api
     // (exceções públicas definidas em middleware/auth.js: login, status, backend-info)
