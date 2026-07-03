@@ -103,6 +103,18 @@ Anexo → Agendamento, HistoricoConsulta
 
 ## Tarefas Recentes
 
+### 🏢 Multi-tenancy implementado (03/07/2026)
+- `veterinarioId` em: Cliente, Pet, Agendamento, HistoricoConsulta, Faturamento, Despesa, Veiculo
+- Migração: `scripts/migrate-multitenancy.js` (executada; dados atribuídos à conta real id=1 Camila)
+- Todos os controllers filtram por `req.veterinario.id` (vindo do JWT)
+- Fotos protegidas via dono do agendamento/histórico pai
+- Cada vet gerencia apenas a própria conta (403 em contas alheias)
+- ⚠️ IMPORTANTE: os dados pertencem à conta cami_dinizj@hotmail.com (id=1).
+  A conta admin@vetassist.com (id=2) agora vê o app VAZIO — é só seed.
+- Pendências: Socket.IO/lembretes ainda sem separação por tenant;
+  arquivos estáticos /backend/uploads públicos (nomes não adivinháveis);
+  rotas legadas vacinas/consultas sem tenancy (não usadas pelo frontend)
+
 ### 🔐 Autenticação JWT implementada (03/07/2026)
 - Middleware `backend/middleware/auth.js` protege TODAS as rotas /api
 - Rotas públicas: `/api/veterinarios/login`, `/api/status`, `/api/backend-info`

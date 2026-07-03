@@ -48,12 +48,15 @@ export const login = async (req, res) => {
   }
 }
 
+// Multi-tenancy: cada veterinário só enxerga e gerencia a própria conta
+
 export const listarVeterinarios = async (req, res) => {
   try {
+    // Retorna apenas a própria conta (não expor outros tenants)
     const veterinarios = await Veterinario.findAll({
+      where: { id: req.veterinario.id },
       attributes: { exclude: ['senha'] }
     })
-    // Não retornar hashes de senha em listagens
     const safeData = veterinarios.map(v => {
       const obj = v.toJSON()
       delete obj.senha
@@ -67,7 +70,10 @@ export const listarVeterinarios = async (req, res) => {
 
 export const obterVeterinario = async (req, res) => {
   try {
-    const veterinario = await Veterinario.findByPk(req.params.id, {
+    if (parseInt(req.params.id) !== req.veterinario.id) {
+      return res.status(403).json({ sucesso: false, erro: 'Acesso negado' })
+    }
+    const veterinario = await Veterinario.findByPk(req.veterinario.id, {
       attributes: { exclude: ['senha'] }
     })
     if (!veterinario) return res.status(404).json({ sucesso: false, erro: 'Veterinário não encontrado' })
@@ -108,7 +114,10 @@ export const criarVeterinario = async (req, res) => {
 
 export const atualizarVeterinario = async (req, res) => {
   try {
-    const veterinario = await Veterinario.findByPk(req.params.id)
+    if (parseInt(req.params.id) !== req.veterinario.id) {
+      return res.status(403).json({ sucesso: false, erro: 'Acesso negado' })
+    }
+    const veterinario = await Veterinario.findByPk(req.veterinario.id)
     if (!veterinario) return res.status(404).json({ sucesso: false, erro: 'Veterinário não encontrado' })
 
     const dadosAtualizacao = { ...req.body }
@@ -128,7 +137,10 @@ export const atualizarVeterinario = async (req, res) => {
 
 export const deletarVeterinario = async (req, res) => {
   try {
-    const veterinario = await Veterinario.findByPk(req.params.id)
+    if (parseInt(req.params.id) !== req.veterinario.id) {
+      return res.status(403).json({ sucesso: false, erro: 'Acesso negado' })
+    }
+    const veterinario = await Veterinario.findByPk(req.veterinario.id)
     if (!veterinario) return res.status(404).json({ sucesso: false, erro: 'Veterinário não encontrado' })
 
     await veterinario.destroy()

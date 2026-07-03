@@ -17,6 +17,7 @@ const formatarUrlAnexo = (anexo) => {
 export const listarHistorico = async (req, res) => {
   try {
     const historico = await HistoricoConsulta.findAll({
+      where: { veterinarioId: req.veterinario.id },
       include: [Pet, Cliente, Anexo],
       order: [['data', 'DESC']]
     })
@@ -36,7 +37,7 @@ export const historicoDoAnimal = async (req, res) => {
   try {
     const { petId } = req.params
     const historico = await HistoricoConsulta.findAll({
-      where: { petId },
+      where: { petId, veterinarioId: req.veterinario.id },
       include: [Pet, Cliente, Anexo],
       order: [['data', 'DESC']]
     })
@@ -59,6 +60,7 @@ export const criarHistorico = async (req, res) => {
     let historicoData = {
       petId: petId || null,
       clienteId: clienteId || null,
+      veterinarioId: req.veterinario.id,
       data: data || null,
       tipoAtendimento: tipoAtendimento || '',
       diagnostico: diagnostico || '',
@@ -102,6 +104,7 @@ export const criarHistorico = async (req, res) => {
         await Agendamento.create({
           petId: historicoData.petId,
           clienteId: historicoData.clienteId,
+          veterinarioId: req.veterinario.id,
           data: historicoData.proximoRetorno,
           hora: horaRetorno || '10:00',
           tipoAtendimento: `Retorno - ${historicoData.tipoAtendimento || 'Consulta'}`,
@@ -123,11 +126,16 @@ export const criarHistorico = async (req, res) => {
 
 export const atualizarHistorico = async (req, res) => {
   try {
-    const historico = await HistoricoConsulta.findByPk(req.params.id)
+    const historico = await HistoricoConsulta.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id }
+    })
     if (!historico) return res.status(404).json({ sucesso: false, erro: 'Histórico não encontrado' })
 
     const proximoRetornoAnterior = historico.proximoRetorno
-    await historico.update(req.body)
+    // Nunca permitir troca de dono via payload
+    const dados = { ...req.body }
+    delete dados.veterinarioId
+    await historico.update(dados)
 
     // Se proximoRetorno foi adicionado ou alterado, criar agendamento automaticamente
     if (req.body.proximoRetorno && (!proximoRetornoAnterior || new Date(proximoRetornoAnterior).getTime() !== new Date(req.body.proximoRetorno).getTime())) {
@@ -138,6 +146,7 @@ export const atualizarHistorico = async (req, res) => {
         await Agendamento.create({
           petId: historico.petId,
           clienteId: historico.clienteId,
+          veterinarioId: req.veterinario.id,
           data: req.body.proximoRetorno,
           hora: horaRetorno || '10:00',
           tipoAtendimento: `Retorno - ${historico.tipoAtendimento || 'Consulta'}`,
@@ -159,7 +168,9 @@ export const atualizarHistorico = async (req, res) => {
 
 export const deletarHistorico = async (req, res) => {
   try {
-    const historico = await HistoricoConsulta.findByPk(req.params.id)
+    const historico = await HistoricoConsulta.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id }
+    })
     if (!historico) return res.status(404).json({ sucesso: false, erro: 'Histórico não encontrado' })
 
     // Deletar Faturamentos associados primeiro
@@ -176,10 +187,9 @@ export const deletarHistorico = async (req, res) => {
 
 export const apagarTodos = async (req, res) => {
   try {
-    // Deletar Faturamentos primeiro
-    await Faturamento.destroy({ where: {} })
-    // Depois deletar Históricos
-    const count = await HistoricoConsulta.destroy({ where: {} })
+    // Apaga SOMENTE os dados do veterinário logado
+    await Faturamento.destroy({ where: { veterinarioId: req.veterinario.id } })
+    const count = await HistoricoConsulta.destroy({ where: { veterinarioId: req.veterinario.id } })
     res.json({ sucesso: true, mensagem: `${count} históricos e seus faturamentos apagados com sucesso!`, count })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
@@ -189,7 +199,8 @@ export const apagarTodos = async (req, res) => {
 export const gerarPDFHistorico = async (req, res) => {
   try {
     const { id } = req.params
-    const historico = await HistoricoConsulta.findByPk(id, {
+    const historico = await HistoricoConsulta.findOne({
+      where: { id, veterinarioId: req.veterinario.id },
       include: [Pet, Cliente, Anexo]
     })
 

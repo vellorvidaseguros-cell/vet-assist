@@ -1,8 +1,12 @@
 import { Cliente, Pet } from '../models/index.js';
 
+// Multi-tenancy: todas as operações são restritas ao veterinário logado
+// (req.veterinario vem do middleware de autenticação JWT)
+
 export const listarClientes = async (req, res) => {
   try {
     const clientes = await Cliente.findAll({
+      where: { veterinarioId: req.veterinario.id },
       include: Pet,
       order: [['nome', 'ASC']]
     });
@@ -14,7 +18,8 @@ export const listarClientes = async (req, res) => {
 
 export const obterCliente = async (req, res) => {
   try {
-    const cliente = await Cliente.findByPk(req.params.id, {
+    const cliente = await Cliente.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id },
       include: Pet
     });
     if (!cliente) return res.status(404).json({ sucesso: false, erro: 'Cliente não encontrado' });
@@ -33,7 +38,7 @@ export const criarCliente = async (req, res) => {
     }
 
     const cliente = await Cliente.create({
-      veterinarioId: 1, // Por enquanto, veterinário padrão
+      veterinarioId: req.veterinario.id,
       nome,
       telefone,
       email,
@@ -51,10 +56,16 @@ export const criarCliente = async (req, res) => {
 
 export const atualizarCliente = async (req, res) => {
   try {
-    const cliente = await Cliente.findByPk(req.params.id);
+    const cliente = await Cliente.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id }
+    });
     if (!cliente) return res.status(404).json({ sucesso: false, erro: 'Cliente não encontrado' });
 
-    await cliente.update(req.body);
+    // Nunca permitir troca de dono via payload
+    const dados = { ...req.body };
+    delete dados.veterinarioId;
+
+    await cliente.update(dados);
     res.json({ sucesso: true, mensagem: 'Cliente atualizado!', data: cliente });
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message });
@@ -63,7 +74,9 @@ export const atualizarCliente = async (req, res) => {
 
 export const deletarCliente = async (req, res) => {
   try {
-    const cliente = await Cliente.findByPk(req.params.id);
+    const cliente = await Cliente.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id }
+    });
     if (!cliente) return res.status(404).json({ sucesso: false, erro: 'Cliente não encontrado' });
 
     await cliente.destroy();

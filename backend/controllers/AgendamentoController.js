@@ -4,6 +4,7 @@ import { Agendamento, Pet, Cliente, HistoricoConsulta, Faturamento, Anexo } from
 export const listarAgendamentos = async (req, res) => {
   try {
     const agendamentos = await Agendamento.findAll({
+      where: { veterinarioId: req.veterinario.id },
       include: [
         { model: Pet, required: false },
         { model: Cliente, required: false }
@@ -23,7 +24,8 @@ export const listarAgendamentos = async (req, res) => {
 
 export const obterAgendamento = async (req, res) => {
   try {
-    const agendamento = await Agendamento.findByPk(req.params.id, {
+    const agendamento = await Agendamento.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id },
       include: [
         { model: Pet, required: false },
         { model: Cliente, required: false }
@@ -96,9 +98,18 @@ export const criarAgendamento = async (req, res) => {
       return res.status(400).json({ sucesso: false, erro: 'PetId, clienteId e data são obrigatórios' });
     }
 
+    // O cliente informado precisa pertencer ao veterinário logado
+    const clienteDoVet = await Cliente.findOne({
+      where: { id: clienteId, veterinarioId: req.veterinario.id }
+    });
+    if (!clienteDoVet) {
+      return res.status(404).json({ sucesso: false, erro: 'Cliente não encontrado' });
+    }
+
     const agendamento = await Agendamento.create({
       petId,
       clienteId,
+      veterinarioId: req.veterinario.id,
       data,
       hora: hora && String(hora).trim() ? hora : null,
       tipoAtendimento: tipoAtendimento || 'Consulta',
@@ -116,7 +127,9 @@ export const criarAgendamento = async (req, res) => {
 
 export const atualizarAgendamento = async (req, res) => {
   try {
-    const agendamento = await Agendamento.findByPk(req.params.id);
+    const agendamento = await Agendamento.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id }
+    });
     if (!agendamento) return res.status(404).json({ sucesso: false, erro: 'Agendamento não encontrado' });
 
     const statusAnterior = agendamento.status;
@@ -163,6 +176,7 @@ export const atualizarAgendamento = async (req, res) => {
         let historico = await HistoricoConsulta.findOne({
           where: {
             petId: agendamento.petId,
+            veterinarioId: req.veterinario.id,
             tipoAtendimento: agendamento.tipoAtendimento,
             data: { [Op.between]: [dataInicio, dataFim] }
           }
@@ -179,6 +193,7 @@ export const atualizarAgendamento = async (req, res) => {
           historico = await HistoricoConsulta.create({
             petId: agendamento.petId,
             clienteId: agendamento.clienteId,
+            veterinarioId: req.veterinario.id,
             data: dataConsulta,
             tipoAtendimento: agendamento.tipoAtendimento || 'Consulta',
             diagnostico: agendamento.diagnostico || '',
@@ -200,6 +215,7 @@ export const atualizarAgendamento = async (req, res) => {
           const novoFaturamento = await Faturamento.create({
             historicoConsultaId: historico.id,
             clienteId: agendamento.clienteId,
+            veterinarioId: req.veterinario.id,
             valor: agendamento.valor || 0,
             status: 'Pendente',
             descricao: `${agendamento.tipoAtendimento || 'Consulta'} - ${pet?.nome || 'Animal'}`,
@@ -231,7 +247,9 @@ export const atualizarAgendamento = async (req, res) => {
 
 export const deletarAgendamento = async (req, res) => {
   try {
-    const agendamento = await Agendamento.findByPk(req.params.id);
+    const agendamento = await Agendamento.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id }
+    });
     if (!agendamento) return res.status(404).json({ sucesso: false, erro: 'Agendamento não encontrado' });
 
     await agendamento.destroy();

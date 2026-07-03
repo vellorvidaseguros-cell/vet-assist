@@ -4,7 +4,8 @@ import { buscarDadosVeiculo, obterTodasAsMarcas, obterModelosPorMarca, obterCons
 
 export const obterVeiculo = async (req, res) => {
   try {
-    const { veterinarioId } = req.params
+    // Multi-tenancy: o id vem do token JWT (o :veterinarioId da rota é ignorado)
+    const veterinarioId = req.veterinario.id
     const veiculo = await Veiculo.findOne({ where: { veterinarioId } })
     res.json({ sucesso: true, data: veiculo })
   } catch (erro) {
@@ -14,7 +15,8 @@ export const obterVeiculo = async (req, res) => {
 
 export const criarVeiculo = async (req, res) => {
   try {
-    const { veterinarioId, placa, marca, modelo, ano, combustivel, kmAtual } = req.body
+    const { placa, marca, modelo, ano, combustivel, kmAtual } = req.body
+    const veterinarioId = req.veterinario.id
 
     // Buscar dados do veículo na API externa (Fipe)
     let consumoMedio = null
@@ -44,10 +46,14 @@ export const criarVeiculo = async (req, res) => {
 
 export const atualizarVeiculo = async (req, res) => {
   try {
-    const veiculo = await Veiculo.findByPk(req.params.id)
+    const veiculo = await Veiculo.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id }
+    })
     if (!veiculo) return res.status(404).json({ sucesso: false, erro: 'Veículo não encontrado' })
 
-    await veiculo.update(req.body)
+    const dados = { ...req.body }
+    delete dados.veterinarioId
+    await veiculo.update(dados)
     res.json({ sucesso: true, mensagem: 'Veículo atualizado!', data: veiculo })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
@@ -57,7 +63,9 @@ export const atualizarVeiculo = async (req, res) => {
 export const calcularCustoKm = async (req, res) => {
   try {
     const { veiculoId } = req.params
-    const veiculo = await Veiculo.findByPk(veiculoId)
+    const veiculo = await Veiculo.findOne({
+      where: { id: veiculoId, veterinarioId: req.veterinario.id }
+    })
 
     if (!veiculo) return res.status(404).json({ sucesso: false, erro: 'Veículo não encontrado' })
 

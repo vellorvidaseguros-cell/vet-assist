@@ -15,6 +15,12 @@ const Faturamento = sequelize.define('Faturamento', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  // Multi-tenancy: dono dos dados. allowNull para compatibilidade com
+  // registros antigos (backfill via scripts/migrate-multitenancy.js)
+  veterinarioId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   valor: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,

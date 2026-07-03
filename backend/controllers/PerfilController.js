@@ -23,8 +23,8 @@ const resolverCaminhoLogo = (logomarcaUrl) => {
 
 export const obterPerfil = async (req, res) => {
   try {
-    const { veterinarioId } = req.params
-    const veterinario = await Veterinario.findByPk(veterinarioId, {
+    // Multi-tenancy: o id vem do token JWT (o :veterinarioId da rota é ignorado)
+    const veterinario = await Veterinario.findByPk(req.veterinario.id, {
       attributes: { exclude: ['senha'] }
     })
     if (!veterinario) return res.status(404).json({ sucesso: false, erro: 'Veterinário não encontrado' })
@@ -48,8 +48,7 @@ export const obterPerfil = async (req, res) => {
 
 export const atualizarPerfil = async (req, res) => {
   try {
-    const { veterinarioId } = req.params
-    const veterinario = await Veterinario.findByPk(veterinarioId)
+    const veterinario = await Veterinario.findByPk(req.veterinario.id)
 
     if (!veterinario) return res.status(404).json({ sucesso: false, erro: 'Veterinário não encontrado' })
 
@@ -93,8 +92,7 @@ export const atualizarPerfil = async (req, res) => {
 
 export const saveWhiteLabel = async (req, res) => {
   try {
-    const { veterinarioId } = req.params
-    const veterinario = await Veterinario.findByPk(veterinarioId)
+    const veterinario = await Veterinario.findByPk(req.veterinario.id)
 
     if (!veterinario) {
       return res.status(404).json({ sucesso: false, erro: 'Veterinário não encontrado' })
@@ -158,7 +156,7 @@ export const saveWhiteLabel = async (req, res) => {
 // Tabela de preços - retorna apenas os preços
 export const obterTabelaPrecos = async (req, res) => {
   try {
-    const veterinario = await Veterinario.findByPk(1, {
+    const veterinario = await Veterinario.findByPk(req.veterinario.id, {
       attributes: ['tabelaPrecos']
     })
     if (!veterinario) return res.status(404).json({ sucesso: false, erro: 'Veterinário não encontrado' })
@@ -177,7 +175,7 @@ export const obterTabelaPrecos = async (req, res) => {
 // Tabela de preços - atualiza apenas os preços
 export const atualizarTabelaPrecos = async (req, res) => {
   try {
-    const veterinario = await Veterinario.findByPk(1)
+    const veterinario = await Veterinario.findByPk(req.veterinario.id)
     if (!veterinario) return res.status(404).json({ sucesso: false, erro: 'Veterinário não encontrado' })
 
     await veterinario.update({ tabelaPrecos: req.body })
@@ -191,8 +189,7 @@ export const atualizarTabelaPrecos = async (req, res) => {
 // Nova rota: retorna logo do veterinário direto como Base64 (sem CORS, sem timing)
 export const obterLogoBase64 = async (req, res) => {
   try {
-    const { veterinarioId } = req.params
-    const veterinario = await Veterinario.findByPk(veterinarioId)
+    const veterinario = await Veterinario.findByPk(req.veterinario.id)
 
     if (!veterinario || !veterinario.logomarcaUrl) {
       return res.json({ sucesso: true, data: null })

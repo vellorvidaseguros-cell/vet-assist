@@ -7,6 +7,7 @@ export const listarFaturamentos = async (req, res) => {
     let faturamentos
     try {
       faturamentos = await Faturamento.findAll({
+        where: { veterinarioId: req.veterinario.id },
         include: [
           { model: Cliente, required: false },
           {
@@ -21,6 +22,7 @@ export const listarFaturamentos = async (req, res) => {
       console.warn('[WARN] Erro ao incluir relações, carregando sem:', includeError.message)
       // Fallback: carregar sem includes
       faturamentos = await Faturamento.findAll({
+        where: { veterinarioId: req.veterinario.id },
         order: [['dataEmissao', 'DESC']]
       })
     }
@@ -44,7 +46,9 @@ export const resumoFinanceiro = async (req, res) => {
 
     // Tentar carregar dados, mas não falhar se houver erro
     try {
-      const todos = await Faturamento.findAll()
+      const todos = await Faturamento.findAll({
+        where: { veterinarioId: req.veterinario.id }
+      })
 
       if (!todos || todos.length === 0) {
         return res.json({ sucesso: true, data: resumoPadrao })
@@ -123,6 +127,7 @@ export const criarFaturamento = async (req, res) => {
     const faturamento = await Faturamento.create({
       historicoConsultaId,
       clienteId,
+      veterinarioId: req.veterinario.id,
       valor,
       status,
       descricao,
@@ -137,14 +142,20 @@ export const criarFaturamento = async (req, res) => {
 
 export const atualizarFaturamento = async (req, res) => {
   try {
-    const faturamento = await Faturamento.findByPk(req.params.id)
+    const faturamento = await Faturamento.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id }
+    })
     if (!faturamento) return res.status(404).json({ sucesso: false, erro: 'Faturamento não encontrado' })
 
     if (req.body.status === 'Pago' && !faturamento.dataPagamento) {
       req.body.dataPagamento = new Date()
     }
 
-    await faturamento.update(req.body)
+    // Nunca permitir troca de dono via payload
+    const dados = { ...req.body }
+    delete dados.veterinarioId
+
+    await faturamento.update(dados)
     res.json({ sucesso: true, mensagem: 'Faturamento atualizado!', data: faturamento })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
@@ -159,7 +170,9 @@ export const registrarPagamento = async (req, res) => {
       return res.status(400).json({ sucesso: false, erro: 'faturamentoId é obrigatório' })
     }
 
-    const faturamento = await Faturamento.findByPk(faturamentoId)
+    const faturamento = await Faturamento.findOne({
+      where: { id: faturamentoId, veterinarioId: req.veterinario.id }
+    })
     if (!faturamento) {
       return res.status(404).json({ sucesso: false, erro: 'Faturamento não encontrado' })
     }
@@ -270,7 +283,9 @@ export const deletarPagamento = async (req, res) => {
       return res.status(400).json({ sucesso: false, erro: 'IDs inválidos' })
     }
 
-    const faturamento = await Faturamento.findByPk(faturamentoId)
+    const faturamento = await Faturamento.findOne({
+      where: { id: faturamentoId, veterinarioId: req.veterinario.id }
+    })
     if (!faturamento) {
       return res.status(404).json({ sucesso: false, erro: 'Faturamento não encontrado' })
     }
@@ -325,7 +340,8 @@ export const deletarPagamento = async (req, res) => {
 
 export const apagarTodos = async (req, res) => {
   try {
-    const count = await Faturamento.destroy({ where: {} })
+    // Apaga SOMENTE os faturamentos do veterinário logado
+    const count = await Faturamento.destroy({ where: { veterinarioId: req.veterinario.id } })
     res.json({ sucesso: true, mensagem: `${count} faturamentos apagados com sucesso!`, count })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })

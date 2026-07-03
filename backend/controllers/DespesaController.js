@@ -3,7 +3,8 @@ import { Op } from 'sequelize'
 
 export const listarDespesas = async (req, res) => {
   try {
-    const { veterinarioId } = req.params
+    // Multi-tenancy: o id vem do token JWT (o :veterinarioId da rota é ignorado)
+    const veterinarioId = req.veterinario.id
     const despesas = await Despesa.findAll({
       where: { veterinarioId },
       order: [['data', 'DESC']]
@@ -16,7 +17,7 @@ export const listarDespesas = async (req, res) => {
 
 export const resumoDespesas = async (req, res) => {
   try {
-    const { veterinarioId } = req.params
+    const veterinarioId = req.veterinario.id
     const hoje = new Date()
     const primeiroDocao = new Date(hoje.getFullYear(), hoje.getMonth(), 1)
     const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0)
@@ -71,14 +72,14 @@ export const resumoDespesas = async (req, res) => {
 
 export const criarDespesa = async (req, res) => {
   try {
-    const { veterinarioId, categoriaDespesa, descricao, valor, tipo } = req.body
+    const { categoriaDespesa, descricao, valor, tipo } = req.body
 
     if (!categoriaDespesa || !valor) {
       return res.status(400).json({ sucesso: false, erro: 'Categoria e valor são obrigatórios' })
     }
 
     const despesa = await Despesa.create({
-      veterinarioId,
+      veterinarioId: req.veterinario.id,
       categoriaDespesa,
       descricao,
       valor,
@@ -93,10 +94,14 @@ export const criarDespesa = async (req, res) => {
 
 export const atualizarDespesa = async (req, res) => {
   try {
-    const despesa = await Despesa.findByPk(req.params.id)
+    const despesa = await Despesa.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id }
+    })
     if (!despesa) return res.status(404).json({ sucesso: false, erro: 'Despesa não encontrada' })
 
-    await despesa.update(req.body)
+    const dados = { ...req.body }
+    delete dados.veterinarioId
+    await despesa.update(dados)
     res.json({ sucesso: true, mensagem: 'Despesa atualizada!', data: despesa })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
@@ -105,7 +110,9 @@ export const atualizarDespesa = async (req, res) => {
 
 export const deletarDespesa = async (req, res) => {
   try {
-    const despesa = await Despesa.findByPk(req.params.id)
+    const despesa = await Despesa.findOne({
+      where: { id: req.params.id, veterinarioId: req.veterinario.id }
+    })
     if (!despesa) return res.status(404).json({ sucesso: false, erro: 'Despesa não encontrada' })
 
     await despesa.destroy()

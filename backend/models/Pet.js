@@ -16,6 +16,12 @@ const Pet = sequelize.define('Pet', {
       key: 'id',
     },
   },
+  // Multi-tenancy: dono dos dados. allowNull para compatibilidade com
+  // registros antigos (backfill via scripts/migrate-multitenancy.js)
+  veterinarioId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   nome: {
     type: DataTypes.STRING,
     allowNull: false,

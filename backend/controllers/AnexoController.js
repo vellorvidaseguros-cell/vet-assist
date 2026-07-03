@@ -6,6 +6,24 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Multi-tenancy: um anexo pertence ao veterinário dono do agendamento
+// ou do histórico ao qual está vinculado
+const anexoPertenceAoVet = async (anexo, vetId) => {
+  if (anexo.agendamentoId) {
+    const ag = await Agendamento.findOne({
+      where: { id: anexo.agendamentoId, veterinarioId: vetId }
+    });
+    if (ag) return true;
+  }
+  if (anexo.historicoConsultaId) {
+    const hist = await HistoricoConsulta.findOne({
+      where: { id: anexo.historicoConsultaId, veterinarioId: vetId }
+    });
+    if (hist) return true;
+  }
+  return false;
+};
+
 // Função auxiliar para reanexar fotos a um histórico
 const reanexarFotosAoHistorico = async (agendamentoId, historicoId) => {
   try {
@@ -52,6 +70,17 @@ export const uploadArquivo = async (req, res) => {
         sucesso: false,
         erro: 'agendamentoId ou historicoConsultaId é obrigatório'
       });
+    }
+
+    // O agendamento/histórico de destino precisa pertencer ao veterinário logado
+    const destinoValido = agendamentoId
+      ? await Agendamento.findOne({ where: { id: agendamentoId, veterinarioId: req.veterinario.id } })
+      : await HistoricoConsulta.findOne({ where: { id: historicoConsultaId, veterinarioId: req.veterinario.id } });
+    if (!destinoValido) {
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(404).json({ sucesso: false, erro: 'Agendamento/histórico não encontrado' });
     }
 
     // Converter caminho absoluto para caminho relativo (URL)
@@ -138,6 +167,14 @@ export const listarPorHistorico = async (req, res) => {
   try {
     const { historicoId } = req.params;
 
+    // O histórico precisa pertencer ao veterinário logado
+    const historicoDoVet = await HistoricoConsulta.findOne({
+      where: { id: historicoId, veterinarioId: req.veterinario.id }
+    });
+    if (!historicoDoVet) {
+      return res.status(404).json({ sucesso: false, erro: 'Histórico não encontrado' });
+    }
+
     const anexos = await Anexo.findAll({
       where: { historicoConsultaId: historicoId },
       order: [['createdAt', 'ASC']]
@@ -190,6 +227,14 @@ export const listarPorHistorico = async (req, res) => {
 export const listarPorAgendamento = async (req, res) => {
   try {
     const { agendamentoId } = req.params;
+
+    // O agendamento precisa pertencer ao veterinário logado
+    const agendamentoDoVet = await Agendamento.findOne({
+      where: { id: agendamentoId, veterinarioId: req.veterinario.id }
+    });
+    if (!agendamentoDoVet) {
+      return res.status(404).json({ sucesso: false, erro: 'Agendamento não encontrado' });
+    }
 
     const anexos = await Anexo.findAll({
       where: { agendamentoId },
@@ -249,6 +294,10 @@ export const deletarArquivo = async (req, res) => {
       return res.status(404).json({ sucesso: false, erro: 'Arquivo não encontrado' });
     }
 
+    if (!(await anexoPertenceAoVet(anexo, req.veterinario.id))) {
+      return res.status(404).json({ sucesso: false, erro: 'Arquivo não encontrado' });
+    }
+
     if (fs.existsSync(anexo.caminhoArquivo)) {
       fs.unlinkSync(anexo.caminhoArquivo);
     }
@@ -270,6 +319,10 @@ export const obterArquivo = async (req, res) => {
 
     const anexo = await Anexo.findByPk(id);
     if (!anexo) {
+      return res.status(404).json({ sucesso: false, erro: 'Arquivo não encontrado' });
+    }
+
+    if (!(await anexoPertenceAoVet(anexo, req.veterinario.id))) {
       return res.status(404).json({ sucesso: false, erro: 'Arquivo não encontrado' });
     }
 
@@ -303,6 +356,10 @@ export const obterFotoFile = async (req, res) => {
     const anexo = await Anexo.findByPk(id);
     if (!anexo) {
       console.error(`[ERROR] Anexo com ID ${id} não encontrado no banco`);
+      return res.status(404).json({ sucesso: false, erro: 'Arquivo não encontrado' });
+    }
+
+    if (!(await anexoPertenceAoVet(anexo, req.veterinario.id))) {
       return res.status(404).json({ sucesso: false, erro: 'Arquivo não encontrado' });
     }
 
@@ -359,6 +416,10 @@ export const obterFotoUrl = async (req, res) => {
 
     const anexo = await Anexo.findByPk(id);
     if (!anexo) {
+      return res.status(404).json({ sucesso: false, erro: 'Arquivo não encontrado' });
+    }
+
+    if (!(await anexoPertenceAoVet(anexo, req.veterinario.id))) {
       return res.status(404).json({ sucesso: false, erro: 'Arquivo não encontrado' });
     }
 
