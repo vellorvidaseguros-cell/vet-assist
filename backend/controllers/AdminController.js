@@ -1,6 +1,11 @@
 import bcrypt from 'bcryptjs'
+import path from 'path'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
 import { Veterinario, Cliente, Agendamento } from '../models/index.js'
 import { RECURSOS, PLANOS, permissoesEfetivas } from '../config/planos.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // Painel do administrador do app: gestão de contas de assinantes.
 // Todas as rotas passam por exigirAdmin (ver routes/admin.js).
@@ -66,6 +71,32 @@ export const criarConta = async (req, res) => {
     data.permissoesEfetivas = permissoesEfetivas(conta)
 
     res.status(201).json({ sucesso: true, mensagem: `Conta de ${nome} criada!`, data })
+  } catch (erro) {
+    res.status(500).json({ sucesso: false, erro: erro.message })
+  }
+}
+
+// Restaura uma foto de backup preservando o nome original do arquivo.
+// Usado na migração local→produção (scripts/enviar-fotos-producao.js),
+// pois o upload normal renomeia os arquivos e quebraria os registros de Anexo.
+export const restaurarFoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ sucesso: false, erro: 'Nenhum arquivo enviado' })
+    }
+    // Apenas o nome-base: impede path traversal
+    const nome = path.basename(req.file.originalname)
+    if (!/^[\w.\-]+$/.test(nome)) {
+      return res.status(400).json({ sucesso: false, erro: `Nome de arquivo inválido: ${nome}` })
+    }
+
+    const uploadsDir = path.join(__dirname, '../uploads')
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true })
+    }
+    fs.writeFileSync(path.join(uploadsDir, nome), req.file.buffer)
+
+    res.json({ sucesso: true, mensagem: `Foto ${nome} restaurada` })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
   }
