@@ -1,7 +1,7 @@
 // Service Worker para VetAssist
 // IMPORTANTE: NUNCA cachear chamadas de API — sempre buscar dados frescos
 
-const CACHE_NAME = 'vetassist-v17'
+const CACHE_NAME = 'vetassist-v18'
 const urlsToCache = [
   '/',
   '/index.html',

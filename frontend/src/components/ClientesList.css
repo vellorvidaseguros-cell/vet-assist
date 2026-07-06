@@ -77,8 +77,8 @@
 }
 
 .clientes-list {
-  padding: 1.25rem 1.5rem;
-  padding-bottom: 2rem;
+  padding: 1rem 1.25rem;
+  padding-bottom: 1.5rem;
 }
 
 .empty-message {
@@ -92,7 +92,7 @@
 .cliente-accordion {
   border: 1px solid #eee;
   border-radius: 8px;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.5rem;
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.2s;
@@ -106,7 +106,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.25rem;
+  padding: 0.7rem 1.1rem;
   background-color: #fafafa;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -116,7 +116,10 @@
 
 .cliente-header:hover { background-color: #f0f2ff; }
 
-.cliente-info {
+/* .clientes-container scope evita conflito com o .cliente-info de
+   MobileClientesList.css (CSS global no Vite: sem escopo, a regra
+   mobile flex-column vencia e empilhava/centralizava os cards) */
+.clientes-container .cliente-info {
   flex: 1;
   display: grid;
   grid-template-columns: 220px 180px 150px;
@@ -125,7 +128,7 @@
 }
 
 @media (max-width: 900px) {
-  .cliente-info {
+  .clientes-container .cliente-info {
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
   }
@@ -148,7 +151,7 @@
     text-align: center;
   }
 
-  .cliente-info {
+  .clientes-container .cliente-info {
     grid-template-columns: 1fr;
     gap: 0.5rem;
   }
