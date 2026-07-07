@@ -1,4 +1,4 @@
-import { HistoricoConsulta, Pet, Cliente, Agendamento, Faturamento, Anexo } from '../models/index.js'
+import { HistoricoConsulta, Pet, Cliente, Agendamento, Faturamento, Anexo, Veterinario, Compartilhamento } from '../models/index.js'
 
 // Helper para formatar URLs de anexos
 const formatarUrlAnexo = (anexo) => {
@@ -36,9 +36,24 @@ export const listarHistorico = async (req, res) => {
 export const historicoDoAnimal = async (req, res) => {
   try {
     const { petId } = req.params
+
+    // Acesso permitido se o animal pertence ao veterinário ou foi compartilhado (aceito) com ele
+    const dono = await Pet.findOne({ where: { id: petId, veterinarioId: req.veterinario.id } })
+    const compartilhado = dono ? null : await Compartilhamento.findOne({
+      where: { animalId: petId, veterinarioConvidadoId: req.veterinario.id, status: 'aceito' }
+    })
+
+    if (!dono && !compartilhado) {
+      return res.status(404).json({ sucesso: false, erro: 'Animal não encontrado' })
+    }
+
+    const podeEditar = !!dono || !!compartilhado?.permissoes?.includes('editar')
+
     const historico = await HistoricoConsulta.findAll({
-      where: { petId, veterinarioId: req.veterinario.id },
-      include: [Pet, Cliente, Anexo],
+      where: { petId },
+      // Dados do proprietário (Cliente) só vão para quem é dono do animal —
+      // um vet convidado por compartilhamento vê apenas o diário de atendimento.
+      include: dono ? [Pet, Cliente, Anexo] : [Pet, Anexo],
       order: [['data', 'DESC']]
     })
     // Formatar URLs dos anexos
@@ -47,7 +62,7 @@ export const historicoDoAnimal = async (req, res) => {
       if (json.Anexos) json.Anexos = json.Anexos.map(a => formatarUrlAnexo({ ...a, toJSON: () => a }))
       return json
     })
-    res.json({ sucesso: true, data: historicoFormatado })
+    res.json({ sucesso: true, data: historicoFormatado, podeEditar })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
   }
@@ -55,11 +70,33 @@ export const historicoDoAnimal = async (req, res) => {
 
 export const criarHistorico = async (req, res) => {
   try {
-    const { agendamentoId, petId, clienteId, data, tipoAtendimento, diagnostico, procedimentos, medicamentos, observacoes, proximoRetorno, veterinario, valor, statusPagamento } = req.body
+    const { agendamentoId, petId, data, tipoAtendimento, diagnostico, procedimentos, medicamentos, observacoes, proximoRetorno, veterinario, valor, statusPagamento } = req.body
+
+    if (!petId) {
+      return res.status(400).json({ sucesso: false, erro: 'petId é obrigatório' })
+    }
+
+    // Autorização: o pet precisa ser do veterinário logado, OU compartilhado
+    // (aceito) com permissão de 'editar'. clienteId nunca vem do body — é
+    // sempre derivado do Pet, para não ser falsificável e porque um vet
+    // convidado (compartilhamento) não tem acesso aos dados do proprietário.
+    const pet = await Pet.findByPk(petId)
+    if (!pet) {
+      return res.status(404).json({ sucesso: false, erro: 'Animal não encontrado' })
+    }
+    const ehDono = pet.veterinarioId === req.veterinario.id
+    if (!ehDono) {
+      const compartilhado = await Compartilhamento.findOne({
+        where: { animalId: petId, veterinarioConvidadoId: req.veterinario.id, status: 'aceito' }
+      })
+      if (!compartilhado?.permissoes?.includes('editar')) {
+        return res.status(403).json({ sucesso: false, erro: 'Você não tem permissão para registrar atendimentos deste animal' })
+      }
+    }
 
     let historicoData = {
-      petId: petId || null,
-      clienteId: clienteId || null,
+      petId,
+      clienteId: pet.clienteId,
       veterinarioId: req.veterinario.id,
       data: data || null,
       tipoAtendimento: tipoAtendimento || '',
@@ -80,17 +117,15 @@ export const criarHistorico = async (req, res) => {
         return res.status(404).json({ sucesso: false, erro: 'Agendamento não encontrado' })
       }
 
-      // Usar dados do agendamento se não foram fornecidos
-      historicoData.petId = historicoData.petId || agendamento.petId
-      historicoData.clienteId = historicoData.clienteId || agendamento.clienteId
+      // Usar dados do agendamento se não foram fornecidos (petId/clienteId já vêm do Pet acima)
       historicoData.data = historicoData.data || agendamento.data
       historicoData.tipoAtendimento = historicoData.tipoAtendimento || agendamento.tipoAtendimento
       historicoData.observacoes = historicoData.observacoes || agendamento.observacoes || ''
     }
 
     // Validar campos obrigatórios
-    if (!historicoData.petId || !historicoData.clienteId || !historicoData.data) {
-      return res.status(400).json({ sucesso: false, erro: 'Dados incompletos. Preencha petId, clienteId e data.' })
+    if (!historicoData.data) {
+      return res.status(400).json({ sucesso: false, erro: 'Informe a data do atendimento.' })
     }
 
     const historico = await HistoricoConsulta.create(historicoData)
@@ -192,6 +227,176 @@ export const apagarTodos = async (req, res) => {
     const count = await HistoricoConsulta.destroy({ where: { veterinarioId: req.veterinario.id } })
     res.json({ sucesso: true, mensagem: `${count} históricos e seus faturamentos apagados com sucesso!`, count })
   } catch (erro) {
+    res.status(500).json({ sucesso: false, erro: erro.message })
+  }
+}
+
+// PDF de COBRANÇA — mesmo padrão visual do histórico timbrado (logo + seções verdes),
+// porém SEM as fotos do atendimento. Usado no envio de cobrança ao cliente.
+export const gerarPDFCobranca = async (req, res) => {
+  try {
+    const { id } = req.params
+    const historico = await HistoricoConsulta.findOne({
+      where: { id, veterinarioId: req.veterinario.id },
+      include: [Pet, Cliente]
+    })
+
+    if (!historico) {
+      return res.status(404).json({ sucesso: false, erro: 'Histórico não encontrado' })
+    }
+
+    // Valor da cobrança: prioriza o faturamento vinculado; senão, o valor do histórico
+    const faturamento = await Faturamento.findOne({
+      where: { historicoConsultaId: id, veterinarioId: req.veterinario.id }
+    })
+    const valor = faturamento?.valor ?? historico.valor
+
+    const veterinarioDono = await Veterinario.findByPk(req.veterinario.id)
+    let wl = veterinarioDono?.whiteLabel || null
+    if (wl && typeof wl === 'string') {
+      try { wl = JSON.parse(wl) } catch { wl = null }
+    }
+    const nomeClinica = veterinarioDono?.nomeClinica || wl?.nomeClinica || 'VetAssist'
+    const cnpj = veterinarioDono?.cnpj || wl?.cnpj || ''
+    const telefone = veterinarioDono?.telefone || wl?.telefone || ''
+    const email = veterinarioDono?.email || wl?.email || ''
+    const endereco = veterinarioDono?.endereco || wl?.endereco || ''
+    const cidade = veterinarioDono?.cidade || wl?.cidade || ''
+    const estado = veterinarioDono?.estado || wl?.estado || ''
+
+    const PDFDocument = (await import('pdfkit')).default
+    const fs = await import('fs')
+    const path = await import('path')
+    const { fileURLToPath } = await import('url')
+
+    const VERDE = '#0d6b3a'
+    const doc = new PDFDocument({ margin: 40, bufferPages: true })
+
+    const petNomePdf = (historico.Pet?.nome || 'cobranca').replace(/[^a-zA-Z0-9-_]/g, '_')
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', `inline; filename="cobranca_${petNomePdf}_${historico.id}.pdf"`)
+    doc.pipe(res)
+
+    // ===== Cabeçalho timbrado (logo + dados) =====
+    const uploadsDir = path.default.join(
+      path.default.dirname(fileURLToPath(import.meta.url)),
+      '../uploads'
+    )
+    let logoDesenhada = false
+    if (veterinarioDono?.logomarcaUrl) {
+      try {
+        const caminhoLogo = path.default.join(uploadsDir, path.default.basename(veterinarioDono.logomarcaUrl))
+        if (fs.default.existsSync(caminhoLogo)) {
+          doc.image(caminhoLogo, 40, 40, { fit: [70, 55] })
+          logoDesenhada = true
+        }
+      } catch (e) {
+        console.error('[PDF Cobrança] Erro ao incluir logo:', e.message)
+      }
+    }
+
+    const textoX = logoDesenhada ? 125 : 40
+    const larguraTexto = 555 - textoX
+    doc.fontSize(16).font('Helvetica-Bold').fillColor(VERDE).text(nomeClinica, textoX, 42, { width: larguraTexto })
+    doc.fontSize(8).font('Helvetica').fillColor('#888')
+      .text('COBRANÇA - ATENDIMENTO VETERINÁRIO', textoX, doc.y + 2, { characterSpacing: 1, width: larguraTexto })
+
+    const nomeAnimal = historico.Pet?.nome || '—'
+    const especieRaca = historico.Pet
+      ? `${historico.Pet.especie || ''}${historico.Pet.raca ? ' • ' + historico.Pet.raca : ''}`.trim()
+      : ''
+    const dataConsulta = historico.data
+      ? new Date(historico.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+      : ''
+
+    doc.fontSize(9).fillColor('#444')
+    doc.text(`Proprietário: ${historico.Cliente?.nome || '—'}`, textoX, doc.y + 6, { width: larguraTexto })
+    doc.text(`Animal: ${nomeAnimal}${especieRaca ? ` (${especieRaca})` : ''}`, textoX, doc.y + 2, { width: larguraTexto })
+    doc.text(
+      `${dataConsulta ? `Data: ${dataConsulta}   ` : ''}Tipo: ${historico.tipoAtendimento || 'Atendimento'}`,
+      textoX, doc.y + 2, { width: larguraTexto }
+    )
+
+    const headerBottom = Math.max(doc.y + 10, 108)
+    doc.moveTo(40, headerBottom).lineTo(555, headerBottom).lineWidth(2).strokeColor(VERDE).stroke()
+    doc.y = headerBottom + 14
+    doc.x = 40
+
+    // ===== Seções (barra verde + conteúdo) =====
+    const secao = (titulo, conteudo) => {
+      if (!conteudo) return
+      // Evita quebrar a barra de título entre páginas
+      if (doc.y > 660) doc.addPage()
+      const y = doc.y
+      doc.rect(40, y, 515, 18).fill(VERDE)
+      doc.fontSize(10).font('Helvetica-Bold').fillColor('white').text(titulo.toUpperCase(), 48, y + 5)
+      doc.fillColor('#333').font('Helvetica').fontSize(10)
+      doc.text(String(conteudo), 48, y + 26, { width: 500 })
+      doc.moveDown(0.8)
+      doc.x = 40
+    }
+
+    secao('Diagnóstico', historico.diagnostico)
+    secao('Procedimentos Realizados', historico.procedimentos)
+    secao('Medicamentos Prescritos', historico.medicamentos)
+    secao('Observações', historico.observacoes)
+
+    // ===== Valor em destaque =====
+    if (doc.y > 640) doc.addPage()
+    const valorFormatado = parseFloat(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    doc.moveDown(0.5)
+    const yv = doc.y
+    doc.moveTo(40, yv).lineTo(555, yv).lineWidth(2).strokeColor(VERDE).stroke()
+    doc.fontSize(13).font('Helvetica-Bold').fillColor(VERDE)
+      .text(`VALOR: ${valorFormatado}`, 40, yv + 10, { align: 'right', width: 515 })
+    doc.x = 40
+
+    // ===== Dados para pagamento (caixa destacada) =====
+    if (veterinarioDono?.dadosCobranca) {
+      doc.font('Helvetica').fontSize(10)
+      const alturaTexto = doc.heightOfString(veterinarioDono.dadosCobranca, { width: 490 })
+      const alturaCaixa = alturaTexto + 34
+      if (doc.y + alturaCaixa > 720) doc.addPage()
+      const yb = doc.y + 10
+      doc.roundedRect(40, yb, 515, alturaCaixa, 6).fillAndStroke('#f5f9f6', '#d3e6d9')
+      doc.fontSize(9).font('Helvetica-Bold').fillColor(VERDE).text('DADOS PARA PAGAMENTO', 52, yb + 10)
+      doc.fontSize(10).font('Helvetica').fillColor('#333')
+        .text(veterinarioDono.dadosCobranca, 52, yb + 24, { width: 490 })
+      doc.x = 40
+    }
+
+    // ===== Rodapé timbrado em todas as páginas =====
+    const infoPartes = [
+      cnpj && `CNPJ: ${cnpj}`,
+      telefone && `Tel: ${telefone}`,
+      email
+    ].filter(Boolean).join('   •   ')
+    const enderecoLinha = [endereco, cidade && estado ? `${cidade} - ${estado}` : (cidade || estado)]
+      .filter(Boolean).join(', ')
+    const geradoEm = `Documento gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`
+
+    const { start, count } = doc.bufferedPageRange()
+    for (let i = start; i < start + count; i++) {
+      doc.switchToPage(i)
+      const rodapeY = doc.page.height - doc.page.margins.bottom - 34
+      doc.moveTo(40, rodapeY).lineTo(555, rodapeY).lineWidth(2).strokeColor(VERDE).stroke()
+      doc.fontSize(8).font('Helvetica').fillColor('#666')
+      let yTexto = rodapeY + 6
+      if (infoPartes) {
+        doc.text(infoPartes, 40, yTexto, { align: 'center', width: 515 })
+        yTexto = doc.y
+      }
+      if (enderecoLinha) {
+        doc.text(enderecoLinha, 40, yTexto, { align: 'center', width: 515 })
+        yTexto = doc.y
+      }
+      doc.fontSize(7).text(geradoEm, 40, yTexto + 1, { align: 'center', width: 515 })
+      doc.fillColor('#000')
+    }
+
+    doc.end()
+  } catch (erro) {
+    console.error('[PDF Cobrança] Erro ao gerar PDF:', erro)
     res.status(500).json({ sucesso: false, erro: erro.message })
   }
 }
@@ -352,12 +557,21 @@ export const gerarPDFHistorico = async (req, res) => {
       doc.moveDown()
     }
 
-    // Rodapé
-    doc.moveTo(40, doc.y).lineTo(550, doc.y).stroke()
-    doc.fontSize(8).font('Helvetica').text(
-      `Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`,
-      { align: 'center', color: '#666' }
-    )
+    // Dados de cobrança (Pix/bancários) NÃO aparecem no PDF de histórico —
+    // eles são exibidos apenas no PDF de cobrança (gerarPDFCobranca), conforme regra do produto.
+
+    // Rodapé travado no fim de CADA página (independente de onde o conteúdo terminou),
+    // desenhado por último com bufferPages para poder voltar a páginas já renderizadas
+    const geradoEm = `Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`
+    const { start, count } = doc.bufferedPageRange()
+    for (let i = start; i < start + count; i++) {
+      doc.switchToPage(i)
+      const rodapeY = doc.page.height - doc.page.margins.bottom - 20
+      doc.moveTo(40, rodapeY).lineTo(550, rodapeY).stroke()
+      doc.fontSize(8).font('Helvetica').fillColor('#666')
+        .text(geradoEm, 40, rodapeY + 5, { align: 'center', width: 510 })
+      doc.fillColor('#000')
+    }
 
     doc.end()
   } catch (erro) {

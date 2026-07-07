@@ -61,7 +61,7 @@
 
 .selector-dropdown:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -477,14 +477,14 @@
 }
 
 .date-tab:hover {
-  border-color: #667eea;
+  border-color: var(--color-primary);
   background: #f9f9f9;
 }
 
 .date-tab.active {
-  background: #667eea;
+  background: var(--color-primary);
   color: white;
-  border-color: #667eea;
+  border-color: var(--color-primary);
 }
 
 .count-badge {
@@ -548,7 +548,7 @@
 }
 
 .toggle-icon {
-  color: #667eea;
+  color: var(--color-primary);
   font-weight: bold;
   font-size: 0.8rem;
 }
@@ -566,7 +566,7 @@
 }
 
 .type {
-  background: #667eea;
+  background: var(--color-primary);
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
@@ -662,7 +662,7 @@
   background: #f9f9f9;
   padding: 1rem;
   border-radius: 4px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--color-primary);
 }
 
 .photos-section strong {

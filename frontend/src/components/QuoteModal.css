@@ -390,8 +390,8 @@
   border: 1px solid #d4edda;
   border-radius: 8px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .valor-total-row {
@@ -456,6 +456,30 @@
 
 .btn-gerar-pdf:disabled,
 .btn-compartilhar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Botão Salvar ocupa a linha inteira, abaixo de PDF e Email/WhatsApp */
+.btn-salvar-doc {
+  grid-column: 1 / -1;
+  padding: 0.6rem 1.5rem;
+  background: white;
+  color: #1a5f2e;
+  border: 1.5px solid #1a5f2e;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-salvar-doc:active:not(:disabled) {
+  background: #f0fdf4;
+  transform: scale(0.98);
+}
+
+.btn-salvar-doc:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -820,4 +844,206 @@
     font-size: 0.85rem;
     min-height: 44px;
   }
+}
+
+/* Custo de Visita Externa (dentro do Orçamento) */
+.quote-visita-section {
+  background: #f5f9f6;
+  border: 1px solid #d3e6d9;
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+}
+
+.quote-visita-aviso {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: #8a6d0b;
+  background: #fff8e6;
+  border-left: 4px solid #b8860b;
+  padding: 0.65rem 0.9rem;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+
+.quote-visita-inputs {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.quote-visita-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.quote-visita-field label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 0.3rem;
+}
+
+.quote-visita-field input {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.quote-visita-field input:focus {
+  outline: none;
+  border-color: #1a5f2e;
+  box-shadow: 0 0 0 3px rgba(26, 95, 46, 0.1);
+}
+
+.quote-visita-resultado {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #bcd9c8;
+}
+
+.quote-visita-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.quote-visita-linha strong {
+  color: #333;
+  white-space: nowrap;
+}
+
+.quote-visita-total {
+  margin-top: 0.4rem;
+  padding-top: 0.5rem;
+  border-top: 2px solid #1a5f2e;
+  font-weight: 700;
+  color: #1a5f2e;
+  font-size: 0.95rem;
+}
+
+.quote-visita-total strong {
+  color: #0d6b3a;
+  font-size: 1.05rem;
+}
+
+.quote-visita-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+@media (max-width: 480px) {
+  .quote-visita-inputs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Botões da seção Visita Externa: lado a lado, sem overflow */
+.btn-visita-cancelar,
+.btn-visita-adicionar {
+  flex: 1;
+  min-width: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.2s ease;
+}
+
+.btn-visita-cancelar {
+  background: white;
+  border: 1.5px solid #d32f2f;
+  color: #d32f2f;
+}
+
+.btn-visita-cancelar:active {
+  background: #ffebee;
+}
+
+.btn-visita-adicionar {
+  background: #1a5f2e;
+  border: 1.5px solid #1a5f2e;
+  color: white;
+}
+
+.btn-visita-adicionar:active:not(:disabled) {
+  background: #0d4520;
+}
+
+.btn-visita-adicionar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Itens fixos adicionados (visita externa / insumos) — mostrados abaixo da seção */
+.quote-item-fixo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  background: white;
+  border: 1px solid #d3e6d9;
+  border-left: 4px solid #1a5f2e;
+  border-radius: 8px;
+}
+
+.qif-nome {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qif-valor {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0d6b3a;
+  white-space: nowrap;
+}
+
+.qif-remover {
+  width: auto !important;
+  margin-bottom: 0 !important;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.35rem !important;
+  border-radius: 6px;
+}
+
+.qif-remover:active {
+  background: #ffebee;
+}
+
+.quote-orcamento-aviso {
+  margin: 0.6rem 0 0;
+  font-size: 0.78rem;
+  color: #8a6d0b;
+  background: #fff8e6;
+  border-left: 3px solid #b8860b;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  line-height: 1.4;
 }

@@ -48,7 +48,7 @@
 }
 
 .resumo-card.resumo-faturamento-mes {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
 }
 
 .resumo-card.resumo-faturado-hoje {
@@ -599,14 +599,14 @@
 }
 
 .mes-seletor-opcao:hover {
-  border-color: #667eea !important;
-  color: #667eea !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
   background-color: #f5f3ff !important;
 }
 
 .mes-seletor-opcao.ativo {
-  border-color: #667eea !important;
-  background-color: #667eea !important;
+  border-color: var(--color-primary) !important;
+  background-color: var(--color-primary) !important;
   color: #ffffff !important;
   font-weight: 700 !important;
 }
@@ -696,7 +696,7 @@
   margin: 0 0 6px 0;
   font-size: 12px;
   font-weight: 700;
-  color: #667eea;
+  color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }

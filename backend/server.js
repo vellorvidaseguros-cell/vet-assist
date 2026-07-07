@@ -8,7 +8,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import http from 'http';
 import { Server } from 'socket.io';
-import { Veterinario, Cliente, Pet, Agendamento, Consulta, Vacina, HistoricoConsulta, Anexo, Faturamento, Veiculo, Despesa } from './models/index.js';
+import { Veterinario, Cliente, Pet, Agendamento, HistoricoConsulta, Anexo, Faturamento, Veiculo, Despesa, Compartilhamento } from './models/index.js';
 import { initLembretesJob, startCleanup } from './jobs/lembretesJob.js';
 import { autenticar, exigirRecurso } from './middleware/auth.js';
 
@@ -18,8 +18,6 @@ import clientesRoutes from './routes/clientes.js';
 import { seedTestData } from './seed.js';
 import petsRoutes from './routes/pets.js';
 import agendamentosRoutes from './routes/agendamentos.js';
-import consultasRoutes from './routes/consultas.js';
-import vacinasRoutes from './routes/vacinas.js';
 import historicoRoutes from './routes/historico.js';
 import faturamentoRoutes from './routes/faturamento.js';
 import veiculosRoutes from './routes/veiculos.js';
@@ -27,6 +25,11 @@ import despesasRoutes from './routes/despesas.js';
 import perfilRoutes from './routes/perfil.js';
 import anexosRoutes from './routes/anexos.js';
 import adminRoutes from './routes/admin.js';
+import lixeiraRoutes from './routes/lixeira.js';
+import orcamentoRoutes from './routes/orcamento.js';
+import compartilhamentoRoutes from './routes/compartilhamento.js';
+import insumosRoutes from './routes/insumos.js';
+import documentosRoutes from './routes/documentos.js';
 
 dotenv.config();
 
@@ -99,7 +102,7 @@ Cliente.hasMany(HistoricoConsulta, { foreignKey: 'clienteId' })
 
 // Associações para Faturamento
 Faturamento.belongsTo(Cliente, { foreignKey: 'clienteId' })
-Faturamento.belongsTo(HistoricoConsulta, { foreignKey: 'historicoConsultaId' })
+Faturamento.belongsTo(HistoricoConsulta, { foreignKey: 'historicoConsultaId', as: 'HistoricoConsulta' })
 Cliente.hasMany(Faturamento, { foreignKey: 'clienteId' })
 HistoricoConsulta.hasMany(Faturamento, { foreignKey: 'historicoConsultaId' })
 
@@ -108,6 +111,12 @@ Anexo.belongsTo(Agendamento, { foreignKey: 'agendamentoId' })
 Anexo.belongsTo(HistoricoConsulta, { foreignKey: 'historicoConsultaId' })
 Agendamento.hasMany(Anexo, { foreignKey: 'agendamentoId' })
 HistoricoConsulta.hasMany(Anexo, { foreignKey: 'historicoConsultaId' })
+
+// Associações para Compartilhamento (compartilhamento de animais entre vets)
+Compartilhamento.belongsTo(Pet, { foreignKey: 'animalId' })
+Compartilhamento.belongsTo(Veterinario, { foreignKey: 'veterinarioOrigemId', as: 'veterinarioOrigem' })
+Compartilhamento.belongsTo(Veterinario, { foreignKey: 'veterinarioConvidadoId', as: 'veterinarioConvidado' })
+Pet.hasMany(Compartilhamento, { foreignKey: 'animalId' })
 
 // Rota de teste para uploads
 app.get('/test-uploads/:filename', (req, res) => {
@@ -181,15 +190,51 @@ async function iniciarServidor() {
     app.use('/api/clientes', exigirRecurso('clientes'), clientesRoutes);
     app.use('/api/pets', exigirRecurso('clientes'), petsRoutes);
     app.use('/api/agendamentos', exigirRecurso('agenda'), agendamentosRoutes);
-    app.use('/api/consultas', exigirRecurso('agenda'), consultasRoutes);
-    app.use('/api/vacinas', exigirRecurso('agenda'), vacinasRoutes);
-    app.use('/api/historico', exigirRecurso('agenda'), historicoRoutes);
+
+    // Histórico: exige o recurso 'agenda', MAS o histórico de um animal
+    // compartilhado (aceito) fica acessível mesmo para planos sem 'agenda' —
+    // senão o VetB convidado (plano básico) não conseguiria ver o tratamento.
+    const permitirHistoricoCompartilhado = async (req, res, next) => {
+      if (req.veterinario?.role === 'admin') return next()
+      if (req.veterinario?.permissoes?.includes('agenda')) return next()
+
+      // Sem o recurso: liberar GET /animal/:petId de animal compartilhado (ver diário)
+      const matchGet = req.method === 'GET' && req.path.match(/^\/animal\/(\d+)$/)
+      if (matchGet) {
+        const compartilhado = await Compartilhamento.findOne({
+          where: { animalId: matchGet[1], veterinarioConvidadoId: req.veterinario.id, status: 'aceito' }
+        })
+        if (compartilhado) return next()
+      }
+
+      // POST / (criar) de animal compartilhado com permissão 'editar' — o diário
+      // de atendimento é colaborativo entre os vets que têm acesso ao animal.
+      const matchPost = req.method === 'POST' && req.path === '/'
+      if (matchPost && req.body?.petId) {
+        const compartilhado = await Compartilhamento.findOne({
+          where: { animalId: req.body.petId, veterinarioConvidadoId: req.veterinario.id, status: 'aceito' }
+        })
+        if (compartilhado?.permissoes?.includes('editar')) return next()
+      }
+
+      return res.status(403).json({
+        sucesso: false,
+        erro: 'Recurso não incluído no seu plano. Fale com o administrador para fazer upgrade.',
+        recursoNegado: 'agenda',
+      })
+    }
+    app.use('/api/historico', permitirHistoricoCompartilhado, historicoRoutes);
     app.use('/api/faturamento', exigirRecurso('cobrancas'), faturamentoRoutes);
     app.use('/api/veiculos', exigirRecurso('despesas'), veiculosRoutes);
     app.use('/api/despesas', exigirRecurso('despesas'), despesasRoutes);
     app.use('/api/perfil', perfilRoutes);
     app.use('/api/anexos', exigirRecurso('agenda'), anexosRoutes);
     app.use('/api/admin', adminRoutes);
+    app.use('/api/lixeira', lixeiraRoutes);
+    app.use('/api/orcamento', exigirRecurso('clientes'), orcamentoRoutes);
+    app.use('/api/compartilhamento', compartilhamentoRoutes);
+    app.use('/api/insumos', exigirRecurso('clientes'), insumosRoutes);
+    app.use('/api/documentos', exigirRecurso('clientes'), documentosRoutes);
 
     // Endpoint para o frontend descobrir a porta do backend (Socket.IO direto)
     app.get('/api/backend-info', (req, res) => {

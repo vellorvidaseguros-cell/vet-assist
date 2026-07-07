@@ -114,12 +114,12 @@
 
 /* Primary (Blue) */
 .confirm-modal-btn-primary {
-  background: #667eea;
+  background: var(--color-primary);
   color: white;
 }
 
 .confirm-modal-btn-primary:hover:not(:disabled) {
-  background: #5a6fd6;
+  background: var(--color-primary-dark);
 }
 
 .confirm-modal-btn-primary:disabled {

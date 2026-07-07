@@ -1,0 +1,265 @@
+.pr-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.pr-modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.pr-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.pr-modal-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 700;
+}
+
+.pr-btn-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #666;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.pr-btn-close:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.pr-tabs {
+  display: flex;
+  border-bottom: 2px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.pr-tab {
+  flex: 1;
+  padding: 0.85rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #888;
+  transition: all 0.2s;
+}
+
+.pr-tab.ativa {
+  color: #0d6b3a;
+  border-bottom-color: #0d6b3a;
+  background: #f9fdf9;
+}
+
+.pr-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.pr-description {
+  margin: 0 0 1.25rem;
+  font-size: 0.88rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.pr-error {
+  background: #fee;
+  border-left: 4px solid #c33;
+  color: #c33;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.pr-success-box {
+  margin-bottom: 1rem;
+}
+
+.pr-success {
+  background: #efe;
+  border-left: 4px solid #3c3;
+  color: #2e7d32;
+  padding: 0.75rem 1rem;
+  border-radius: 6px 6px 0 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.pr-btn-dismiss {
+  width: 100%;
+  padding: 0.5rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: none;
+  border-radius: 0 0 6px 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.pr-aviso {
+  background: #fff8e6;
+  border-left: 4px solid #b8860b;
+  color: #8a6d0b;
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.pr-field {
+  margin-bottom: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.pr-field label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.35rem;
+  font-size: 0.88rem;
+}
+
+.pr-field input {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.pr-field input:focus {
+  outline: none;
+  border-color: #0d6b3a;
+  box-shadow: 0 0 0 3px rgba(13, 107, 58, 0.1);
+}
+
+.pr-field small {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  color: #999;
+  line-height: 1.4;
+}
+
+.pr-field-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.pr-resultado {
+  background: #f5f9f6;
+  border: 1px solid #d3e6d9;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+}
+
+.pr-resultado-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  font-size: 0.88rem;
+  color: #555;
+}
+
+.pr-resultado-linha strong {
+  color: #333;
+  white-space: nowrap;
+}
+
+.pr-resultado-destaque {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding-top: 0.65rem;
+  border-top: 2px solid #0d6b3a;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0d6b3a;
+}
+
+.pr-resultado-destaque strong {
+  font-size: 1.25rem;
+}
+
+.pr-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  color: #b8860b;
+}
+
+.pr-btn-salvar {
+  width: 100%;
+  padding: 0.85rem;
+  background: #0d6b3a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.pr-btn-salvar:hover:not(:disabled) {
+  background: #0a5830;
+}
+
+.pr-btn-salvar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .pr-field-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

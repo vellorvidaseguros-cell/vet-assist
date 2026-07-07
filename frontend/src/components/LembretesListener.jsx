@@ -14,6 +14,21 @@ const isMobile = isIOS || isAndroid
 const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
               window.navigator.standalone === true
 
+// Evita reexibir o aviso de "bloqueado" a cada navegação/recarregamento —
+// só volta a aparecer depois de um tempo (o usuário já viu e fechou).
+const CHAVE_DISPENSADO = 'vetassist_notif_bloqueado_dispensado_em'
+const COOLDOWN_MS = 24 * 60 * 60 * 1000 // 24h
+
+function foiDispensadoRecentemente() {
+  const em = localStorage.getItem(CHAVE_DISPENSADO)
+  if (!em) return false
+  return Date.now() - parseInt(em, 10) < COOLDOWN_MS
+}
+
+function marcarDispensado() {
+  localStorage.setItem(CHAVE_DISPENSADO, String(Date.now()))
+}
+
 // Descobrir URL do backend para Socket.IO
 // O Vite proxy de WebSocket é instável; conectar DIRETO ao backend quando possível.
 async function descobrirSocketUrl() {
@@ -89,7 +104,7 @@ export default function LembretesListener() {
     } else if (perm === 'default') {
       setBanner('pedir')
     } else if (perm === 'denied') {
-      setBanner('bloqueado')
+      if (!foiDispensadoRecentemente()) setBanner('bloqueado')
     }
   }, [])
 
@@ -359,7 +374,7 @@ export default function LembretesListener() {
               </span>
             </div>
             <button
-              onClick={() => setBanner(null)}
+              onClick={() => { marcarDispensado(); setBanner(null) }}
               style={{
                 width: '100%', padding: '14px',
                 background: '#0d6b3a', color: 'white',
@@ -379,15 +394,22 @@ export default function LembretesListener() {
           position: 'fixed', top: '10px', left: '50%',
           transform: 'translateX(-50%)', zIndex: 9998,
           background: '#856404', color: 'white',
-          padding: '10px 14px', borderRadius: '10px',
+          padding: '12px 16px', borderRadius: '12px',
           boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-          display: 'flex', alignItems: 'center', gap: '8px',
-          maxWidth: '90vw', fontSize: '12px', lineHeight: '1.4'
+          display: 'flex', alignItems: 'center', gap: '12px',
+          width: 'max-content', maxWidth: '90vw', fontSize: '13px', fontWeight: '500'
         }}>
-          <span>🔕 Notificações bloqueadas — toque no 🔒 cadeado e permita</span>
-          <button onClick={() => setBanner(null)} style={{
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '16px', whiteSpace: 'nowrap' }}>🔕</span>
+            <span style={{ whiteSpace: 'nowrap' }}>Notificações bloqueadas</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', fontSize: '12px' }}>
+            <span>Toque 🔒</span>
+          </div>
+          <button onClick={() => { marcarDispensado(); setBanner(null) }} style={{
             background: 'none', border: 'none', color: 'white',
-            fontSize: '16px', cursor: 'pointer', padding: '2px 6px', flexShrink: 0
+            fontSize: '18px', cursor: 'pointer', padding: '2px 4px', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}>✕</button>
         </div>
       )}

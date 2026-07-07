@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import BuscaVeiculo from './BuscaVeiculo'
 import PricingModal from './PricingModal'
 import WhiteLabelModal from './WhiteLabelModal'
+import CompartilharAnimalModal from './CompartilharAnimalModal'
+import EsqueceSenhaModal from './EsqueceSenhaModal'
+import ExportarDadosModal from './ExportarDadosModal'
+import PrecificacaoModal from './PrecificacaoModal'
+import EstoqueInsumosModal from './EstoqueInsumosModal'
+import DocumentosEmitidosModal from './DocumentosEmitidosModal'
+import MoneyInput from './MoneyInput'
 import './Perfil.css'
 
 export default function Perfil() {
+  const navigate = useNavigate()
   const [perfil, setPerfil] = useState(null)
   const [veiculo, setVeiculo] = useState(null)
   const [custoKm, setCustoKm] = useState(null)
@@ -14,8 +23,17 @@ export default function Perfil() {
   const [veiculoMode, setVeiculoMode] = useState(false)
   const [pricingModalOpen, setPricingModalOpen] = useState(false)
   const [whiteLabelModalOpen, setWhiteLabelModalOpen] = useState(false)
+  const [compartilharModalOpen, setCompartilharModalOpen] = useState(false)
+  const [esqueceSenhaModalOpen, setEsqueceSenhaModalOpen] = useState(false)
+  const [exportarModalOpen, setExportarModalOpen] = useState(false)
+  const [precificacaoModalOpen, setPrecificacaoModalOpen] = useState(false)
+  const [estoqueModalOpen, setEstoqueModalOpen] = useState(false)
+  const [documentosModalOpen, setDocumentosModalOpen] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [dadosCobranca, setDadosCobranca] = useState('')
+  const [salvandoCobranca, setSalvandoCobranca] = useState(false)
+  const [meusPets, setMeusPets] = useState([])
 
   const veterinarioId = 1 // Será obtido do localStorage ou token
 
@@ -41,26 +59,40 @@ export default function Perfil() {
     ano: '',
     combustivel: 'Gasolina',
     kmAtual: '',
+    kmMensal: '',
     consumoMedio: '',
+    precoCombustivel: '',
     valorSeguroMensal: '',
-    custoManutencaoEstimado: ''
+    valorIPVAAnual: '',
+    custoManutencaoEstimado: '',
+    percentualUsoProfissional: 100
   })
 
   useEffect(() => {
     fetchData()
   }, [])
 
+  // Rascunho do formulário de veículo: salva enquanto edita, para sobreviver a
+  // recargas do PWA (iOS). Limpo ao salvar ou cancelar.
+  useEffect(() => {
+    if (veiculoMode) {
+      try { localStorage.setItem('draft_veiculo', JSON.stringify(veiculoForm)) } catch (e) { /* quota */ }
+    }
+  }, [veiculoForm, veiculoMode])
+
   const fetchData = async () => {
     try {
       setLoading(true)
-      const [perfilRes, veiculoRes] = await Promise.all([
+      const [perfilRes, veiculoRes, petsRes] = await Promise.all([
         axios.get(`/api/perfil/${veterinarioId}`),
-        axios.get(`/api/veiculos/${veterinarioId}`)
+        axios.get(`/api/veiculos/${veterinarioId}`),
+        axios.get('/api/pets')
       ])
 
       if (perfilRes.data.sucesso) {
         setPerfil(perfilRes.data.data)
         setFormData(perfilRes.data.data)
+        setDadosCobranca(perfilRes.data.data.dadosCobranca || '')
       }
 
       if (veiculoRes.data.sucesso && veiculoRes.data.data) {
@@ -73,6 +105,19 @@ export default function Perfil() {
             setCustoKm(custoRes.data.data)
           }
         }
+      }
+
+      // Restaura rascunho não salvo do veículo (ex: app recarregou no meio da edição)
+      try {
+        const draft = localStorage.getItem('draft_veiculo')
+        if (draft) {
+          setVeiculoForm(JSON.parse(draft))
+          setVeiculoMode(true)
+        }
+      } catch (e) { /* ignora rascunho inválido */ }
+
+      if (petsRes.data.sucesso && Array.isArray(petsRes.data.data)) {
+        setMeusPets(petsRes.data.data)
       }
     } catch (err) {
       setError('Erro ao carregar dados do perfil')
@@ -97,6 +142,22 @@ export default function Perfil() {
     }
   }
 
+  const handleSalvarDadosCobranca = async () => {
+    try {
+      setSalvandoCobranca(true)
+      const response = await axios.put(`/api/perfil/${veterinarioId}`, { dadosCobranca })
+      if (response.data.sucesso) {
+        setPerfil(response.data.data)
+        setSuccess('Dados de cobrança salvos com sucesso!')
+        setTimeout(() => setSuccess(''), 3000)
+      }
+    } catch (err) {
+      setError(err.response?.data?.erro || 'Erro ao salvar dados de cobrança')
+    } finally {
+      setSalvandoCobranca(false)
+    }
+  }
+
   const handleSaveVeiculo = async (e) => {
     e.preventDefault()
     try {
@@ -113,6 +174,7 @@ export default function Perfil() {
       }
 
       if (response.data.sucesso) {
+        localStorage.removeItem('draft_veiculo') // rascunho consolidado
         setVeiculo(response.data.data)
         setVeiculoMode(false)
         setSuccess('Veículo salvo com sucesso!')
@@ -141,6 +203,15 @@ export default function Perfil() {
       consumoMedio: dados.consumoMedio || prevForm.consumoMedio,
       custoManutencaoEstimado: dados.custoManutencaoEstimado || prevForm.custoManutencaoEstimado
     }))
+  }
+
+  const handleLogout = () => {
+    if (window.confirm('Tem certeza que deseja sair?')) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('veterinario')
+      localStorage.removeItem('activeTab')
+      navigate('/login')
+    }
   }
 
   if (loading) return <div className="loading">Carregando...</div>
@@ -399,7 +470,7 @@ export default function Perfil() {
                   </select>
                 </div>
                 <div className="form-group">
-                  <label>KM Atual</label>
+                  <label>KM Atual (odômetro)</label>
                   <input
                     type="number"
                     value={veiculoForm.kmAtual}
@@ -410,21 +481,64 @@ export default function Perfil() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Consumo Médio (KM/L)</label>
+                  <label>KM rodados por mês a trabalho ⭐</label>
                   <input
                     type="number"
-                    step="0.1"
+                    placeholder="Ex: 1500"
+                    value={veiculoForm.kmMensal}
+                    onChange={(e) => setVeiculoForm({ ...veiculoForm, kmMensal: e.target.value })}
+                  />
+                  <small style={{ color: '#888', fontSize: '0.75rem' }}>
+                    Base do cálculo de custo/km. Estime a média mensal de deslocamentos para atendimentos.
+                  </small>
+                </div>
+                <div className="form-group">
+                  <label>Uso profissional do veículo (%)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={veiculoForm.percentualUsoProfissional}
+                    onChange={(e) => setVeiculoForm({ ...veiculoForm, percentualUsoProfissional: e.target.value })}
+                  />
+                  <small style={{ color: '#888', fontSize: '0.75rem' }}>
+                    Se também usa o carro na vida pessoal, os custos fixos são rateados.
+                  </small>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Consumo Médio (KM/L)</label>
+                  <MoneyInput
+                    placeholder="Ex: 10,5"
                     value={veiculoForm.consumoMedio}
-                    onChange={(e) => setVeiculoForm({ ...veiculoForm, consumoMedio: e.target.value })}
+                    onChangeValue={(v) => setVeiculoForm({ ...veiculoForm, consumoMedio: v ?? '' })}
                   />
                 </div>
                 <div className="form-group">
+                  <label>Preço do Combustível (R$/L)</label>
+                  <MoneyInput
+                    placeholder="Vazio = média de mercado"
+                    value={veiculoForm.precoCombustivel}
+                    onChangeValue={(v) => setVeiculoForm({ ...veiculoForm, precoCombustivel: v ?? '' })}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
                   <label>Seguro Mensal (R$)</label>
-                  <input
-                    type="number"
-                    step="0.01"
+                  <MoneyInput
                     value={veiculoForm.valorSeguroMensal}
-                    onChange={(e) => setVeiculoForm({ ...veiculoForm, valorSeguroMensal: e.target.value })}
+                    onChangeValue={(v) => setVeiculoForm({ ...veiculoForm, valorSeguroMensal: v ?? '' })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>IPVA Anual (R$)</label>
+                  <MoneyInput
+                    value={veiculoForm.valorIPVAAnual}
+                    onChangeValue={(v) => setVeiculoForm({ ...veiculoForm, valorIPVAAnual: v ?? '' })}
                   />
                 </div>
               </div>
@@ -432,11 +546,9 @@ export default function Perfil() {
               <div className="form-row">
                 <div className="form-group">
                   <label>Custo Manutenção Estimado (R$/mês)</label>
-                  <input
-                    type="number"
-                    step="0.01"
+                  <MoneyInput
                     value={veiculoForm.custoManutencaoEstimado}
-                    onChange={(e) => setVeiculoForm({ ...veiculoForm, custoManutencaoEstimado: e.target.value })}
+                    onChangeValue={(v) => setVeiculoForm({ ...veiculoForm, custoManutencaoEstimado: v ?? '' })}
                   />
                 </div>
               </div>
@@ -447,6 +559,7 @@ export default function Perfil() {
                   type="button"
                   className="btn-secondary"
                   onClick={() => {
+                    localStorage.removeItem('draft_veiculo')
                     setVeiculoMode(false)
                     setVeiculoForm(veiculo || {})
                   }}
@@ -479,7 +592,16 @@ export default function Perfil() {
                 </div>
               </div>
 
-              {custoKm && (
+              {custoKm && custoKm.configuracaoPendente && (
+                <div className="custo-km-card" style={{ background: '#fff8e6', borderLeft: '4px solid #b8860b' }}>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: '#8a6d0b' }}>
+                    ⚠️ <strong>Informe os "KM rodados por mês a trabalho"</strong> para calcular o custo real por km.
+                    Clique em ✏️ Editar e preencha o campo ⭐.
+                  </p>
+                </div>
+              )}
+
+              {custoKm && !custoKm.configuracaoPendente && (
                 <div className="custo-km-card">
                   <h3>💰 Análise de Custos</h3>
                   <div className="custo-row">
@@ -488,17 +610,21 @@ export default function Perfil() {
                       <span className="value">R$ {custoKm.custoKm}</span>
                     </div>
                     <div className="custo-item">
-                      <span className="label">Custo Mensal:</span>
+                      <span className="label">Custo Mensal ({custoKm.kmMensal} km):</span>
                       <span className="value">R$ {custoKm.totalCustoMensal?.toFixed(2)}</span>
                     </div>
                   </div>
 
                   <div className="custo-breakdown">
                     <p>
-                      <strong>Combustível:</strong> R$ {custoKm.custoCombuivel?.toFixed(2)} |{' '}
+                      <strong>Combustível:</strong> R$ {custoKm.custoCombustivel?.toFixed(2)} |{' '}
                       <strong>Seguro:</strong> R$ {custoKm.custoSeguroMensal?.toFixed(2)} |{' '}
+                      <strong>IPVA:</strong> R$ {custoKm.custoIPVAMensal?.toFixed(2)} |{' '}
                       <strong>Manutenção:</strong> R$ {custoKm.custoManutencaoMensal?.toFixed(2)} |{' '}
                       <strong>Depreciação:</strong> R$ {custoKm.custoDepreciacaoMensal?.toFixed(2)}
+                      {custoKm.percentualUsoProfissional < 100 && (
+                        <> | <strong>Uso profissional:</strong> {custoKm.percentualUsoProfissional}%</>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -507,6 +633,27 @@ export default function Perfil() {
           ) : (
             <p className="empty-message">Nenhum veículo cadastrado</p>
           )}
+        </div>
+
+        {/* Seção de Precificação (Hora Técnica) */}
+        <div className="perfil-card">
+          <div className="card-header">
+            <h2>💡 Precificação</h2>
+          </div>
+          <div className="card-content">
+            <p className="card-description">
+              Descubra quanto vale sua hora de trabalho e o preço justo de cada visita. Configure uma vez — o app calcula o resto.
+              {perfil?.precificacao?.horaTecnica > 0 && (
+                <> <strong style={{ color: '#0d6b3a' }}>Sua hora técnica: R$ {Number(perfil.precificacao.horaTecnica).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></>
+              )}
+            </p>
+            <button
+              className="btn-manage-pricing"
+              onClick={() => setPrecificacaoModalOpen(true)}
+            >
+              💡 Calcular Hora Técnica e Visitas
+            </button>
+          </div>
         </div>
 
         {/* Seção de Tabela de Preços */}
@@ -521,6 +668,38 @@ export default function Perfil() {
               onClick={() => setPricingModalOpen(true)}
             >
               ⚙️ Gerenciar Tabela de Preços
+            </button>
+          </div>
+        </div>
+
+        {/* Seção de Documentos Emitidos */}
+        <div className="perfil-card">
+          <div className="card-header">
+            <h2>📁 Documentos Emitidos</h2>
+          </div>
+          <div className="card-content">
+            <p className="card-description">Consulte os orçamentos e cobranças que você salvou, com a data de emissão, e gere o PDF novamente quando precisar.</p>
+            <button
+              className="btn-manage-pricing"
+              onClick={() => setDocumentosModalOpen(true)}
+            >
+              📁 Ver Documentos Emitidos
+            </button>
+          </div>
+        </div>
+
+        {/* Seção de Estoque de Insumos */}
+        <div className="perfil-card">
+          <div className="card-header">
+            <h2>📦 Estoque de Insumos</h2>
+          </div>
+          <div className="card-content">
+            <p className="card-description">Cadastre seringas, medicamentos e materiais de consumo. Ao usar no orçamento, o estoque é abatido automaticamente.</p>
+            <button
+              className="btn-manage-pricing"
+              onClick={() => setEstoqueModalOpen(true)}
+            >
+              📦 Gerenciar Estoque
             </button>
           </div>
         </div>
@@ -540,6 +719,118 @@ export default function Perfil() {
             </button>
           </div>
         </div>
+
+        {/* Dados de Cobrança (Pix/Bancários) */}
+        <div className="perfil-card">
+          <div className="card-header">
+            <h2>💳 Dados de Cobrança</h2>
+          </div>
+          <div className="card-content">
+            <p className="card-description">
+              Adicione aqui suas informações de Pix ou dados bancários. Elas aparecem somente no rodapé da cobrança enviada ao cliente, junto com o valor.
+            </p>
+            <textarea
+              value={dadosCobranca}
+              onChange={(e) => setDadosCobranca(e.target.value)}
+              placeholder={'Ex.: Pix: 12.345.678/0001-90\nBanco: 000 - Agência: 0001 - Conta: 12345-6'}
+              rows={4}
+              style={{
+                width: '100%',
+                boxSizing: 'border-box',
+                padding: '0.75rem',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                fontSize: '0.9rem',
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                marginBottom: '0.75rem'
+              }}
+            />
+            <button
+              className="btn-manage-pricing"
+              onClick={handleSalvarDadosCobranca}
+              disabled={salvandoCobranca}
+            >
+              {salvandoCobranca ? 'Salvando...' : '💾 Salvar Dados de Cobrança'}
+            </button>
+          </div>
+        </div>
+
+        {/* Compartilhamento de Animais */}
+        <div className="perfil-card">
+          <div className="card-header">
+            <h2>🔗 Compartilhar Animais</h2>
+          </div>
+          <div className="card-content">
+            <p className="card-description">Compartilhe animais com outros veterinários (reabilitação, cirurgias) ou com proprietários para acompanhar o tratamento.</p>
+            <button
+              className="btn-manage-pricing"
+              onClick={() => setCompartilharModalOpen(true)}
+            >
+              🔗 Compartilhar Animal
+            </button>
+          </div>
+        </div>
+
+        {/* Exportar Dados */}
+        <div className="perfil-card">
+          <div className="card-header">
+            <h2>📊 Exportar Dados</h2>
+          </div>
+          <div className="card-content">
+            <p className="card-description">Exporte cobranças, atendimentos ou faturamento em planilha (Excel/Google Sheets) por período.</p>
+            <button
+              className="btn-manage-pricing"
+              onClick={() => setExportarModalOpen(true)}
+            >
+              📊 Exportar Planilha
+            </button>
+          </div>
+        </div>
+
+        {/* Alterar Senha */}
+        <div className="perfil-card">
+          <div className="card-header">
+            <h2>🔐 Segurança</h2>
+          </div>
+          <div className="card-content">
+            <p className="card-description">Altere sua senha ou recupere-a via WhatsApp se esquecer.</p>
+            <button
+              className="btn-manage-pricing"
+              onClick={() => setEsqueceSenhaModalOpen(true)}
+            >
+              🔑 Alterar Senha
+            </button>
+          </div>
+        </div>
+
+        {/* Atalho para a Lixeira */}
+        <div className="perfil-card">
+          <div className="card-header">
+            <h2>🗑️ Lixeira</h2>
+          </div>
+          <div className="card-content">
+            <p className="card-description">Recupere clientes, animais, agendamentos, históricos ou despesas apagados por engano.</p>
+            <button
+              className="btn-manage-pricing"
+              onClick={() => window.dispatchEvent(new CustomEvent('navegarPara', { detail: 'lixeira' }))}
+            >
+              🗑️ Abrir Lixeira
+            </button>
+          </div>
+        </div>
+
+        {/* Logout */}
+        <div className="perfil-card logout-card">
+          <div className="card-content">
+            <button
+              className="btn-logout"
+              onClick={handleLogout}
+            >
+              🚪 Sair do App
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Pricing Modal */}
@@ -552,6 +843,48 @@ export default function Perfil() {
       <WhiteLabelModal
         isOpen={whiteLabelModalOpen}
         onClose={() => setWhiteLabelModalOpen(false)}
+        perfil={perfil}
+      />
+
+      {/* Compartilhar Animal Modal */}
+      <CompartilharAnimalModal
+        isOpen={compartilharModalOpen}
+        onClose={() => setCompartilharModalOpen(false)}
+        animais={meusPets}
+        onCompartilharSuccess={() => fetchData()}
+      />
+
+      {/* Esqueci Senha Modal */}
+      <EsqueceSenhaModal
+        isOpen={esqueceSenhaModalOpen}
+        onClose={() => setEsqueceSenhaModalOpen(false)}
+      />
+
+      {/* Exportar Dados Modal */}
+      <ExportarDadosModal
+        isOpen={exportarModalOpen}
+        onClose={() => setExportarModalOpen(false)}
+      />
+
+      {/* Estoque de Insumos Modal */}
+      <EstoqueInsumosModal
+        isOpen={estoqueModalOpen}
+        onClose={() => setEstoqueModalOpen(false)}
+      />
+
+      {/* Documentos Emitidos Modal */}
+      <DocumentosEmitidosModal
+        isOpen={documentosModalOpen}
+        onClose={() => setDocumentosModalOpen(false)}
+      />
+
+      {/* Precificação Modal */}
+      <PrecificacaoModal
+        isOpen={precificacaoModalOpen}
+        onClose={() => setPrecificacaoModalOpen(false)}
+        perfil={perfil}
+        custoKm={custoKm}
+        onSaved={() => fetchData()}
       />
     </div>
   )

@@ -5,6 +5,7 @@ import PagamentoModal from './PagamentoModal'
 import HistoricoPagamentosModal from './HistoricoPagamentosModal'
 import DespesaModal from './DespesaModal'
 import GastosCategoriaPieChartCard from './GastosCategoriaPieChartCard'
+import ConfirmModal from './ConfirmModal'
 import './Financeiro.css'
 
 export default function Financeiro() {
@@ -18,6 +19,9 @@ export default function Financeiro() {
   const [showPagamentoModal, setShowPagamentoModal] = useState(false)
   const [showHistoricoModal, setShowHistoricoModal] = useState(false)
   const [faturamentoSelecionado, setFaturamentoSelecionado] = useState(null)
+  const [confirm, setConfirm] = useState({ open: false })
+  const [precificacao, setPrecificacao] = useState(null)
+  const [custoVeiculoMensal, setCustoVeiculoMensal] = useState(0)
 
   const veterinarioId = 1
 
@@ -60,6 +64,9 @@ export default function Financeiro() {
       if (faturamentosRes.data.sucesso) {
         setFaturamentos(faturamentosRes.data.data || [])
       }
+
+      // Dados para o resumo de lucratividade (roda em paralelo, sem travar a tela)
+      carregarLucratividade()
     } catch (err) {
       setError('Erro ao carregar dados financeiros')
       console.error(err)
@@ -68,15 +75,47 @@ export default function Financeiro() {
     }
   }
 
-  const handleDeleteDespesa = async (id) => {
-    if (confirm('Deseja deletar esta despesa?')) {
-      try {
-        await axios.delete(`/api/despesas/${id}`)
-        await fetchData()
-      } catch (err) {
-        setError('Erro ao deletar despesa')
+  // Lucratividade é opcional e não deve travar o carregamento do Financeiro,
+  // por isso roda separada e sem await na fetchData principal.
+  const carregarLucratividade = async () => {
+    try {
+      const perfilRes = await axios.get('/api/perfil')
+      if (!perfilRes.data.sucesso) return
+      setPrecificacao(perfilRes.data.data?.precificacao || null)
+      const vetId = perfilRes.data.data?.id
+      if (!vetId) return
+      const veic = await axios.get(`/api/veiculos/${vetId}`).catch(() => null)
+      const veiculo = veic?.data?.data
+      if (!veiculo?.id) return
+      const custoRes = await axios.get(`/api/veiculos/${veiculo.id}/custo-km`).catch(() => null)
+      if (custoRes?.data?.sucesso && !custoRes.data.data.configuracaoPendente) {
+        setCustoVeiculoMensal(parseFloat(custoRes.data.data.totalCustoMensal) || 0)
       }
+    } catch (e) {
+      // silencioso — lucratividade é complementar
     }
+  }
+
+  const handleDeleteDespesa = (id) => {
+    setConfirm({
+      open: true,
+      title: 'Deletar Despesa',
+      message: 'Tem certeza que deseja deletar esta despesa? Você pode restaurá-la na Lixeira depois, se precisar.',
+      confirmText: 'Deletar',
+      cancelText: 'Cancelar',
+      confirmColor: 'danger',
+      onConfirm: async () => {
+        try {
+          await axios.delete(`/api/despesas/${id}`)
+          await fetchData()
+          setConfirm({ open: false })
+        } catch (err) {
+          setError('Erro ao deletar despesa')
+          setConfirm({ open: false })
+        }
+      },
+      onCancel: () => setConfirm({ open: false })
+    })
   }
 
   const handleChangeStatusFaturamento = async (faturamentoId, novoStatus) => {
@@ -126,6 +165,36 @@ export default function Financeiro() {
 
   const resultadoLiquido = totalRecebido - totalGastos
 
+  // ===== Lucratividade do MÊS ATUAL (automático, sem input do usuário) =====
+  const agora = new Date()
+  const mesAtual = agora.getMonth()
+  const anoAtual = agora.getFullYear()
+  const noMesAtual = (data) => {
+    if (!data) return false
+    const d = new Date(data)
+    return d.getMonth() === mesAtual && d.getFullYear() === anoAtual
+  }
+
+  // Receita: cobranças pagas no mês (usa dataPagamento; cai para dataEmissao se ausente)
+  const recebidoMes = faturamentos
+    .filter(f => f.status === 'Pago' && noMesAtual(f.dataPagamento || f.dataEmissao))
+    .reduce((s, f) => s + parseFloat(f.valorRecebido || f.valor || 0), 0)
+
+  const despesasMes = despesas
+    .filter(d => noMesAtual(d.data))
+    .reduce((s, d) => s + parseFloat(d.valor || 0), 0)
+
+  // Lucro real = receita − despesas gerais − custo do veículo do mês
+  const lucroReal = recebidoMes - despesasMes - custoVeiculoMensal
+
+  // Meta de pró-labore (definida na Precificação)
+  const metaProLabore = parseFloat(precificacao?.proLaboreDesejado) || 0
+  const horaTecnica = parseFloat(precificacao?.horaTecnica) || 0
+  const temPrecificacao = metaProLabore > 0
+
+  const fmt = (n) => (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const nomeMes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][mesAtual]
+
   if (loading) return <div className="loading">Carregando...</div>
 
   return (
@@ -162,6 +231,8 @@ export default function Financeiro() {
           categoriasDespesa={categoriasDespesa}
         />
       )}
+
+      <ConfirmModal {...confirm} />
 
       {/* Cards de Resumo */}
       <div className="cards-resumo">
@@ -203,6 +274,62 @@ export default function Financeiro() {
             porCategoria={resumo.porCategoria}
             totalGastos={totalGastos}
           />
+        )}
+      </div>
+
+      {/* ===== Lucratividade do Mês (automático) ===== */}
+      <div className="lucratividade-section">
+        <div className="lucratividade-header">
+          <h2>📊 Lucratividade — {nomeMes}/{anoAtual}</h2>
+        </div>
+
+        <div className="lucratividade-fluxo">
+          <div className="luc-item">
+            <span className="luc-label">Recebido no mês</span>
+            <span className="luc-valor positivo">+ R$ {fmt(recebidoMes)}</span>
+          </div>
+          <div className="luc-op">−</div>
+          <div className="luc-item">
+            <span className="luc-label">Despesas do mês</span>
+            <span className="luc-valor negativo">R$ {fmt(despesasMes)}</span>
+          </div>
+          <div className="luc-op">−</div>
+          <div className="luc-item">
+            <span className="luc-label">Custo do veículo</span>
+            <span className="luc-valor negativo">R$ {fmt(custoVeiculoMensal)}</span>
+            {custoVeiculoMensal === 0 && (
+              <span className="luc-aviso">configure o veículo</span>
+            )}
+          </div>
+          <div className="luc-op">=</div>
+          <div className={`luc-item luc-resultado ${lucroReal >= 0 ? 'positivo' : 'negativo'}`}>
+            <span className="luc-label">Lucro real</span>
+            <span className="luc-valor-grande">R$ {fmt(lucroReal)}</span>
+          </div>
+        </div>
+
+        {/* Comparação com a meta de pró-labore */}
+        {temPrecificacao ? (
+          <div className="lucratividade-meta">
+            {lucroReal >= metaProLabore ? (
+              <p className="meta-ok">
+                🎉 Você já atingiu sua meta de pró-labore (R$ {fmt(metaProLabore)}) este mês!
+              </p>
+            ) : (
+              <p className="meta-faltando">
+                🎯 Faltam <strong>R$ {fmt(metaProLabore - lucroReal)}</strong> para atingir sua meta de pró-labore de R$ {fmt(metaProLabore)} este mês.
+                {horaTecnica > 0 && (
+                  <> Isso equivale a ~<strong>{Math.ceil((metaProLabore - lucroReal) / horaTecnica)}h</strong> de atendimento.</>
+                )}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="lucratividade-meta lucratividade-meta-neutra">
+            <p>
+              💡 Configure sua <strong>Precificação</strong> no Perfil para comparar seu lucro com a meta de quanto você quer ganhar por mês.
+            </p>
+          </div>
         )}
       </div>
 

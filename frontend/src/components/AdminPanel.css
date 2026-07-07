@@ -160,7 +160,7 @@
 }
 
 .admin-badge-admin {
-  background-color: #667eea;
+  background-color: var(--color-primary);
   color: white;
 }
 

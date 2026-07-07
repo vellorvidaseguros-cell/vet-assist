@@ -138,6 +138,77 @@
   box-shadow: 0 0 0 3px rgba(13, 107, 58, 0.1);
 }
 
+.price-input-alerta {
+  border-color: #d32f2f;
+  background: #fff5f5;
+}
+
+.pricing-dica {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  background: #f5f9f6;
+  border-left: 4px solid #0d6b3a;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+.pricing-dica-neutra {
+  background: #fff8e6;
+  border-left-color: #b8860b;
+  color: #8a6d0b;
+}
+
+/* Precificação: duração + preço mínimo recomendado */
+.service-precificacao {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #e0e0e0;
+}
+
+.service-duracao {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.service-duracao input {
+  width: 56px;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-align: center;
+  font-family: inherit;
+}
+
+.service-duracao input:focus {
+  outline: none;
+  border-color: #0d6b3a;
+}
+
+.service-minimo {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.service-minimo.ok {
+  color: #2e7d32;
+}
+
+.service-minimo.alerta {
+  color: #d32f2f;
+}
+
 .service-actions {
   display: flex;
   gap: 0.25rem;
@@ -145,6 +216,10 @@
 }
 
 .btn-action {
+  /* width:auto sobrepõe a regra global "button{width:100%!important}" do
+     index.css em telas < 480px — sem isso, o botão cobre a linha do serviço */
+  width: auto !important;
+  margin-bottom: 0 !important;
   background: none;
   border: none;
   font-size: 0.95rem;

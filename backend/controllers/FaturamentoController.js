@@ -12,6 +12,7 @@ export const listarFaturamentos = async (req, res) => {
           { model: Cliente, required: false },
           {
             model: HistoricoConsulta,
+            as: 'HistoricoConsulta',
             required: false,
             include: [{ model: Pet, required: false }]
           }
@@ -258,7 +259,7 @@ export const registrarPagamento = async (req, res) => {
     await faturamento.reload({
       include: [
         { model: Cliente, required: false },
-        { model: HistoricoConsulta, required: false }
+        { model: HistoricoConsulta, as: 'HistoricoConsulta', required: false }
       ]
     })
 

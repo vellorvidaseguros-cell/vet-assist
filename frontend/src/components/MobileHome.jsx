@@ -8,13 +8,31 @@ import WeatherInfo from './WeatherInfo'
 import NovoClienteModal from './NovoClienteModal'
 import NovoAgendamentoModal from './NovoAgendamentoModal'
 import NovaCobrancaModal from './NovaCobrancaModal'
+import SelecionarAnimalOrcamentoModal from './SelecionarAnimalOrcamentoModal'
+import QuoteModal from './QuoteModal'
 import './MobileHome.css'
 
+// Cache local dos dados da agenda — permite mostrar a tela na hora ao reabrir o
+// app (o iOS descarta a página em background e recarregaria do zero sem isso).
+const CACHE_AGENDA = 'cache_agendamentos'
+const CACHE_FATURAMENTO = 'cache_faturamentos'
+
+const lerCache = (chave) => {
+  try {
+    const raw = localStorage.getItem(chave)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
 export default function MobileHome() {
-  // Force rebuild - v2.1
-  const [agendamentos, setAgendamentos] = useState([])
-  const [faturamentos, setFaturamentos] = useState([])
-  const [loading, setLoading] = useState(true)
+  // Força rebuild - v2.1
+  // Inicializa com o cache (se existir) para renderizar instantaneamente
+  const cacheAgenda = lerCache(CACHE_AGENDA)
+  const cacheFat = lerCache(CACHE_FATURAMENTO)
+  const [agendamentos, setAgendamentos] = useState(cacheAgenda || [])
+  const [faturamentos, setFaturamentos] = useState(cacheFat || [])
+  // Só mostra "Carregando..." se NÃO houver cache; com cache, atualiza em background
+  const [loading, setLoading] = useState(!cacheAgenda)
   const [error, setError] = useState('')
   const [abaAtiva, setAbaAtiva] = useState('proximos') // 'proximos', 'futuros', 'passados'
   const [statusFilter, setStatusFilter] = useState([]) // filtro de status selecionados
@@ -26,6 +44,8 @@ export default function MobileHome() {
   const [showNovoClienteModal, setShowNovoClienteModal] = useState(false)
   const [showNovoAgendamento, setShowNovoAgendamento] = useState(false)
   const [showNovaCobranca, setShowNovaCobranca] = useState(false)
+  const [showSelecionarOrcamento, setShowSelecionarOrcamento] = useState(false)
+  const [orcamentoAlvo, setOrcamentoAlvo] = useState(null) // { cliente, pet }
 
   const veterinarioId = 1
 
@@ -38,20 +58,26 @@ export default function MobileHome() {
 
   const fetchData = async () => {
     try {
-      setLoading(true)
+      // Só bloqueia com "Carregando..." se ainda não temos nada em tela
+      if (agendamentos.length === 0) setLoading(true)
       const [agendamentosRes, faturamentosRes] = await Promise.all([
         axios.get('/api/agendamentos'),
         axios.get('/api/faturamento')
       ])
 
       if (agendamentosRes.data.sucesso) {
-        setAgendamentos(agendamentosRes.data.data || [])
+        const dados = agendamentosRes.data.data || []
+        setAgendamentos(dados)
+        try { localStorage.setItem(CACHE_AGENDA, JSON.stringify(dados)) } catch {}
       }
       if (faturamentosRes.data.sucesso) {
-        setFaturamentos(faturamentosRes.data.data || [])
+        const dados = faturamentosRes.data.data || []
+        setFaturamentos(dados)
+        try { localStorage.setItem(CACHE_FATURAMENTO, JSON.stringify(dados)) } catch {}
       }
     } catch (err) {
-      setError('Erro ao carregar agendamentos')
+      // Se já temos cache em tela, não mostra erro em cima de dados válidos
+      if (agendamentos.length === 0) setError('Erro ao carregar agendamentos')
       console.error(err)
     } finally {
       setLoading(false)
@@ -180,6 +206,16 @@ export default function MobileHome() {
   const handleFABHistorico = () => {
     window.dispatchEvent(new CustomEvent('navegarPara', { detail: 'historico' }))
     setShowFABMenu(false)
+  }
+
+  const handleFABOrcamento = () => {
+    setShowSelecionarOrcamento(true)
+    setShowFABMenu(false)
+  }
+
+  const handleAnimalSelecionadoParaOrcamento = (cliente, pet) => {
+    setShowSelecionarOrcamento(false)
+    setOrcamentoAlvo({ cliente, pet })
   }
 
   if (loading) {
@@ -425,7 +461,23 @@ export default function MobileHome() {
         onNovoCliente={handleFABNovoCliente}
         onNovaCobranca={handleFABNovaCobranca}
         onHistorico={handleFABHistorico}
+        onOrcamento={handleFABOrcamento}
       />
+
+      {showSelecionarOrcamento && (
+        <SelecionarAnimalOrcamentoModal
+          onClose={() => setShowSelecionarOrcamento(false)}
+          onSelecionar={handleAnimalSelecionadoParaOrcamento}
+        />
+      )}
+
+      {orcamentoAlvo && (
+        <QuoteModal
+          cliente={orcamentoAlvo.cliente}
+          pet={orcamentoAlvo.pet}
+          onClose={() => setOrcamentoAlvo(null)}
+        />
+      )}
     </div>
   )
 }

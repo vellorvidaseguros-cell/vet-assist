@@ -14,10 +14,44 @@ export default function QuoteModal({ cliente, pet, onClose }) {
   const [mostrarCompartilhamento, setMostrarCompartilhamento] = useState(false)
   const [vetPerfil, setVetPerfil] = useState(null)
   const [dataValidade, setDataValidade] = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const [erroCompartilhamento, setErroCompartilhamento] = useState('')
+  const [salvandoDoc, setSalvandoDoc] = useState(false)
+  const [docSalvo, setDocSalvo] = useState(false)
+
+  // Custo de Visita Externa: usa a hora técnica e o custo/km configurados uma
+  // vez no Perfil (Precificação). Aqui o vet só edita os dados do caso (caso a caso).
+  const [horaTecnica, setHoraTecnica] = useState(0)
+  const [custoKmVeiculo, setCustoKmVeiculo] = useState(0)
+  const [mostrarVisita, setMostrarVisita] = useState(false)
+  const [visita, setVisita] = useState({ distanciaKm: '', tempoDeslocamentoMin: '' })
+  // Itens de visita externa (linha fixa mostrada abaixo da seção; no PDF vira "Outros")
+  const [itensVisita, setItensVisita] = useState([]) // [{ id, valor }]
+
+  // Estoque de Insumos: adiciona insumo ao orçamento e abate do estoque automaticamente
+  const [insumosDisponiveis, setInsumosDisponiveis] = useState([])
+  const [mostrarInsumo, setMostrarInsumo] = useState(false)
+  const [insumoSelecionadoId, setInsumoSelecionadoId] = useState('')
+  const [insumoQuantidade, setInsumoQuantidade] = useState('1')
+  const [materiaisAvulsos, setMateriaisAvulsos] = useState('') // material sem cadastro (R$)
+  // Itens de insumo/material adicionados ao orçamento (linha fixa abaixo da seção)
+  const [itensInsumo, setItensInsumo] = useState([]) // [{ id, descricao, valor, insumoId?, quantidade? }]
+  const [erroInsumo, setErroInsumo] = useState('')
+  const [proximoItemId, setProximoItemId] = useState(1)
 
   useEffect(() => {
     buscarPerfilVet()
+    buscarInsumos()
   }, [])
+
+  const buscarInsumos = async () => {
+    try {
+      const res = await axios.get('/api/insumos')
+      if (res.data.sucesso) setInsumosDisponiveis(res.data.data || [])
+    } catch (err) {
+      console.log('Erro ao buscar insumos')
+    }
+  }
 
   const buscarPerfilVet = async () => {
     try {
@@ -32,11 +66,139 @@ export default function QuoteModal({ cliente, pet, onClose }) {
             .map(([nome, valor], idx) => ({ id: idx + 1, nome, valor }))
           setProcedimentosDisponiveis(lista)
         }
+        setHoraTecnica(parseFloat(perfil.precificacao?.horaTecnica) || 0)
+
+        // Custo/km do veículo (se configurado)
+        if (perfil.id) {
+          try {
+            const veic = await axios.get(`/api/veiculos/${perfil.id}`)
+            const veiculoId = veic.data?.data?.id
+            if (veiculoId) {
+              const custo = await axios.get(`/api/veiculos/${veiculoId}/custo-km`)
+              if (custo.data?.sucesso && !custo.data.data.configuracaoPendente) {
+                setCustoKmVeiculo(parseFloat(custo.data.data.custoKm) || 0)
+              }
+            }
+          } catch { /* custo/km é opcional */ }
+        }
       }
     } catch (err) {
       console.log('Erro ao buscar perfil do veterinário')
     }
   }
+
+  const visitaDistancia = parseFloat(visita.distanciaKm) || 0
+  const visitaTempo = parseFloat(visita.tempoDeslocamentoMin) || 0
+  const visitaCustoTempo = (visitaTempo / 60) * horaTecnica
+  const visitaCustoDeslocamento = visitaDistancia * custoKmVeiculo
+  const visitaSubtotal = visitaCustoTempo + visitaCustoDeslocamento
+
+  // Adiciona o custo da visita como uma LINHA FIXA (mostrada abaixo da seção).
+  // No app aparece como "Visita externa"; no PDF de orçamento/cobrança vira "Outros".
+  const handleAdicionarVisita = () => {
+    if (visitaSubtotal <= 0) return
+    setItensVisita(prev => [...prev, { id: proximoItemId, valor: visitaSubtotal }])
+    setProximoItemId(prev => prev + 1)
+    setVisita({ distanciaKm: '', tempoDeslocamentoMin: '' })
+    setMostrarVisita(false)
+  }
+
+  const removerItemVisita = (id) => {
+    setItensVisita(prev => prev.filter(i => i.id !== id))
+  }
+
+  const insumoSelecionado = insumosDisponiveis.find(i => String(i.id) === String(insumoSelecionadoId))
+  const insumoQtdNum = parseFloat(insumoQuantidade) || 0
+  const insumoValorTotal = insumoSelecionado ? (parseFloat(insumoSelecionado.precoVenda) || 0) * insumoQtdNum : 0
+  const insumoEstoqueInsuficiente = insumoSelecionado && insumoQtdNum > (parseFloat(insumoSelecionado.quantidadeEstoque) || 0)
+  const materiaisAvulsosNum = parseFloat(String(materiaisAvulsos).replace(',', '.')) || 0
+
+  // Adiciona insumo do estoque (abate estoque) e/ou material avulso como itens fixos
+  // mostrados logo abaixo do botão "+ Usar Insumo".
+  const handleAdicionarInsumo = async () => {
+    setErroInsumo('')
+    const novos = []
+
+    // 1) Insumo do estoque selecionado → abate estoque
+    if (insumoSelecionado && insumoQtdNum > 0) {
+      try {
+        const res = await axios.post(`/api/insumos/${insumoSelecionado.id}/baixar-estoque`, { quantidade: insumoQtdNum })
+        if (!res.data.sucesso) {
+          setErroInsumo(res.data.erro || 'Erro ao abater estoque')
+          return
+        }
+        novos.push({
+          id: proximoItemId + novos.length,
+          descricao: `${insumoSelecionado.nome} (${insumoQtdNum} ${insumoSelecionado.unidade})`,
+          valor: insumoValorTotal,
+          insumoId: insumoSelecionado.id,
+          quantidade: insumoQtdNum
+        })
+        // Atualiza estoque local exibido no seletor
+        setInsumosDisponiveis(prev => prev.map(i =>
+          i.id === insumoSelecionado.id ? { ...i, quantidadeEstoque: res.data.data.quantidadeEstoque } : i
+        ))
+      } catch (err) {
+        setErroInsumo('Erro ao abater estoque do insumo')
+        return
+      }
+    }
+
+    // 2) Material avulso (sem cadastro) → só valor, não mexe no estoque
+    if (materiaisAvulsosNum > 0) {
+      novos.push({
+        id: proximoItemId + novos.length,
+        descricao: 'Materiais/insumos',
+        valor: materiaisAvulsosNum
+      })
+    }
+
+    if (novos.length === 0) {
+      setErroInsumo('Selecione um insumo ou informe um valor de material avulso.')
+      return
+    }
+
+    setItensInsumo(prev => [...prev, ...novos])
+    setProximoItemId(prev => prev + novos.length)
+    setInsumoSelecionadoId('')
+    setInsumoQuantidade('1')
+    setMateriaisAvulsos('')
+    setMostrarInsumo(false)
+  }
+
+  // Ao remover um insumo do orçamento, repõe a quantidade no estoque
+  const removerItemInsumo = async (item) => {
+    if (item.insumoId && item.quantidade > 0) {
+      try {
+        const res = await axios.post(`/api/insumos/${item.insumoId}/repor-estoque`, { quantidade: item.quantidade })
+        if (res.data?.sucesso) {
+          setInsumosDisponiveis(prev => prev.map(i =>
+            i.id === item.insumoId ? { ...i, quantidadeEstoque: res.data.data.quantidadeEstoque } : i
+          ))
+        }
+      } catch { /* se falhar a reposição, ao menos remove a linha */ }
+    }
+    setItensInsumo(prev => prev.filter(i => i.id !== item.id))
+  }
+
+  // Todos os itens do documento, na ordem: procedimentos → insumos → visita ("Deslocamento") por último.
+  // rótuloVisita controla se a visita aparece como "Visita externa" (app) ou "Deslocamento" (PDF).
+  // consolidarInsumos: usado SOMENTE ao gerar o PDF do orçamento — o cliente recebe uma única
+  // linha "Materiais e insumos" com o total, em vez do detalhe de cada item do estoque.
+  const montarItens = (rotuloVisita, consolidarInsumos = false) => {
+    const proc = procedimentos
+      .filter(p => p.descricao && p.valor)
+      .map(p => ({ descricao: p.descricao, valor: parseFloat(String(p.valor).replace(',', '.')) || 0 }))
+    const ins = consolidarInsumos
+      ? (itensInsumo.length > 0 ? [{ descricao: 'Materiais e insumos', valor: itensInsumo.reduce((s, i) => s + (parseFloat(i.valor) || 0), 0) }] : [])
+      : itensInsumo.map(i => ({ descricao: i.descricao, valor: i.valor }))
+    const vis = itensVisita.map(i => ({ descricao: rotuloVisita, valor: i.valor }))
+    return [...proc, ...ins, ...vis]
+  }
+
+  // Documento vazio se não há nenhum item OU se há procedimento pela metade
+  const procedimentoIncompleto = procedimentos.some(p => (p.descricao && !p.valor) || (!p.descricao && p.valor))
+  const documentoVazio = montarItens('Deslocamento').length === 0 || procedimentoIncompleto
 
   const adicionarProcedimento = () => {
     setProcedimentos(prev => [
@@ -57,10 +219,13 @@ export default function QuoteModal({ cliente, pet, onClose }) {
   }
 
   const calcularTotal = () => {
-    return procedimentos.reduce((total, p) => {
+    const totalProc = procedimentos.reduce((total, p) => {
       const valor = parseFloat(String(p.valor).replace(',', '.')) || 0
       return total + valor
     }, 0)
+    const totalInsumo = itensInsumo.reduce((t, i) => t + (parseFloat(i.valor) || 0), 0)
+    const totalVisita = itensVisita.reduce((t, i) => t + (parseFloat(i.valor) || 0), 0)
+    return totalProc + totalInsumo + totalVisita
   }
 
   const formatarDecimal = (num) => {
@@ -171,6 +336,11 @@ export default function QuoteModal({ cliente, pet, onClose }) {
             font-size: 12px; color: #c0392b;
           }
           .validade-row strong { font-weight: bold; }
+          .orcamento-aviso {
+            margin-top: 10px; padding: 7px 10px;
+            background: #fff8e6; border-left: 3px solid #b8860b;
+            font-size: 9px; color: #8a6d0b; line-height: 1.4; border-radius: 2px;
+          }
           .obs-section {
             margin-top: 12px; padding: 8px 10px;
             background: #f9f9f9; border-left: 4px solid #1a5f2e; border-radius: 2px;
@@ -193,7 +363,11 @@ export default function QuoteModal({ cliente, pet, onClose }) {
           @page { margin: 0; size: A4; }
           @media print {
             body { margin: 0; }
-            .page { margin: 0; width: 210mm; height: 297mm; overflow: hidden; }
+            /* height auto (em vez de 297mm fixo) evita uma 2ª página em branco
+               quando o conteúdo é curto — 297mm exato transbordava por arredondamento */
+            .page { margin: 0; width: 210mm; height: auto; min-height: 0; overflow: visible; page-break-after: avoid; }
+            .content { flex: none; }
+            .footer { margin-top: 24px; }
           }
         </style>
       </head>
@@ -239,10 +413,10 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                 </tr>
               </thead>
               <tbody>
-                ${procedimentos.map(p => `
+                ${montarItens('Deslocamento', true).map(p => `
                   <tr>
                     <td>${p.descricao || '-'}</td>
-                    <td class="td-valor">${p.valor ? formatarValor(parseFloat(String(p.valor).replace(',', '.'))) : '-'}</td>
+                    <td class="td-valor">${formatarValor(p.valor)}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -265,6 +439,10 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                 <strong>Válido até: ${new Date(dataValidade + 'T12:00:00').toLocaleDateString('pt-BR')}</strong>
               </div>
             ` : ''}
+
+            <div class="orcamento-aviso">
+              Este é um <strong>orçamento estimado</strong>. Os valores podem variar de acordo com os materiais e serviços que se mostrarem necessários durante o tratamento.
+            </div>
           </div>
 
           <div class="footer">
@@ -356,9 +534,8 @@ export default function QuoteModal({ cliente, pet, onClose }) {
     texto += `Data: ${dataFormatada}\n\n`
 
     texto += `*PROCEDIMENTOS:*\n`
-    procedimentos.forEach((p, idx) => {
-      const valor = p.valor ? formatarValor(parseFloat(p.valor)) : 'R$ -'
-      texto += `${idx + 1}. ${p.descricao || '-'} - ${valor}\n`
+    montarItens('Deslocamento').forEach((p, idx) => {
+      texto += `${idx + 1}. ${p.descricao || '-'} - ${formatarValor(p.valor)}\n`
     })
 
     texto += `\n*VALOR TOTAL: ${formatarValor(calcularTotal())}*\n`
@@ -372,27 +549,134 @@ export default function QuoteModal({ cliente, pet, onClose }) {
     return texto
   }
 
-  const compartilharPorEmail = () => {
-    const assunto = `Orçamento - ${cliente?.nome} (${pet?.nome})`
-    const textoQuote = gerarTextoQuote()
-    const corpo = encodeURIComponent(textoQuote)
-    const email = cliente?.email || ''
-
-    window.open(`mailto:${email}?subject=${encodeURIComponent(assunto)}&body=${corpo}`)
-    setMostrarCompartilhamento(false)
+  // Gera o PDF de verdade no servidor (pdfkit) a partir dos dados atuais do orçamento
+  const gerarPdfBlob = async () => {
+    const payload = {
+      cliente: { nome: cliente?.nome, telefone: cliente?.telefone, email: cliente?.email },
+      pet: { nome: pet?.nome, especie: pet?.especie, raca: pet?.raca },
+      procedimentos: montarItens('Deslocamento', true).map(p => ({ descricao: p.descricao, valor: p.valor })),
+      observacao: descricaoProcedimento,
+      dataValidade,
+      total: calcularTotal()
+    }
+    const res = await axios.post('/api/orcamento/pdf', payload, { responseType: 'blob' })
+    return new File([res.data], `orcamento-${cliente?.nome || 'orcamento'}.pdf`, { type: 'application/pdf' })
   }
 
-  const compartilharPorWhatsapp = () => {
-    const textoQuote = gerarTextoQuote()
-    const textoCodificado = encodeURIComponent(textoQuote)
+  // Salva o orçamento no histórico de documentos emitidos (com data de emissão)
+  const salvarOrcamento = async () => {
+    setSalvandoDoc(true)
+    try {
+      const itens = montarItens('Deslocamento')
+      const payload = {
+        tipo: 'orcamento',
+        numero: `ORC-${Date.now()}`,
+        clienteNome: cliente?.nome || '',
+        petNome: pet?.nome || '',
+        total: calcularTotal(),
+        dados: {
+          cliente: { nome: cliente?.nome, telefone: cliente?.telefone, email: cliente?.email },
+          pet: { nome: pet?.nome, especie: pet?.especie, raca: pet?.raca },
+          procedimentos: itens,
+          observacao: descricaoProcedimento,
+          dataValidade,
+          total: calcularTotal()
+        }
+      }
+      const res = await axios.post('/api/documentos', payload)
+      if (res.data.sucesso) {
+        setDocSalvo(true)
+        setTimeout(() => setDocSalvo(false), 2500)
+      }
+    } catch (err) {
+      setErroCompartilhamento('Erro ao salvar o orçamento. Tente novamente.')
+    } finally {
+      setSalvandoDoc(false)
+    }
+  }
+
+  const baixarArquivo = (file) => {
+    const url = URL.createObjectURL(file)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = file.name
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 5000)
+  }
+
+  const compartilharPorEmail = async () => {
+    setEnviando(true)
+    setErroCompartilhamento('')
+    try {
+      const file = await gerarPdfBlob()
+
+      // Web Share API com arquivo: no celular já abre a lista de apps (inclui Mail) com o PDF anexado
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `Orçamento - ${cliente?.nome}`,
+          text: `Orçamento para ${pet?.nome}`
+        })
+        setMostrarCompartilhamento(false)
+        return
+      }
+
+      // Sem suporte a compartilhar arquivo: baixa o PDF e abre o app de email nativo
+      // (o usuário precisa anexar manualmente o arquivo baixado)
+      baixarArquivo(file)
+      const assunto = `Orçamento - ${cliente?.nome} (${pet?.nome})`
+      const corpo = encodeURIComponent(
+        `Segue em anexo o orçamento (${file.name} baixado agora).\n\n${gerarTextoQuote()}`
+      )
+      window.open(`mailto:${cliente?.email || ''}?subject=${encodeURIComponent(assunto)}&body=${corpo}`)
+      setMostrarCompartilhamento(false)
+    } catch (err) {
+      if (err?.name !== 'AbortError') {
+        setErroCompartilhamento('Erro ao gerar o PDF do orçamento. Tente novamente.')
+      }
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  const compartilharPorWhatsapp = async () => {
     const numeroWhatsapp = cliente?.telefone?.replace(/\D/g, '') || ''
 
-    if (numeroWhatsapp) {
-      window.open(`https://wa.me/55${numeroWhatsapp}?text=${textoCodificado}`)
-    } else {
-      alert('Número de telefone do cliente não disponível para compartilhamento via WhatsApp')
+    setEnviando(true)
+    setErroCompartilhamento('')
+    try {
+      const file = await gerarPdfBlob()
+
+      // Web Share API com arquivo: no celular abre direto na lista de apps, com WhatsApp já selecionável
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `Orçamento - ${cliente?.nome}`,
+          text: `Orçamento para ${pet?.nome}`
+        })
+        setMostrarCompartilhamento(false)
+        return
+      }
+
+      // Sem suporte a compartilhar arquivo (ex: desktop): baixa o PDF e abre o WhatsApp Web/App
+      // com o texto pronto — o usuário anexa o arquivo baixado manualmente
+      baixarArquivo(file)
+      const textoCodificado = encodeURIComponent(gerarTextoQuote())
+      if (numeroWhatsapp) {
+        window.open(`https://wa.me/55${numeroWhatsapp}?text=${textoCodificado}`)
+      } else {
+        alert('Número de telefone do cliente não disponível. O PDF foi baixado — anexe manualmente no WhatsApp.')
+      }
+      setMostrarCompartilhamento(false)
+    } catch (err) {
+      if (err?.name !== 'AbortError') {
+        setErroCompartilhamento('Erro ao gerar o PDF do orçamento. Tente novamente.')
+      }
+    } finally {
+      setEnviando(false)
     }
-    setMostrarCompartilhamento(false)
   }
 
   return createPortal(
@@ -522,6 +806,227 @@ export default function QuoteModal({ cliente, pet, onClose }) {
 
           </div>
 
+          {/* Custo de Visita Externa — calcula usando a hora técnica e o custo/km
+              configurados no Perfil; aqui o vet só edita os dados do caso. */}
+          <div className="quote-section quote-visita-section">
+            <div className="section-header">
+              <h3>🚗 Custo de Visita Externa</h3>
+              {!mostrarVisita && (
+                <button
+                  type="button"
+                  className="btn-add-procedure"
+                  onClick={() => setMostrarVisita(true)}
+                >
+                  + Calcular
+                </button>
+              )}
+            </div>
+
+            {mostrarVisita && (
+              (horaTecnica <= 0 && custoKmVeiculo <= 0) ? (
+                <p className="quote-visita-aviso">
+                  ⚠️ Configure sua <strong>Hora Técnica</strong> e/ou o <strong>veículo</strong> no Perfil (card Precificação) para calcular o custo de deslocamento.
+                </p>
+              ) : (
+                <>
+                  <div className="quote-visita-inputs">
+                    <div className="quote-visita-field">
+                      <label>Distância ida+volta (km)</label>
+                      <input
+                        type="number"
+                        placeholder="Ex: 24"
+                        value={visita.distanciaKm}
+                        onChange={(e) => setVisita({ ...visita, distanciaKm: e.target.value })}
+                        autoFocus
+                      />
+                    </div>
+                    <div className="quote-visita-field">
+                      <label>Tempo de deslocamento (min)</label>
+                      <input
+                        type="number"
+                        placeholder="Ex: 40"
+                        value={visita.tempoDeslocamentoMin}
+                        onChange={(e) => setVisita({ ...visita, tempoDeslocamentoMin: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="quote-visita-resultado">
+                    {horaTecnica > 0 && (
+                      <div className="quote-visita-linha">
+                        <span>Seu tempo ({(visitaTempo / 60).toFixed(1)}h × R$ {horaTecnica.toFixed(2)}):</span>
+                        <strong>{formatarValor(visitaCustoTempo)}</strong>
+                      </div>
+                    )}
+                    {custoKmVeiculo > 0 && (
+                      <div className="quote-visita-linha">
+                        <span>Deslocamento ({visitaDistancia} km × R$ {custoKmVeiculo.toFixed(2)}/km):</span>
+                        <strong>{formatarValor(visitaCustoDeslocamento)}</strong>
+                      </div>
+                    )}
+                    <div className="quote-visita-linha quote-visita-total">
+                      <span>Subtotal da visita:</span>
+                      <strong>{formatarValor(visitaSubtotal)}</strong>
+                    </div>
+                  </div>
+
+                  <div className="quote-visita-acoes">
+                    <button
+                      type="button"
+                      className="btn-visita-cancelar"
+                      onClick={() => { setMostrarVisita(false); setVisita({ distanciaKm: '', tempoDeslocamentoMin: '' }) }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-visita-adicionar"
+                      onClick={handleAdicionarVisita}
+                      disabled={visitaSubtotal <= 0}
+                    >
+                      ✓ Adicionar ao Orçamento
+                    </button>
+                  </div>
+                </>
+              )
+            )}
+
+            {/* Itens de visita já adicionados (linha fixa; no PDF aparece como "Outros") */}
+            {itensVisita.map(item => (
+              <div key={item.id} className="quote-item-fixo">
+                <span className="qif-nome">🚗 Visita externa</span>
+                <span className="qif-valor">{formatarValor(item.valor)}</span>
+                <button
+                  type="button"
+                  className="qif-remover"
+                  onClick={() => removerItemVisita(item.id)}
+                  title="Remover"
+                >
+                  🗑️
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Insumos do Estoque — ao adicionar, abate a quantidade do estoque automaticamente */}
+          <div className="quote-section quote-visita-section">
+            <div className="section-header">
+              <h3>📦 Insumos do Estoque</h3>
+              {!mostrarInsumo && (
+                <button
+                  type="button"
+                  className="btn-add-procedure"
+                  onClick={() => setMostrarInsumo(true)}
+                >
+                  + Usar Insumo
+                </button>
+              )}
+            </div>
+
+            {mostrarInsumo && (
+              <>
+                {erroInsumo && <div className="quote-visita-aviso">{erroInsumo}</div>}
+
+                {insumosDisponiveis.length > 0 ? (
+                  <>
+                    <div className="quote-visita-inputs">
+                      <div className="quote-visita-field" style={{ flex: 2 }}>
+                        <label>Insumo do estoque</label>
+                        <select
+                          value={insumoSelecionadoId}
+                          onChange={(e) => setInsumoSelecionadoId(e.target.value)}
+                        >
+                          <option value="">Selecione...</option>
+                          {insumosDisponiveis.map(i => (
+                            <option key={i.id} value={i.id}>
+                              {i.nome} ({parseFloat(i.quantidadeEstoque)} {i.unidade} em estoque)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="quote-visita-field">
+                        <label>Quantidade</label>
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          value={insumoQuantidade}
+                          onChange={(e) => setInsumoQuantidade(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {insumoSelecionado && (
+                      <div className="quote-visita-resultado">
+                        <div className="quote-visita-linha">
+                          <span>{insumoQtdNum} {insumoSelecionado.unidade} × R$ {parseFloat(insumoSelecionado.precoVenda).toFixed(2)}:</span>
+                          <strong>{formatarValor(insumoValorTotal)}</strong>
+                        </div>
+                        {insumoEstoqueInsuficiente && (
+                          <p className="quote-visita-aviso" style={{ marginTop: '0.5rem' }}>
+                            ⚠️ Estoque atual ({parseFloat(insumoSelecionado.quantidadeEstoque)} {insumoSelecionado.unidade}) é menor que a quantidade solicitada.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="quote-visita-aviso">
+                    ⚠️ Nenhum insumo cadastrado. Use o campo abaixo para material avulso, ou cadastre em <strong>Perfil → Estoque de Insumos</strong>.
+                  </p>
+                )}
+
+                {/* Material avulso (sem cadastro) — não mexe no estoque */}
+                <div className="quote-visita-inputs">
+                  <div className="quote-visita-field">
+                    <label>Materiais/insumos avulsos (R$)</label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="Ex: 20,00"
+                      value={materiaisAvulsos}
+                      onChange={(e) => setMateriaisAvulsos(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="quote-visita-acoes">
+                  <button
+                    type="button"
+                    className="btn-visita-cancelar"
+                    onClick={() => { setMostrarInsumo(false); setInsumoSelecionadoId(''); setInsumoQuantidade('1'); setMateriaisAvulsos(''); setErroInsumo('') }}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-visita-adicionar"
+                    onClick={handleAdicionarInsumo}
+                    disabled={(!insumoSelecionado || insumoQtdNum <= 0) && materiaisAvulsosNum <= 0}
+                  >
+                    ✓ Adicionar ao Orçamento
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Insumos/materiais já adicionados (linha fixa abaixo do botão) */}
+            {itensInsumo.map(item => (
+              <div key={item.id} className="quote-item-fixo">
+                <span className="qif-nome">📦 {item.descricao}</span>
+                <span className="qif-valor">{formatarValor(item.valor)}</span>
+                <button
+                  type="button"
+                  className="qif-remover"
+                  onClick={() => removerItemInsumo(item)}
+                  title="Remover"
+                >
+                  🗑️
+                </button>
+              </div>
+            ))}
+          </div>
+
           <div className="quote-section">
             <label htmlFor="dataValidade">Validade do Orçamento</label>
             <input
@@ -566,6 +1071,9 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                 {formatarValor(calcularTotal())}
               </div>
             </div>
+            <p className="quote-orcamento-aviso">
+              💡 Este é um orçamento estimado. Os valores podem variar de acordo com os materiais e serviços que se mostrarem necessários durante o tratamento.
+            </p>
           </div>
         </div>
 
@@ -576,7 +1084,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
               type="button"
               className="btn-gerar-pdf"
               onClick={gerarPDF}
-              disabled={procedimentos.some(p => !p.descricao || !p.valor)}
+              disabled={documentoVazio}
             >
               📄 PDF
             </button>
@@ -584,9 +1092,17 @@ export default function QuoteModal({ cliente, pet, onClose }) {
               type="button"
               className="btn-compartilhar"
               onClick={() => setMostrarCompartilhamento(true)}
-              disabled={procedimentos.some(p => !p.descricao || !p.valor)}
+              disabled={documentoVazio}
             >
               📧 Email/WhatsApp
+            </button>
+            <button
+              type="button"
+              className="btn-salvar-doc"
+              onClick={salvarOrcamento}
+              disabled={documentoVazio || salvandoDoc}
+            >
+              {salvandoDoc ? '⏳...' : docSalvo ? '✅ Salvo!' : '💾 Salvar'}
             </button>
           </div>
           <button type="button" className="btn-cancelar" onClick={onClose}>
@@ -612,22 +1128,27 @@ export default function QuoteModal({ cliente, pet, onClose }) {
               </button>
             </div>
             <div className="compartilhamento-body">
-              <p>Escolha como deseja compartilhar o orçamento:</p>
+              <p>Escolha como deseja compartilhar o orçamento (PDF anexado):</p>
+              {erroCompartilhamento && (
+                <p style={{ color: '#c0392b', fontSize: '13px', marginTop: '8px' }}>{erroCompartilhamento}</p>
+              )}
             </div>
             <div className="compartilhamento-footer">
               <button
                 type="button"
                 className="btn-compartilhamento-email"
                 onClick={compartilharPorEmail}
+                disabled={enviando}
               >
-                ✉️ Enviar por Email
+                {enviando ? '⏳ Gerando PDF...' : '✉️ Enviar por Email'}
               </button>
               <button
                 type="button"
                 className="btn-compartilhamento-whatsapp"
                 onClick={compartilharPorWhatsapp}
+                disabled={enviando}
               >
-                💬 Enviar por WhatsApp
+                {enviando ? '⏳ Gerando PDF...' : '💬 Enviar por WhatsApp'}
               </button>
             </div>
           </div>

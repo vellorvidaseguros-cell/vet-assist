@@ -8,6 +8,70 @@ dotenv.config()
 
 const JWT_SECRET = process.env.JWT_SECRET || 'sua-chave-secreta-super-segura-aqui'
 
+// Códigos de recuperação de senha (em memória, expiram em 15 minutos)
+const codigosReset = new Map() // emailLowerCase -> { codigo, expira }
+
+// Solicitar código de recuperação de senha (rota pública).
+// O código é gerado/validado no servidor; a entrega ao usuário é via WhatsApp (frontend).
+export const esqueciSenha = async (req, res) => {
+  try {
+    const { email } = req.body
+    if (!email) {
+      return res.status(400).json({ sucesso: false, erro: 'Email é obrigatório' })
+    }
+
+    const veterinario = await Veterinario.findOne({ where: { email } })
+    if (!veterinario) {
+      return res.status(404).json({ sucesso: false, erro: 'Email não cadastrado no sistema' })
+    }
+
+    const codigo = Math.floor(100000 + Math.random() * 900000).toString()
+    codigosReset.set(email.toLowerCase(), { codigo, expira: Date.now() + 15 * 60 * 1000 })
+
+    res.json({ sucesso: true, mensagem: 'Código gerado com sucesso', data: { codigo } })
+  } catch (erro) {
+    console.error('[ERROR] esqueciSenha:', erro)
+    res.status(500).json({ sucesso: false, erro: erro.message })
+  }
+}
+
+// Atualizar senha usando o código de recuperação (rota pública)
+export const atualizarSenhaComCodigo = async (req, res) => {
+  try {
+    const { email, codigo, novaSenha } = req.body
+
+    if (!email || !codigo || !novaSenha) {
+      return res.status(400).json({ sucesso: false, erro: 'Email, código e nova senha são obrigatórios' })
+    }
+    if (novaSenha.length < 6) {
+      return res.status(400).json({ sucesso: false, erro: 'A senha deve ter no mínimo 6 caracteres' })
+    }
+
+    const registro = codigosReset.get(email.toLowerCase())
+    if (!registro || registro.codigo !== String(codigo)) {
+      return res.status(400).json({ sucesso: false, erro: 'Código inválido' })
+    }
+    if (Date.now() > registro.expira) {
+      codigosReset.delete(email.toLowerCase())
+      return res.status(400).json({ sucesso: false, erro: 'Código expirado. Solicite um novo.' })
+    }
+
+    const veterinario = await Veterinario.findOne({ where: { email } })
+    if (!veterinario) {
+      return res.status(404).json({ sucesso: false, erro: 'Conta não encontrada' })
+    }
+
+    const senhaHasheada = await bcrypt.hash(novaSenha, 10)
+    await veterinario.update({ senha: senhaHasheada })
+    codigosReset.delete(email.toLowerCase())
+
+    res.json({ sucesso: true, mensagem: 'Senha atualizada com sucesso!' })
+  } catch (erro) {
+    console.error('[ERROR] atualizarSenhaComCodigo:', erro)
+    res.status(500).json({ sucesso: false, erro: erro.message })
+  }
+}
+
 export const login = async (req, res) => {
   try {
     const { email, senha } = req.body

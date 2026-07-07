@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
+import EsqueceSenhaModal from '../components/EsqueceSenhaModal'
 import './Login.css'
 
 export default function Login({ onLogin }) {
@@ -7,6 +8,7 @@ export default function Login({ onLogin }) {
   const [senha, setSenha] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [esqueceSenhaOpen, setEsqueceSenhaOpen] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -61,8 +63,21 @@ export default function Login({ onLogin }) {
           <button type="submit" disabled={loading}>
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
+
+          <button
+            type="button"
+            className="forgot-password-btn"
+            onClick={() => setEsqueceSenhaOpen(true)}
+          >
+            🔑 Esqueci a Senha
+          </button>
         </form>
       </div>
+
+      <EsqueceSenhaModal
+        isOpen={esqueceSenhaOpen}
+        onClose={() => setEsqueceSenhaOpen(false)}
+      />
     </div>
   )
 }

@@ -1,0 +1,270 @@
+.ed-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.ed-modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.ed-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.ed-modal-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 700;
+}
+
+.ed-btn-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #666;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.ed-btn-close:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.ed-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.ed-description {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.ed-error {
+  background: #fee;
+  border-left: 4px solid #c33;
+  color: #c33;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.ed-success {
+  background: #efe;
+  border-left: 4px solid #3c3;
+  color: #2e7d32;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.ed-section {
+  margin-bottom: 1.25rem;
+}
+
+.ed-label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.ed-datas {
+  display: flex;
+  gap: 1rem;
+}
+
+.ed-data-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ed-data-group span {
+  font-size: 0.8rem;
+  color: #888;
+  font-weight: 600;
+}
+
+.ed-input {
+  width: 100%;
+  height: 52px;
+  /* !important sobrepõe a regra global "input { padding: .75rem !important }"
+     do index.css, que deixava as datas mais altas que os cards de opção */
+  padding: 0 0.85rem !important;
+  border: 2px solid #eee;
+  border-radius: 8px;
+  font-size: 0.95rem !important;
+  font-family: inherit;
+  box-sizing: border-box;
+  background: white;
+  color: #333;
+  text-align: left;
+  /* Remove o visual nativo cinza do input date no iOS para casar com os cards */
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.2s;
+}
+
+.ed-input:focus {
+  outline: none;
+  border-color: #0d6b3a;
+  box-shadow: 0 0 0 3px rgba(13, 107, 58, 0.1);
+}
+
+/* Alinha o texto da data à esquerda no iOS (por padrão vem centralizado/à direita) */
+.ed-input::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+/* Ícone de calendário nativo no mesmo tamanho dos emojis das opções */
+.ed-input::-webkit-calendar-picker-indicator {
+  font-size: 1.1rem;
+  padding: 2px;
+  margin: 0;
+}
+
+.ed-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ed-opcao {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-height: 52px;
+  padding: 0.85rem 1rem;
+  border: 2px solid #eee;
+  border-radius: 8px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ed-opcao:hover {
+  border-color: #cde5d6;
+  background: #fafffb;
+}
+
+.ed-opcao.ativa {
+  border-color: #0d6b3a;
+  background: #f5f9f6;
+}
+
+.ed-opcao input[type="radio"] {
+  margin-top: 3px;
+  accent-color: #0d6b3a;
+  cursor: pointer;
+}
+
+.ed-opcao div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ed-opcao strong {
+  font-size: 0.92rem;
+  color: #333;
+}
+
+.ed-opcao span {
+  font-size: 0.8rem;
+  color: #777;
+  line-height: 1.4;
+}
+
+.ed-modal-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.ed-btn-cancel {
+  flex: 1;
+  padding: 0.75rem;
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.ed-btn-cancel:hover {
+  background: #eee;
+}
+
+.ed-btn-exportar {
+  flex: 1.4;
+  padding: 0.75rem;
+  background: #0d6b3a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.ed-btn-exportar:hover:not(:disabled) {
+  background: #0a5830;
+}
+
+.ed-btn-exportar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .ed-datas {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+}

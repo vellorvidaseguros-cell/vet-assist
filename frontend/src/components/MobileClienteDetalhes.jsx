@@ -5,6 +5,7 @@ import './MobileClienteDetalhes.css'
 import AnimalHistoryModal from './AnimalHistoryModal'
 import QuoteModal from './QuoteModal'
 import { calcularIdade } from '../utils/idadeUtils'
+import { petFotoUrl } from '../utils/petFotoUrl'
 
 const ANIMAL_VAZIO = { nome: '', especie: '', raca: '', sexo: '', porte: '', cor: '', microchip: '', dataNascimento: '' }
 
@@ -24,6 +25,29 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
   // Edição de animal
   const [petEditId, setPetEditId] = useState(null)
   const [petEdit, setPetEdit] = useState(ANIMAL_VAZIO)
+
+  // Foto do animal (novo ou em edição)
+  const [fotoFile, setFotoFile] = useState(null)
+  const [fotoPreview, setFotoPreview] = useState(null)
+
+  const handleFotoChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setFotoFile(file)
+    setFotoPreview(URL.createObjectURL(file))
+  }
+
+  const resetFoto = () => {
+    setFotoFile(null)
+    setFotoPreview(null)
+  }
+
+  const enviarFotoPet = async (petId) => {
+    if (!fotoFile) return
+    const formData = new FormData()
+    formData.append('foto', fotoFile)
+    await axios.post(`/api/pets/${petId}/foto`, formData)
+  }
 
   // Histórico de animal
   const [showHistorico, setShowHistorico] = useState(false)
@@ -109,8 +133,11 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
       }
       const res = await axios.post('/api/pets', payload)
       if (res.data.sucesso) {
+        const novoPetId = res.data.data?.id
+        if (novoPetId) await enviarFotoPet(novoPetId)
         setShowNovoAnimal(false)
         setNovoAnimal(ANIMAL_VAZIO)
+        resetFoto()
         await fetchCliente()
       } else {
         setError('Erro ao adicionar animal')
@@ -123,6 +150,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
   }
 
   const handleEditarPet = (pet) => {
+    resetFoto()
     setPetEditId(pet.id)
     // Converter dataNascimento ISO para formato YYYY-MM-DD (input type=date)
     const dataNascStr = pet.dataNascimento
@@ -136,7 +164,8 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
       porte: pet.porte || '',
       cor: pet.cor || '',
       microchip: pet.microchip || '',
-      dataNascimento: dataNascStr
+      dataNascimento: dataNascStr,
+      foto: pet.foto || null
     })
   }
 
@@ -156,7 +185,12 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
         dataNascimento: petEdit.dataNascimento || null
       }
       const res = await axios.put(`/api/pets/${petEditId}`, payload)
-      if (res.data.sucesso) { setPetEditId(null); await fetchCliente() }
+      if (res.data.sucesso) {
+        if (fotoFile) await enviarFotoPet(petEditId)
+        setPetEditId(null)
+        resetFoto()
+        await fetchCliente()
+      }
       else setError('Erro ao salvar animal')
     } catch { setError('Erro ao salvar animal') }
     finally { setSalvandoAnimal(false) }
@@ -256,7 +290,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
               <button
                 type="button"
                 className="animais-btn-adicionar"
-                onClick={() => { setShowNovoAnimal(!showNovoAnimal); setError('') }}
+                onClick={() => { setShowNovoAnimal(!showNovoAnimal); setError(''); resetFoto() }}
               >
                 {showNovoAnimal ? '✕ Cancelar' : '+ Adicionar'}
               </button>
@@ -265,6 +299,24 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
             {/* Form novo animal */}
             {showNovoAnimal && (
               <div className="novo-animal-form">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <label htmlFor="mobile-foto-novo" style={{
+                    width: '52px', height: '52px', borderRadius: '50%', background: '#eef0fb',
+                    border: '1.5px solid #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    overflow: 'hidden', cursor: 'pointer', flexShrink: 0
+                  }}>
+                    {fotoPreview
+                      ? <img src={fotoPreview} alt="Foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <span style={{ fontSize: '22px' }}>🐾</span>}
+                  </label>
+                  <input id="mobile-foto-novo" type="file" accept="image/*" onChange={handleFotoChange} style={{ display: 'none' }} />
+                  <label htmlFor="mobile-foto-novo" style={{
+                    padding: '8px 12px', border: '1.5px solid #0d6b3a', borderRadius: '6px',
+                    color: '#0d6b3a', fontSize: '12px', fontWeight: 600, cursor: 'pointer'
+                  }}>
+                    📷 {fotoPreview ? 'Trocar Foto' : 'Adicionar Foto'}
+                  </label>
+                </div>
                 <div style={gridStyle}>
                   <input style={inputStyle} name="nome" placeholder="Nome *" value={novoAnimal.nome} onChange={e => setNovoAnimal(p => ({ ...p, nome: e.target.value }))} />
                   <input style={inputStyle} name="especie" placeholder="Espécie *" value={novoAnimal.especie} onChange={e => setNovoAnimal(p => ({ ...p, especie: e.target.value }))} />
@@ -300,7 +352,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                     onChange={e => setNovoAnimal(p => ({ ...p, dataNascimento: e.target.value }))}
                   />
                   {novoAnimal.dataNascimento && (
-                    <p style={{ fontSize: '12px', color: '#667eea', fontWeight: 600, margin: '6px 0 0 0' }}>
+                    <p style={{ fontSize: '12px', color: '#0d6b3a', fontWeight: 600, margin: '6px 0 0 0' }}>
                       Idade: {calcularIdade(novoAnimal.dataNascimento).texto}
                     </p>
                   )}
@@ -317,6 +369,28 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                 {petEditId === pet.id ? (
                   // Form edição do pet
                   <div className="pet-edit-form">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                      <label htmlFor={`mobile-foto-edit-${pet.id}`} style={{
+                        width: '52px', height: '52px', borderRadius: '50%', background: '#eef0fb',
+                        border: '1.5px solid #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        overflow: 'hidden', cursor: 'pointer', flexShrink: 0
+                      }}>
+                        {fotoPreview ? (
+                          <img src={fotoPreview} alt="Foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : pet.foto ? (
+                          <img src={petFotoUrl(pet.id)} alt="Foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <span style={{ fontSize: '22px' }}>🐾</span>
+                        )}
+                      </label>
+                      <input id={`mobile-foto-edit-${pet.id}`} type="file" accept="image/*" onChange={handleFotoChange} style={{ display: 'none' }} />
+                      <label htmlFor={`mobile-foto-edit-${pet.id}`} style={{
+                        padding: '8px 12px', border: '1.5px solid #0d6b3a', borderRadius: '6px',
+                        color: '#0d6b3a', fontSize: '12px', fontWeight: 600, cursor: 'pointer'
+                      }}>
+                        📷 {fotoPreview || pet.foto ? 'Trocar Foto' : 'Adicionar Foto'}
+                      </label>
+                    </div>
                     <div style={gridStyle}>
                       <input style={inputStyle} placeholder="Nome *" value={petEdit.nome} onChange={e => setPetEdit(p => ({ ...p, nome: e.target.value }))} />
                       <input style={inputStyle} placeholder="Espécie *" value={petEdit.especie} onChange={e => setPetEdit(p => ({ ...p, especie: e.target.value }))} />
@@ -351,13 +425,13 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                         onChange={e => setPetEdit(p => ({ ...p, dataNascimento: e.target.value }))}
                       />
                       {petEdit.dataNascimento && (
-                        <p style={{ fontSize: '12px', color: '#667eea', fontWeight: 600, margin: '6px 0 0 0' }}>
+                        <p style={{ fontSize: '12px', color: '#0d6b3a', fontWeight: 600, margin: '6px 0 0 0' }}>
                           Idade: {calcularIdade(petEdit.dataNascimento).texto}
                         </p>
                       )}
                     </div>
                     <div className="pet-form-actions">
-                      <button type="button" className="pet-form-btn-cancel" onClick={() => setPetEditId(null)}>
+                      <button type="button" className="pet-form-btn-cancel" onClick={() => { setPetEditId(null); resetFoto() }}>
                         Cancelar
                       </button>
                       <button type="button" className="pet-form-btn-save" onClick={handleSalvarPet} disabled={salvandoAnimal}>
@@ -369,14 +443,23 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                   // Visualização do pet
                   <div className="pet-card">
                     <div className="pet-header">
-                      <div className="pet-icon">🐾</div>
+                      {pet.foto ? (
+                        <img
+                          src={petFotoUrl(pet.id)}
+                          alt={pet.nome}
+                          className="pet-icon"
+                          style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <div className="pet-icon">🐾</div>
+                      )}
                       <div className="pet-info-card">
                         <p className="pet-name">{pet.nome}</p>
                         <p className="pet-details">
                           {[pet.especie && `Espécie: ${pet.especie}`, pet.raca && `Raça: ${pet.raca}`, pet.sexo && `Sexo: ${pet.sexo === 'M' ? 'Macho' : 'Fêmea'}`].filter(Boolean).join(' | ')}
                         </p>
                         {(pet.dataNascimento || pet.idade) && (
-                          <p className="pet-details" style={{ color: '#667eea', fontWeight: 600 }}>
+                          <p className="pet-details" style={{ color: '#0d6b3a', fontWeight: 600 }}>
                             🎂 {pet.dataNascimento
                               ? calcularIdade(pet.dataNascimento).texto
                               : `${pet.idade} ano${pet.idade !== 1 ? 's' : ''}`}

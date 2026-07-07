@@ -330,7 +330,7 @@ export default function AnimalHistory() {
     setConfirm({
       open: true,
       title: 'Deletar Histórico',
-      message: `Tem certeza que deseja deletar o histórico de ${petName}? Esta ação não pode ser desfeita.`,
+      message: `Tem certeza que deseja deletar o histórico de ${petName}? Você pode restaurá-lo na Lixeira depois, se precisar.`,
       confirmText: 'Deletar',
       cancelText: 'Cancelar',
       confirmColor: 'danger',
@@ -409,8 +409,14 @@ export default function AnimalHistory() {
             /* Remove cabeçalho/rodapé automático do navegador */
             @page { margin: 0; size: A4; }
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            html, body { font-family: 'Calibri', 'Arial', sans-serif; color: #333; background: white; }
-            body { padding: 1.2cm 1.5cm; }
+            html, body { font-family: 'Calibri', 'Arial', sans-serif; color: #333; background: white; height: 100%; }
+            /* Rodapé sempre travado no fim da página, com ou sem conteúdo */
+            body {
+              padding: 1.2cm 1.5cm;
+              min-height: 100vh;
+              display: flex;
+              flex-direction: column;
+            }
 
             .compact-header {
               display: flex;
@@ -429,7 +435,7 @@ export default function AnimalHistory() {
             .header-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 10px; color: #444; line-height: 1.4; }
             .header-meta strong { color: #0d6b3a; font-weight: 600; }
 
-            .main-content { padding: 0; }
+            .main-content { padding: 0; flex: 1; }
             .consultation-section { margin-bottom: 14px; }
             .section-title { background: #0d6b3a; color: white; padding: 6px 10px; margin: 10px 0 6px; font-weight: bold; font-size: 11px; letter-spacing: 0.3px; }
             .section-content { padding: 6px 10px 8px; font-size: 11px; line-height: 1.5; }
@@ -461,7 +467,7 @@ export default function AnimalHistory() {
               white-space: nowrap;
             }
 
-            .letterhead-footer { border-top: 2px solid #0d6b3a; padding: 8px 0 0; margin-top: 20px; font-size: 9px; text-align: center; color: #666; }
+            .letterhead-footer { border-top: 2px solid #0d6b3a; padding: 8px 0 0; margin-top: auto; font-size: 9px; text-align: center; color: #666; flex-shrink: 0; }
             .footer-info { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; }
             .footer-info strong { color: #0d6b3a; }
           </style>
@@ -767,7 +773,7 @@ export default function AnimalHistory() {
             .header-meta strong { color: #0d6b3a; font-weight: 600; }
 
             /* ====== CONTEÚDO PRINCIPAL ====== */
-            .main-content { padding: 0; }
+            .main-content { padding: 0; flex: 1; }
             .blank-notes-space {
               min-height: 200px;
               border: 1px dashed #ddd;
@@ -887,8 +893,12 @@ export default function AnimalHistory() {
               page-break-after: avoid;
               break-after: avoid;
             }
+            /* Rodapé sempre travado no fim de CADA página, com ou sem conteúdo */
             .letterhead-page {
               padding-bottom: 16px;
+              min-height: 100vh;
+              display: flex;
+              flex-direction: column;
             }
 
             @media print {

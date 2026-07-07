@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { formatarData } from '../utils/dateFormatter'
+import { calcularIdade } from '../utils/idadeUtils'
+import { petFotoUrl } from '../utils/petFotoUrl'
 import './ClientesList.css'
 import NovoClienteModal from './NovoClienteModal'
+import TransferirProprietarioModal from './TransferirProprietarioModal'
+import ConfirmModal from './ConfirmModal'
+import QuoteModal from './QuoteModal'
 
 export default function ClientesList() {
   const [clientes, setClientes] = useState([])
@@ -14,6 +19,30 @@ export default function ClientesList() {
   const [showNewAnimalForm, setShowNewAnimalForm] = useState(null)
   const [editingClienteId, setEditingClienteId] = useState(null)
   const [editingAnimalId, setEditingAnimalId] = useState(null)
+  const [transferModal, setTransferModal] = useState({ open: false, pet: null })
+  const [quoteModal, setQuoteModal] = useState({ open: false, cliente: null, pet: null })
+  const [confirm, setConfirm] = useState({ open: false })
+  const [fotoFile, setFotoFile] = useState(null)
+  const [fotoPreview, setFotoPreview] = useState(null)
+
+  const handleFotoChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setFotoFile(file)
+    setFotoPreview(URL.createObjectURL(file))
+  }
+
+  const resetFoto = () => {
+    setFotoFile(null)
+    setFotoPreview(null)
+  }
+
+  const enviarFotoPet = async (petId) => {
+    if (!fotoFile) return
+    const formData = new FormData()
+    formData.append('foto', fotoFile)
+    await axios.post(`/api/pets/${petId}/foto`, formData)
+  }
 
   const [clienteForm, setClienteForm] = useState({
     nome: '',
@@ -32,7 +61,7 @@ export default function ClientesList() {
     raca: '',
     sexo: '',
     porte: '',
-    idade: '',
+    dataNascimento: '',
     cor: '',
     microchip: ''
   })
@@ -92,6 +121,8 @@ export default function ClientesList() {
           clienteId
         })
         if (response.data.sucesso) {
+          const novoPetId = response.data.data?.id
+          if (novoPetId) await enviarFotoPet(novoPetId)
           setAnimalForm({
             clienteId: '',
             nome: '',
@@ -99,10 +130,11 @@ export default function ClientesList() {
             raca: '',
             sexo: '',
             porte: '',
-            idade: '',
+            dataNascimento: '',
             cor: '',
             microchip: ''
           })
+          resetFoto()
           setShowNewAnimalForm(null)
           await fetchClientes()
         }
@@ -112,26 +144,48 @@ export default function ClientesList() {
     }
   }
 
-  const handleDeleteCliente = async (clienteId) => {
-    if (confirm('Tem certeza que deseja deletar este cliente?')) {
-      try {
-        await axios.delete(`/api/clientes/${clienteId}`)
-        await fetchClientes()
-      } catch (err) {
-        setError('Erro ao deletar cliente')
-      }
-    }
+  const handleDeleteCliente = (clienteId) => {
+    setConfirm({
+      open: true,
+      title: 'Deletar Cliente',
+      message: 'Tem certeza que deseja deletar este cliente? Você pode restaurá-lo na Lixeira depois, se precisar.',
+      confirmText: 'Deletar',
+      cancelText: 'Cancelar',
+      confirmColor: 'danger',
+      onConfirm: async () => {
+        try {
+          await axios.delete(`/api/clientes/${clienteId}`)
+          await fetchClientes()
+          setConfirm({ open: false })
+        } catch (err) {
+          setError('Erro ao deletar cliente')
+          setConfirm({ open: false })
+        }
+      },
+      onCancel: () => setConfirm({ open: false })
+    })
   }
 
-  const handleDeleteAnimal = async (petId) => {
-    if (confirm('Tem certeza que deseja deletar este animal?')) {
-      try {
-        await axios.delete(`/api/pets/${petId}`)
-        await fetchClientes()
-      } catch (err) {
-        setError('Erro ao deletar animal')
-      }
-    }
+  const handleDeleteAnimal = (petId) => {
+    setConfirm({
+      open: true,
+      title: 'Deletar Animal',
+      message: 'Tem certeza que deseja deletar este animal? Você pode restaurá-lo na Lixeira depois, se precisar.',
+      confirmText: 'Deletar',
+      cancelText: 'Cancelar',
+      confirmColor: 'danger',
+      onConfirm: async () => {
+        try {
+          await axios.delete(`/api/pets/${petId}`)
+          await fetchClientes()
+          setConfirm({ open: false })
+        } catch (err) {
+          setError('Erro ao deletar animal')
+          setConfirm({ open: false })
+        }
+      },
+      onCancel: () => setConfirm({ open: false })
+    })
   }
 
   const handleEditCliente = (cliente) => {
@@ -164,7 +218,13 @@ export default function ClientesList() {
   }
 
   const handleEditAnimal = (animal) => {
-    setAnimalForm(animal)
+    resetFoto()
+    setAnimalForm({
+      ...animal,
+      dataNascimento: animal.dataNascimento
+        ? new Date(animal.dataNascimento).toISOString().split('T')[0]
+        : ''
+    })
     setEditingAnimalId(animal.id)
     setShowNewAnimalForm(animal.clienteId)
   }
@@ -174,6 +234,7 @@ export default function ClientesList() {
     try {
       const response = await axios.put(`/api/pets/${editingAnimalId}`, animalForm)
       if (response.data.sucesso) {
+        if (fotoFile) await enviarFotoPet(editingAnimalId)
         setAnimalForm({
           clienteId: '',
           nome: '',
@@ -181,10 +242,11 @@ export default function ClientesList() {
           raca: '',
           sexo: '',
           porte: '',
-          idade: '',
+          dataNascimento: '',
           cor: '',
           microchip: ''
         })
+        resetFoto()
         setEditingAnimalId(null)
         setShowNewAnimalForm(null)
         await fetchClientes()
@@ -355,9 +417,10 @@ export default function ClientesList() {
                       <h4>🐾 Animais</h4>
                       <button
                         className="btn-small"
-                        onClick={() => setShowNewAnimalForm(
-                          showNewAnimalForm === cliente.id ? null : cliente.id
-                        )}
+                        onClick={() => {
+                          resetFoto()
+                          setShowNewAnimalForm(showNewAnimalForm === cliente.id ? null : cliente.id)
+                        }}
                       >
                         + Adicionar Animal
                       </button>
@@ -365,6 +428,28 @@ export default function ClientesList() {
 
                     {showNewAnimalForm === cliente.id && (
                       <form className="animal-form" onSubmit={(e) => handleCreateAnimal(e, cliente.id)}>
+                        <div className="foto-picker">
+                          <label htmlFor="animal-foto-input" className="foto-preview">
+                            {fotoPreview ? (
+                              <img src={fotoPreview} alt="Foto do animal" />
+                            ) : editingAnimalId && animalForm.foto ? (
+                              <img src={petFotoUrl(editingAnimalId)} alt="Foto do animal" />
+                            ) : (
+                              <span className="foto-placeholder">🐾</span>
+                            )}
+                          </label>
+                          <input
+                            id="animal-foto-input"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFotoChange}
+                            style={{ display: 'none' }}
+                          />
+                          <label htmlFor="animal-foto-input" className="foto-btn">
+                            📷 {fotoPreview || (editingAnimalId && animalForm.foto) ? 'Trocar Foto' : 'Adicionar Foto'}
+                          </label>
+                        </div>
+
                         <div className="form-row">
                           <div className="form-group">
                             <label>Nome *</label>
@@ -422,12 +507,18 @@ export default function ClientesList() {
                             </select>
                           </div>
                           <div className="form-group">
-                            <label>Idade</label>
+                            <label>Data de Nascimento</label>
                             <input
-                              type="number"
-                              value={animalForm.idade}
-                              onChange={(e) => setAnimalForm({ ...animalForm, idade: e.target.value })}
+                              type="date"
+                              max={new Date().toISOString().split('T')[0]}
+                              value={animalForm.dataNascimento}
+                              onChange={(e) => setAnimalForm({ ...animalForm, dataNascimento: e.target.value })}
                             />
+                            {animalForm.dataNascimento && (
+                              <span className="idade-calculada">
+                                🎂 {calcularIdade(animalForm.dataNascimento).texto}
+                              </span>
+                            )}
                           </div>
                         </div>
 
@@ -458,24 +549,55 @@ export default function ClientesList() {
                       <div className="animais-list">
                         {cliente.Pets.map(pet => (
                           <div key={pet.id} className="animal-card">
+                            {pet.foto ? (
+                              <img src={petFotoUrl(pet.id)} alt={pet.nome} className="animal-avatar" />
+                            ) : (
+                              <span className="animal-avatar animal-avatar-placeholder">🐾</span>
+                            )}
                             <div className="animal-info">
-                              <p className="animal-name">🐾 <strong>{pet.nome}</strong> ({pet.especie})</p>
-                              <p className="animal-details">
-                                Raça: {pet.raca || 'N/A'} | Sexo: {pet.sexo || 'N/A'} | Porte: {pet.porte || 'N/A'}
-                              </p>
+                              <div className="animal-card-title">
+                                <span><strong>{pet.nome}</strong> <span className="animal-especie">({pet.especie})</span></span>
+                                {(pet.dataNascimento || pet.idade) && (
+                                  <span className="animal-idade">
+                                    🎂 {pet.dataNascimento ? calcularIdade(pet.dataNascimento).texto : `${pet.idade} ano${pet.idade !== 1 ? 's' : ''}`}
+                                  </span>
+                                )}
+                                <span className="animal-codigo">PET-{String(pet.id).padStart(6, '0')}</span>
+                              </div>
+                              <div className="animal-chips">
+                                {pet.raca && <span className="chip">{pet.raca}</span>}
+                                {pet.sexo && <span className="chip">{pet.sexo === 'M' ? 'Macho' : pet.sexo === 'F' ? 'Fêmea' : pet.sexo}</span>}
+                                {pet.porte && <span className="chip">{pet.porte === 'P' ? 'Pequeno' : pet.porte === 'M' ? 'Médio' : pet.porte === 'G' ? 'Grande' : pet.porte}</span>}
+                              </div>
                             </div>
-                            <button
-                              className="btn-edit"
-                              onClick={() => handleEditAnimal(pet)}
-                            >
-                              ✏️ Editar
-                            </button>
-                            <button
-                              className="btn-danger"
-                              onClick={() => handleDeleteAnimal(pet.id)}
-                            >
-                              Deletar
-                            </button>
+                            <div className="animal-actions">
+                              <button
+                                className="btn-quote"
+                                onClick={() => setQuoteModal({ open: true, cliente, pet })}
+                                title="Gerar orçamento"
+                              >
+                                💰 Orçamento
+                              </button>
+                              <button
+                                className="btn-transfer"
+                                onClick={() => setTransferModal({ open: true, pet })}
+                                title="Transferir para outro proprietário"
+                              >
+                                🔄 Transferir
+                              </button>
+                              <button
+                                className="btn-edit"
+                                onClick={() => handleEditAnimal(pet)}
+                              >
+                                ✏️ Editar
+                              </button>
+                              <button
+                                className="btn-danger"
+                                onClick={() => handleDeleteAnimal(pet.id)}
+                              >
+                                Deletar
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -504,6 +626,25 @@ export default function ClientesList() {
           ))
         )}
       </div>
+
+      {transferModal.open && (
+        <TransferirProprietarioModal
+          pet={transferModal.pet}
+          clientes={clientes}
+          onClose={() => setTransferModal({ open: false, pet: null })}
+          onSuccess={fetchClientes}
+        />
+      )}
+
+      {quoteModal.open && (
+        <QuoteModal
+          cliente={quoteModal.cliente}
+          pet={quoteModal.pet}
+          onClose={() => setQuoteModal({ open: false, cliente: null, pet: null })}
+        />
+      )}
+
+      <ConfirmModal {...confirm} />
     </div>
   )
 }

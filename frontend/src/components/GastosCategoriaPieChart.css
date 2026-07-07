@@ -47,7 +47,7 @@
   border-radius: 8px;
   padding: 1.5rem;
   width: 100%;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--color-primary);
 }
 
 .detalhe-header {
@@ -100,7 +100,7 @@
 }
 
 .detalhe-percentual .percentual {
-  color: #667eea;
+  color: var(--color-primary);
 }
 
 .btn-fechar {
@@ -141,7 +141,7 @@
 .valor-total {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #667eea;
+  color: var(--color-primary);
 }
 
 .hint {
@@ -193,12 +193,12 @@
 
 .lista-item:hover {
   background-color: #f5f5f5;
-  border-left-color: #667eea;
+  border-left-color: var(--color-primary);
 }
 
 .lista-item.ativo {
   background-color: #f0f3ff;
-  border-left-color: #667eea;
+  border-left-color: var(--color-primary);
 }
 
 .item-cor {

@@ -53,10 +53,32 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
   const [carregando, setCarregando] = useState(true)
   const [tabelaPrecos, setTabelaPrecos] = useState({})
 
-  // Calcular valor total
+  // Atendimento Externo (visita domiciliar): usa a mesma hora técnica e
+  // custo/km configurados no Perfil (Precificação), igual ao Orçamento.
+  const [atendimentoExterno, setAtendimentoExterno] = useState(false)
+  const [horaTecnica, setHoraTecnica] = useState(0)
+  const [custoKmVeiculo, setCustoKmVeiculo] = useState(0)
+  const [distanciaKm, setDistanciaKm] = useState('')
+  const [tempoDeslocamentoMin, setTempoDeslocamentoMin] = useState('')
+
+  // Insumos usados no atendimento (abate do estoque ao adicionar)
+  const [insumosDisponiveis, setInsumosDisponiveis] = useState([])
+  const [mostrarInsumo, setMostrarInsumo] = useState(false)
+  const [insumoSelecionadoId, setInsumoSelecionadoId] = useState('')
+  const [insumoQuantidade, setInsumoQuantidade] = useState('1')
+  const [itensInsumo, setItensInsumo] = useState([]) // [{ id, descricao, valor, insumoId, quantidade }]
+  const [erroInsumo, setErroInsumo] = useState('')
+
+  const custoDeslocamento =
+    ((parseFloat(tempoDeslocamentoMin) || 0) / 60) * horaTecnica +
+    (parseFloat(distanciaKm) || 0) * custoKmVeiculo
+
+  const totalInsumos = itensInsumo.reduce((sum, i) => sum + (parseFloat(i.valor) || 0), 0)
+
+  // Calcular valor total (tipos de atendimento + deslocamento + insumos)
   const valorTotal = tiposSelecionados.reduce((sum, item) => {
     return sum + (parseFloat(item.valor) || 0)
-  }, 0)
+  }, 0) + (atendimentoExterno ? custoDeslocamento : 0) + totalInsumos
 
   // Adicionar mais um tipo de atendimento
   const adicionarTipo = () => {
@@ -107,7 +129,72 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
 
   useEffect(() => {
     carregarDados()
+    carregarPrecificacaoEInsumos()
   }, [])
+
+  const carregarPrecificacaoEInsumos = async () => {
+    try {
+      const perfilRes = await axios.get('/api/perfil')
+      if (perfilRes.data.sucesso) {
+        const perfil = perfilRes.data.data
+        setHoraTecnica(parseFloat(perfil.precificacao?.horaTecnica) || 0)
+        if (perfil.id) {
+          try {
+            const veic = await axios.get(`/api/veiculos/${perfil.id}`)
+            const veiculoId = veic.data?.data?.id
+            if (veiculoId) {
+              const custo = await axios.get(`/api/veiculos/${veiculoId}/custo-km`)
+              if (custo.data?.sucesso && !custo.data.data.configuracaoPendente) {
+                setCustoKmVeiculo(parseFloat(custo.data.data.custoKm) || 0)
+              }
+            }
+          } catch { /* custo/km é opcional */ }
+        }
+      }
+    } catch { /* precificação é opcional */ }
+
+    try {
+      const insumosRes = await axios.get('/api/insumos')
+      if (insumosRes.data.sucesso) setInsumosDisponiveis(insumosRes.data.data || [])
+    } catch { /* insumos é opcional */ }
+  }
+
+  const insumoSelecionado = insumosDisponiveis.find(i => String(i.id) === String(insumoSelecionadoId))
+  const insumoQtdNum = parseFloat(insumoQuantidade) || 0
+  const insumoValorTotal = insumoSelecionado ? (parseFloat(insumoSelecionado.precoVenda) || 0) * insumoQtdNum : 0
+
+  const handleAdicionarInsumo = async () => {
+    if (!insumoSelecionado || insumoQtdNum <= 0) return
+    setErroInsumo('')
+    try {
+      const res = await axios.post(`/api/insumos/${insumoSelecionado.id}/baixar-estoque`, { quantidade: insumoQtdNum })
+      if (!res.data.sucesso) {
+        setErroInsumo(res.data.erro || 'Erro ao abater estoque')
+        return
+      }
+      setItensInsumo(prev => [...prev, {
+        id: Date.now(),
+        descricao: `${insumoSelecionado.nome} (${insumoQtdNum} ${insumoSelecionado.unidade})`,
+        valor: insumoValorTotal,
+        insumoId: insumoSelecionado.id,
+        quantidade: insumoQtdNum
+      }])
+      setInsumosDisponiveis(prev => prev.map(i =>
+        i.id === insumoSelecionado.id ? { ...i, quantidadeEstoque: res.data.data.quantidadeEstoque } : i
+      ))
+      setInsumoSelecionadoId('')
+      setInsumoQuantidade('1')
+    } catch {
+      setErroInsumo('Erro ao abater estoque do insumo')
+    }
+  }
+
+  const removerItemInsumo = async (item) => {
+    try {
+      await axios.post(`/api/insumos/${item.insumoId}/repor-estoque`, { quantidade: item.quantidade })
+    } catch { /* se falhar a reposição, ao menos remove a linha */ }
+    setItensInsumo(prev => prev.filter(i => i.id !== item.id))
+  }
 
   useEffect(() => {
     // Filtrar pets baseado no cliente selecionado
@@ -203,16 +290,26 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
     agendamentoForm.tipoAtendimento = tipoConcatenado
 
     // Concatenar descrições de cada atendimento (formato: "Tipo: descrição")
-    const descricoesConcatenadas = tiposValidos
-      .filter(item => item.descricao && item.descricao.trim())
-      .map(item => `${item.tipo}: ${item.descricao.trim()}`)
-      .join('\n\n')
+    const linhasExtras = []
+    if (atendimentoExterno && custoDeslocamento > 0) {
+      linhasExtras.push(`Deslocamento: ${distanciaKm || 0}km / ${tempoDeslocamentoMin || 0}min - R$ ${custoDeslocamento.toFixed(2)}`)
+    }
+    itensInsumo.forEach(item => {
+      linhasExtras.push(`Insumo: ${item.descricao} - R$ ${parseFloat(item.valor).toFixed(2)}`)
+    })
+
+    const descricoesConcatenadas = [
+      ...tiposValidos
+        .filter(item => item.descricao && item.descricao.trim())
+        .map(item => `${item.tipo}: ${item.descricao.trim()}`),
+      ...linhasExtras
+    ].join('\n\n')
     if (descricoesConcatenadas) {
       agendamentoForm.descricao = descricoesConcatenadas
     }
 
-    // Calcular valor total automaticamente
-    const valorCalculado = tiposValidos.reduce((sum, item) => sum + (parseFloat(item.valor) || 0), 0)
+    // Calcular valor total automaticamente (tipos + deslocamento + insumos)
+    const valorCalculado = valorTotal
     if (valorCalculado > 0) {
       agendamentoForm.valor = valorCalculado.toFixed(2)
     }
@@ -429,6 +526,119 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
             >
               ➕ Adicionar outro tipo de atendimento
             </button>
+          </div>
+
+          {/* ATENDIMENTO EXTERNO (visita domiciliar) */}
+          <div className="nam-section">
+            <label className="nam-checkbox-row">
+              <input
+                type="checkbox"
+                checked={atendimentoExterno}
+                onChange={(e) => setAtendimentoExterno(e.target.checked)}
+              />
+              <span>🚗 Atendimento Externo (visita domiciliar)</span>
+            </label>
+
+            {atendimentoExterno && (
+              (horaTecnica <= 0 && custoKmVeiculo <= 0) ? (
+                <p className="nam-aviso">
+                  ⚠️ Configure sua <strong>Hora Técnica</strong> e/ou o <strong>veículo</strong> no Perfil (card Precificação) para calcular o custo de deslocamento.
+                </p>
+              ) : (
+                <>
+                  <div className="nam-row">
+                    <div className="nam-group">
+                      <label>Distância ida+volta (km)</label>
+                      <input
+                        type="number"
+                        placeholder="Ex: 24"
+                        value={distanciaKm}
+                        onChange={(e) => setDistanciaKm(e.target.value)}
+                      />
+                    </div>
+                    <div className="nam-group">
+                      <label>Tempo de deslocamento (min)</label>
+                      <input
+                        type="number"
+                        placeholder="Ex: 40"
+                        value={tempoDeslocamentoMin}
+                        onChange={(e) => setTempoDeslocamentoMin(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  {custoDeslocamento > 0 && (
+                    <p className="nam-aviso nam-aviso-info">
+                      Custo estimado do deslocamento: <strong>R$ {custoDeslocamento.toFixed(2)}</strong>
+                    </p>
+                  )}
+                </>
+              )
+            )}
+          </div>
+
+          {/* INSUMOS USADOS */}
+          <div className="nam-section">
+            <label className="nam-checkbox-row">
+              <input
+                type="checkbox"
+                checked={mostrarInsumo}
+                onChange={(e) => setMostrarInsumo(e.target.checked)}
+              />
+              <span>📦 Insumos Usados</span>
+            </label>
+
+            {mostrarInsumo && (
+              <>
+                {erroInsumo && <p className="nam-aviso">{erroInsumo}</p>}
+                {insumosDisponiveis.length === 0 ? (
+                  <p className="nam-aviso">⚠️ Nenhum insumo cadastrado. Configure em <strong>Perfil → Estoque de Insumos</strong>.</p>
+                ) : (
+                  <>
+                    <div className="nam-row">
+                      <div className="nam-group" style={{ flex: 2 }}>
+                        <label>Insumo do estoque</label>
+                        <select value={insumoSelecionadoId} onChange={(e) => setInsumoSelecionadoId(e.target.value)}>
+                          <option value="">Selecione...</option>
+                          {insumosDisponiveis.map(i => (
+                            <option key={i.id} value={i.id}>
+                              {i.nome} ({parseFloat(i.quantidadeEstoque)} {i.unidade} em estoque)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="nam-group">
+                        <label>Quantidade</label>
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          value={insumoQuantidade}
+                          onChange={(e) => setInsumoQuantidade(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="nam-insumo-acoes nam-insumo-acoes-single">
+                      <button
+                        type="button"
+                        className="nam-btn-insumo-adicionar"
+                        onClick={handleAdicionarInsumo}
+                        disabled={!insumoSelecionado || insumoQtdNum <= 0}
+                      >
+                        ✓ Adicionar Insumo
+                      </button>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+
+            {itensInsumo.map(item => (
+              <div key={item.id} className="nam-item-fixo">
+                <span>📦 {item.descricao}</span>
+                <strong>R$ {parseFloat(item.valor).toFixed(2)}</strong>
+                <button type="button" onClick={() => removerItemInsumo(item)} title="Remover">🗑️</button>
+              </div>
+            ))}
           </div>
 
           {/* VALOR TOTAL */}

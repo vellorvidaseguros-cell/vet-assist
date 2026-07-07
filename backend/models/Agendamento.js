@@ -76,6 +76,7 @@ const Agendamento = sequelize.define('Agendamento', {
 }, {
   tableName: 'agendamentos',
   timestamps: true,
+  paranoid: true,
 });
 
 Pet.hasMany(Agendamento, { foreignKey: 'petId' });

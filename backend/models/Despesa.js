@@ -35,6 +35,7 @@ const Despesa = sequelize.define('Despesa', {
 }, {
   tableName: 'despesas',
   timestamps: true,
+  paranoid: true,
 })
 
 export default Despesa

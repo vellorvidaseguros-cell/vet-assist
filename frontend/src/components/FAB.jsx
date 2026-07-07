@@ -7,7 +7,8 @@ export default function FAB({
   onNovoAgendamento,
   onNovoCliente,
   onNovaCobranca,
-  onHistorico
+  onHistorico,
+  onOrcamento
 }) {
   const handleToggleMenu = () => {
     onMenuToggle(!showMenu)
@@ -27,6 +28,10 @@ export default function FAB({
 
   const handleHistorico = () => {
     if (onHistorico) onHistorico()
+  }
+
+  const handleOrcamento = () => {
+    if (onOrcamento) onOrcamento()
   }
 
   return (
@@ -77,6 +82,16 @@ export default function FAB({
           >
             <span className="fab-menu-icon">📋</span>
             <span className="fab-menu-label">Histórico</span>
+          </button>
+
+          <button
+            type="button"
+            className="fab-menu-item fab-orcamento"
+            onClick={(e) => { e.stopPropagation(); handleOrcamento(); }}
+            title="Novo Orçamento"
+          >
+            <span className="fab-menu-icon">🧾</span>
+            <span className="fab-menu-label">Orçamento</span>
           </button>
         </div>
       )}

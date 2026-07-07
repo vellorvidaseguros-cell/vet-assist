@@ -101,7 +101,7 @@
   gap: 0.5rem;
   font-size: 0.88rem;
   font-weight: 700;
-  color: #667eea;
+  color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding-bottom: 0.6rem;
@@ -172,7 +172,7 @@
 .nam-group select:focus,
 .nam-group textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -216,7 +216,7 @@
 
 .nam-btn-salvar {
   padding: 0.6rem 1.5rem;
-  background: #667eea;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
@@ -227,7 +227,7 @@
 }
 
 .nam-btn-salvar:hover:not(:disabled) {
-  background: #5a6fd6;
+  background: var(--color-primary-dark);
 }
 
 .nam-btn-salvar:disabled {
@@ -429,7 +429,7 @@
 .tipo-item-label {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #667eea;
+  color: var(--color-primary);
   margin: 0;
   flex: 1;
   min-width: 0;
@@ -488,7 +488,7 @@
 .tipo-select:focus,
 .tipo-input:focus {
   outline: none !important;
-  border-color: #667eea !important;
+  border-color: var(--color-primary) !important;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
 }
 
@@ -498,7 +498,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 18px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   border-radius: 10px;
   color: white;
 }
@@ -571,4 +571,134 @@
 .btn-adicionar-tipo:active {
   background-color: #d0e0ff;
   transform: scale(0.98);
+}
+
+/* Atendimento Externo + Insumos (agendamento) */
+.nam-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nam-checkbox-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+
+.nam-aviso {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: #8a6d0b;
+  background: #fff8e6;
+  border-left: 4px solid #b8860b;
+  padding: 0.6rem 0.85rem;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+
+.nam-aviso-info {
+  color: #0d6b3a;
+  background: #f0fdf4;
+  border-left-color: #0d6b3a;
+}
+
+.nam-section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.btn-adicionar-tipo-inline {
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0.5rem 1rem;
+}
+
+.nam-insumo-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.nam-btn-insumo-cancelar,
+.nam-btn-insumo-adicionar {
+  width: auto !important;
+  margin: 0 !important;
+  flex: 1;
+  padding: 0.55rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nam-btn-insumo-cancelar {
+  background: white;
+  border: 1.5px solid #d32f2f;
+  color: #d32f2f;
+}
+
+.nam-btn-insumo-adicionar {
+  background: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  color: white;
+}
+
+.nam-btn-insumo-adicionar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nam-item-fixo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.85rem;
+  background: white;
+  border: 1px solid #d3e6d9;
+  border-left: 4px solid #0d6b3a;
+  border-radius: 8px;
+}
+
+.nam-item-fixo span {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nam-item-fixo strong {
+  font-size: 0.9rem;
+  color: #0d6b3a;
+  white-space: nowrap;
+}
+
+.nam-item-fixo button {
+  width: auto !important;
+  margin: 0 !important;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.35rem !important;
+  border-radius: 6px;
+}
+
+.nam-insumo-acoes-single {
+  justify-content: stretch;
+}
+
+.nam-insumo-acoes-single .nam-btn-insumo-adicionar {
+  flex: 1;
+  width: 100% !important;
 }

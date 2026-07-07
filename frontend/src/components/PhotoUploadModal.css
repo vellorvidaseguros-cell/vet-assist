@@ -84,7 +84,7 @@
 }
 
 .drop-zone {
-  border: 2px dashed #667eea;
+  border: 2px dashed var(--color-primary);
   border-radius: 8px;
   padding: 2rem;
   text-align: center;
@@ -94,7 +94,7 @@
 }
 
 .drop-zone:hover {
-  border-color: #764ba2;
+  border-color: var(--color-primary-light);
   background-color: #f0f3ff;
 }
 
@@ -189,7 +189,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
   transition: width 0.3s;
 }
 

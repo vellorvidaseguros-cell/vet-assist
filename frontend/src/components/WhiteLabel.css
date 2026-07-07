@@ -27,7 +27,7 @@
   margin: 0;
   color: #333;
   font-size: 1.2rem;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid var(--color-primary);
   padding-bottom: 1rem;
 }
 
@@ -54,7 +54,7 @@
 
 .form-section input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -71,7 +71,7 @@
   align-items: center;
   gap: 1rem;
   padding: 2rem;
-  border: 2px dashed #667eea;
+  border: 2px dashed var(--color-primary);
   border-radius: 8px;
   background: #f9f9f9;
 }
@@ -133,7 +133,7 @@
   margin: 0;
   color: #333;
   font-size: 1.2rem;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid var(--color-primary);
   padding-bottom: 1rem;
 }
 
@@ -157,14 +157,14 @@
 }
 
 .preview-tabs .tab:hover {
-  border-color: #667eea;
+  border-color: var(--color-primary);
   background: #f9f9f9;
 }
 
 .preview-tabs .tab.active {
-  background: #667eea;
+  background: var(--color-primary);
   color: white;
-  border-color: #667eea;
+  border-color: var(--color-primary);
 }
 
 .preview-container {

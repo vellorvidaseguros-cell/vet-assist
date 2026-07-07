@@ -79,23 +79,28 @@ export default function BuscaVeiculo({ onDataReceived, isEditing }) {
         `/api/veiculos/dados/consumo/${selectedMarca}/${modelo}`
       )
 
-      if (response.data.sucesso) {
-        const dados = {
-          placa: placa.toUpperCase(),
-          marca: selectedMarca,
-          modelo: modelo,
-          ano: ano,
-          combustivel: 'Gasolina',
-          consumoMedio: response.data.data?.consumoMedio,
-          custoManutencaoEstimado: 2500
-        }
-        onDataReceived(dados)
+      // Preenche marca/modelo/ano SEMPRE. O consumo entra se a base tiver;
+      // senão, o vet digita manualmente (mensagem orientativa, não erro).
+      const consumoEncontrado = response.data.sucesso && response.data.data?.consumoMedio
+      const dados = {
+        placa: placa.toUpperCase(),
+        marca: selectedMarca,
+        modelo: modelo,
+        ano: ano,
+        combustivel: 'Gasolina',
+        custoManutencaoEstimado: 2500
+      }
+      if (consumoEncontrado) dados.consumoMedio = response.data.data.consumoMedio
+      onDataReceived(dados)
+      setStep(1)
+      setPlaca('')
+
+      if (consumoEncontrado) {
         setMessage(`✅ Dados preenchidos! ${selectedMarca} ${modelo} (${ano})`)
-        setStep(1)
-        setPlaca('')
-        setTimeout(() => setMessage(''), 3000)
+        setTimeout(() => setMessage(''), 4000)
       } else {
-        setMessage('Consumo não encontrado')
+        setMessage(`✅ ${selectedMarca} ${modelo} (${ano}) preenchido. ℹ️ Informe o Consumo Médio (KM/L) manualmente no campo abaixo.`)
+        setTimeout(() => setMessage(''), 6000)
       }
     } catch (err) {
       setMessage('Erro ao buscar dados')

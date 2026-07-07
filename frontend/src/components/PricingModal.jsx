@@ -46,6 +46,10 @@ export default function PricingModal({ isOpen, onClose }) {
   const [editingService, setEditingService] = useState(null) // {id, nome}
   const [confirm, setConfirm] = useState({ open: false })
   const [promptData, setPromptData] = useState({ open: false, initialValue: '', title: '' })
+  // Precificação: hora técnica + durações estimadas por serviço (guardadas dentro de precificacao,
+  // para não alterar a estrutura de tabelaPrecos, que é lida como número em vários lugares)
+  const [precificacao, setPrecificacao] = useState(null)
+  const [duracoes, setDuracoes] = useState({}) // { nomeServico: minutos }
 
   useEffect(() => {
     if (isOpen) {
@@ -67,6 +71,10 @@ export default function PricingModal({ isOpen, onClose }) {
         })
         setInputValues(initInputs)
       }
+      if (res.data.sucesso && res.data.data?.precificacao) {
+        setPrecificacao(res.data.data.precificacao)
+        setDuracoes(res.data.data.precificacao.duracoesServicos || {})
+      }
     } catch (err) {
       console.error('Erro ao carregar preços:', err)
       setCustomValues({})
@@ -74,6 +82,15 @@ export default function PricingModal({ isOpen, onClose }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  const horaTecnica = parseFloat(precificacao?.horaTecnica) || 0
+
+  // Custo mínimo recomendado = (duração em horas) × hora técnica
+  const custoMinimo = (nomeServico) => {
+    const min = parseFloat(duracoes[nomeServico]) || 0
+    if (horaTecnica <= 0 || min <= 0) return null
+    return (min / 60) * horaTecnica
   }
 
   // Enquanto digita: só atualiza o texto visual
@@ -101,6 +118,19 @@ export default function PricingModal({ isOpen, onClose }) {
     if (num != null) {
       setInputValues(prev => ({ ...prev, [serviceId]: String(num) }))
     }
+  }
+
+  // Novo serviço: mesmo comportamento de máscara BR dos demais campos
+  const handleNewValueFocus = () => {
+    const num = parseInputValue(newService.valor)
+    if (num != null) {
+      setNewService(prev => ({ ...prev, valor: String(num) }))
+    }
+  }
+
+  const handleNewValueBlur = () => {
+    const num = parseInputValue(newService.valor)
+    setNewService(prev => ({ ...prev, valor: num != null ? formatBR(num) : '' }))
   }
 
   const handleAddService = () => {
@@ -186,9 +216,20 @@ export default function PricingModal({ isOpen, onClose }) {
         }
       })
 
-      const res = await axios.put('/api/perfil', {
-        tabelaPrecos: tabelaFinal
-      })
+      const payload = { tabelaPrecos: tabelaFinal }
+
+      // Se há hora técnica configurada, persistir também as durações estimadas
+      // (guardadas dentro de precificacao, sem tocar em tabelaPrecos)
+      if (precificacao) {
+        const duracoesLimpo = {}
+        Object.entries(duracoes).forEach(([k, v]) => {
+          const n = parseFloat(v)
+          if (n > 0) duracoesLimpo[k] = n
+        })
+        payload.precificacao = { ...precificacao, duracoesServicos: duracoesLimpo }
+      }
+
+      const res = await axios.put('/api/perfil', payload)
 
       if (res.data.sucesso) {
         setSuccess('Tabela de preços atualizada com sucesso!')
@@ -233,8 +274,21 @@ export default function PricingModal({ isOpen, onClose }) {
           <>
             {/* Services List */}
             <div className="modal-body">
+              {horaTecnica > 0 ? (
+                <p className="pricing-dica">
+                  💡 Informe a <strong>duração</strong> (⏱️) de cada serviço para ver o <strong>preço mínimo</strong> que cobre seu custo (hora técnica: R$ {formatBR(horaTecnica)}).
+                </p>
+              ) : (
+                <p className="pricing-dica pricing-dica-neutra">
+                  💡 Configure sua <strong>Hora Técnica</strong> no card "Precificação" do Perfil para ver o preço mínimo recomendado de cada serviço.
+                </p>
+              )}
               <div className="services-list">
-                {services.map(service => (
+                {services.map(service => {
+                  const minimo = custoMinimo(service.nome)
+                  const precoAtual = getPrice(service.id)
+                  const abaixoDoCusto = minimo != null && precoAtual > 0 && precoAtual < minimo
+                  return (
                   <div key={service.id} className="service-item">
                     <div className="service-info">
                       <div className="service-name">{service.nome}</div>
@@ -252,7 +306,7 @@ export default function PricingModal({ isOpen, onClose }) {
                         onChange={(e) => handleInputChange(service.id, e.target.value)}
                         onFocus={() => handleInputFocus(service.id)}
                         onBlur={() => handleInputBlur(service.id)}
-                        className="price-input"
+                        className={`price-input ${abaixoDoCusto ? 'price-input-alerta' : ''}`}
                       />
                       <div className="service-actions">
                         <button
@@ -273,10 +327,33 @@ export default function PricingModal({ isOpen, onClose }) {
                     </div>
 
                     <div className="service-final">
-                      R$ {formatBR(getPrice(service.id))}
+                      R$ {formatBR(precoAtual)}
                     </div>
+
+                    {/* Preço mínimo recomendado (só aparece se hora técnica configurada) */}
+                    {horaTecnica > 0 && (
+                      <div className="service-precificacao">
+                        <label className="service-duracao">
+                          ⏱️
+                          <input
+                            type="number"
+                            placeholder="min"
+                            value={duracoes[service.nome] ?? ''}
+                            onChange={(e) => setDuracoes(prev => ({ ...prev, [service.nome]: e.target.value }))}
+                            title="Duração estimada do serviço (minutos)"
+                          />
+                          min
+                        </label>
+                        {minimo != null && (
+                          <span className={`service-minimo ${abaixoDoCusto ? 'alerta' : 'ok'}`}>
+                            {abaixoDoCusto ? '⚠️ abaixo do custo' : '✅ acima do mínimo'}: R$ {formatBR(minimo)}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
-                ))}
+                  )
+                })}
               </div>
 
               {/* Add New Service Form */}
@@ -296,12 +373,13 @@ export default function PricingModal({ isOpen, onClose }) {
                   <div className="form-group">
                     <label>Valor (R$)</label>
                     <input
-                      type="number"
-                      min="0"
-                      step="0.01"
+                      type="text"
+                      inputMode="decimal"
                       placeholder="0,00"
                       value={newService.valor}
                       onChange={(e) => setNewService({ ...newService, valor: e.target.value })}
+                      onFocus={handleNewValueFocus}
+                      onBlur={handleNewValueBlur}
                     />
                   </div>
 

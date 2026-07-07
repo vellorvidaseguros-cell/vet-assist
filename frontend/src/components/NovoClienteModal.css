@@ -42,8 +42,12 @@
   }
 }
 
-/* Anti-scroll horizontal */
-.ncm-modal,
+/* Anti-scroll horizontal (max-width do .ncm-modal fica só nas regras acima,
+   para não sobrescrever o limite de 700px do desktop) */
+.ncm-modal {
+  box-sizing: border-box;
+}
+
 .ncm-body,
 .ncm-section,
 .ncm-row,
@@ -96,7 +100,7 @@
   gap: 0.5rem;
   font-size: 0.88rem;
   font-weight: 700;
-  color: #667eea;
+  color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding-bottom: 0.6rem;
@@ -142,8 +146,15 @@
 .ncm-group input:focus,
 .ncm-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.ncm-idade-calculada {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-top: 0.1rem;
 }
 
 /* ===== ANIMAIS ===== */
@@ -158,23 +169,127 @@
   border: 1px solid #e8e8e8;
   border-left: 4px solid #4caf50;
   border-radius: 8px;
-  padding: 0.85rem 1rem;
+  padding: 0.75rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  max-width: 100%;
 }
 
-.ncm-animal-card-info p {
-  margin: 0;
+.ncm-animal-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #eef0fb;
+}
+
+.ncm-animal-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.ncm-foto-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.ncm-foto-preview {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #eef0fb;
+  border: 1.5px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ncm-foto-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ncm-foto-placeholder {
+  font-size: 1.5rem;
+}
+
+.ncm-foto-btn {
+  padding: 0.45rem 0.85rem;
+  background: none;
+  border: 1.5px solid var(--color-primary);
+  border-radius: 6px;
+  color: var(--color-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ncm-foto-btn:hover {
+  background: #f0f2ff;
+}
+
+.ncm-animal-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.ncm-animal-card-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   font-size: 0.9rem;
-  color: #444;
-}
-
-.ncm-animal-card-info p:first-child {
   font-weight: 600;
   color: #1a1a2e;
-  margin-bottom: 0.2rem;
+}
+
+.ncm-animal-especie {
+  font-weight: 400;
+  color: #666;
+}
+
+.ncm-animal-idade {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.ncm-animal-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ncm-chip {
+  background: #eef0fb;
+  color: #4a4a6a;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.ncm-chip-vazio {
+  background: transparent;
+  color: #999;
+  font-style: italic;
+  padding-left: 0;
 }
 
 .ncm-animal-remove {
@@ -197,7 +312,7 @@
 .ncm-animal-form {
   background: #f5f6fa;
   border: 1px solid #e0e0e0;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--color-primary);
   border-radius: 8px;
   padding: 1.1rem;
   display: flex;
@@ -215,9 +330,9 @@
 .ncm-add-animal-btn {
   padding: 0.55rem 1rem;
   background: none;
-  border: 1.5px dashed #667eea;
+  border: 1.5px dashed var(--color-primary);
   border-radius: 6px;
-  color: #667eea;
+  color: var(--color-primary);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -297,7 +412,7 @@
 
 .ncm-btn-salvar {
   padding: 0.6rem 1.5rem;
-  background: #667eea;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
@@ -308,7 +423,7 @@
 }
 
 .ncm-btn-salvar:hover {
-  background: #5a6fd6;
+  background: var(--color-primary-dark);
 }
 
 .ncm-btn-salvar:disabled {
@@ -399,8 +514,12 @@
     gap: 0.75rem;
   }
 
-  .ncm-animal-card-info p {
+  .ncm-animal-card-title {
     font-size: 0.85rem;
+  }
+
+  .ncm-chip {
+    font-size: 0.74rem;
   }
 
   .ncm-animal-form {
@@ -478,7 +597,7 @@
     font-size: max(0.95rem, 16px);
   }
 
-  .ncm-animal-card-info p {
+  .ncm-animal-card-title {
     font-size: 0.8rem;
   }
 

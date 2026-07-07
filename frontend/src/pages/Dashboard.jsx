@@ -6,6 +6,7 @@ import AgendamentosList from '../components/AgendamentosList'
 import AnimalHistory from '../components/AnimalHistory'
 import Perfil from '../components/Perfil'
 import Financeiro from '../components/Financeiro'
+import Lixeira from '../components/Lixeira'
 import Cursos from '../components/Cursos'
 import Marketplace from '../components/Marketplace'
 import Comunidades from '../components/Comunidades'
@@ -19,8 +20,14 @@ import { temRecurso, isAdmin, atualizarConta } from '../utils/conta'
 import './Dashboard.css'
 
 export default function Dashboard({ onLogout }) {
-  // A agenda é a home; contas sem esse recurso começam em Clientes
-  const [activeTab, setActiveTab] = useState(() => (temRecurso('agenda') ? 'dashboard' : 'clientes'))
+  // A agenda é a home; contas sem esse recurso começam em Clientes.
+  // Persiste a aba escolhida — no iOS/PWA o Safari recarrega a página ao voltar
+  // do background; sem isso o vet cairia sempre no Dashboard e perderia o contexto.
+  const [activeTab, setActiveTab] = useState(() => {
+    const salva = localStorage.getItem('activeTab')
+    if (salva) return salva
+    return temRecurso('agenda') ? 'dashboard' : 'clientes'
+  })
   const [refreshKey, setRefreshKey] = useState(0)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
 
@@ -72,6 +79,8 @@ export default function Dashboard({ onLogout }) {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab)
+    // Lembra a aba para sobreviver a recargas do PWA (iOS descarta a página em background)
+    try { localStorage.setItem('activeTab', tab) } catch (e) { /* ignora quota */ }
   }
 
   const renderContent = () => {
@@ -94,6 +103,7 @@ export default function Dashboard({ onLogout }) {
     marketplace: 'extras',
     comunidades: 'extras',
     perfil: null,
+    lixeira: null,
     admin: null, // validado por isAdmin()
   }
 
@@ -126,6 +136,8 @@ export default function Dashboard({ onLogout }) {
         return <Perfil />
       case 'financeiro':
         return <MobileCobrancas key={refreshKey} />
+      case 'lixeira':
+        return <Lixeira />
       case 'cursos':
         return <Cursos />
       case 'marketplace':
@@ -154,6 +166,8 @@ export default function Dashboard({ onLogout }) {
         return <Perfil />
       case 'financeiro':
         return <Financeiro key={refreshKey} />
+      case 'lixeira':
+        return <Lixeira />
       case 'cursos':
         return <Cursos />
       case 'marketplace':
@@ -178,6 +192,7 @@ export default function Dashboard({ onLogout }) {
       cursos: 'Cursos',
       marketplace: 'Marketplace',
       comunidades: 'Comunidades',
+      lixeira: 'Lixeira',
       admin: 'Administração'
     }
     return titles[tab] || 'Dashboard'

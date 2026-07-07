@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import MoneyInput from './MoneyInput'
 import './DespesaModal.css'
 
 export default function DespesaModal({
@@ -82,12 +83,9 @@ export default function DespesaModal({
               </div>
               <div className="form-group">
                 <label>Valor *</label>
-                <input
-                  type="number"
-                  step="0.01"
+                <MoneyInput
                   value={despesaForm.valor}
-                  onChange={(e) => setDespesaForm({ ...despesaForm, valor: e.target.value })}
-                  required
+                  onChangeValue={(v) => setDespesaForm({ ...despesaForm, valor: v ?? '' })}
                   disabled={loading}
                 />
               </div>

@@ -3,12 +3,48 @@ import { createPortal } from 'react-dom'
 import axios from 'axios'
 import './AnimalHistoryModal.css'
 
+const NOVO_ATENDIMENTO_VAZIO = {
+  data: new Date().toISOString().split('T')[0],
+  tipoAtendimento: '',
+  procedimentos: '',
+  observacoes: '',
+  valor: ''
+}
+
 export default function AnimalHistoryModal({ petId, petName, onClose }) {
   const [historicos, setHistoricos] = useState([])
+  const [podeEditar, setPodeEditar] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [expandedIds, setExpandedIds] = useState(new Set())
   const [fotoLightbox, setFotoLightbox] = useState(null)
+  const [mostrarNovoAtendimento, setMostrarNovoAtendimento] = useState(false)
+  const [novoAtendimento, setNovoAtendimento] = useState(NOVO_ATENDIMENTO_VAZIO)
+  const [salvandoAtendimento, setSalvandoAtendimento] = useState(false)
+
+  // Atendimento Externo (visita domiciliar) — mesma fórmula do Orçamento/Agendamento
+  const [atendimentoExterno, setAtendimentoExterno] = useState(false)
+  const [horaTecnica, setHoraTecnica] = useState(0)
+  const [custoKmVeiculo, setCustoKmVeiculo] = useState(0)
+  const [distanciaKm, setDistanciaKm] = useState('')
+  const [tempoDeslocamentoMin, setTempoDeslocamentoMin] = useState('')
+
+  // Insumos usados no atendimento (abate do estoque ao adicionar)
+  const [insumosDisponiveis, setInsumosDisponiveis] = useState([])
+  const [mostrarInsumo, setMostrarInsumo] = useState(false)
+  const [insumoSelecionadoId, setInsumoSelecionadoId] = useState('')
+  const [insumoQuantidade, setInsumoQuantidade] = useState('1')
+  const [itensInsumo, setItensInsumo] = useState([])
+  const [erroInsumo, setErroInsumo] = useState('')
+
+  const custoDeslocamento =
+    ((parseFloat(tempoDeslocamentoMin) || 0) / 60) * horaTecnica +
+    (parseFloat(distanciaKm) || 0) * custoKmVeiculo
+
+  const insumoSelecionado = insumosDisponiveis.find(i => String(i.id) === String(insumoSelecionadoId))
+  const insumoQtdNum = parseFloat(insumoQuantidade) || 0
+  const insumoValorTotal = insumoSelecionado ? (parseFloat(insumoSelecionado.precoVenda) || 0) * insumoQtdNum : 0
+  const totalInsumos = itensInsumo.reduce((sum, i) => sum + (parseFloat(i.valor) || 0), 0)
 
   const toggleExpand = (id) => {
     setExpandedIds(prev => {
@@ -24,7 +60,68 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
 
   useEffect(() => {
     fetchHistorico()
+    carregarPrecificacaoEInsumos()
   }, [petId])
+
+  const carregarPrecificacaoEInsumos = async () => {
+    try {
+      const perfilRes = await axios.get('/api/perfil')
+      if (perfilRes.data.sucesso) {
+        const perfil = perfilRes.data.data
+        setHoraTecnica(parseFloat(perfil.precificacao?.horaTecnica) || 0)
+        if (perfil.id) {
+          try {
+            const veic = await axios.get(`/api/veiculos/${perfil.id}`)
+            const veiculoId = veic.data?.data?.id
+            if (veiculoId) {
+              const custo = await axios.get(`/api/veiculos/${veiculoId}/custo-km`)
+              if (custo.data?.sucesso && !custo.data.data.configuracaoPendente) {
+                setCustoKmVeiculo(parseFloat(custo.data.data.custoKm) || 0)
+              }
+            }
+          } catch { /* custo/km é opcional */ }
+        }
+      }
+    } catch { /* precificação é opcional */ }
+
+    try {
+      const insumosRes = await axios.get('/api/insumos')
+      if (insumosRes.data.sucesso) setInsumosDisponiveis(insumosRes.data.data || [])
+    } catch { /* insumos é opcional */ }
+  }
+
+  const handleAdicionarInsumo = async () => {
+    if (!insumoSelecionado || insumoQtdNum <= 0) return
+    setErroInsumo('')
+    try {
+      const res = await axios.post(`/api/insumos/${insumoSelecionado.id}/baixar-estoque`, { quantidade: insumoQtdNum })
+      if (!res.data.sucesso) {
+        setErroInsumo(res.data.erro || 'Erro ao abater estoque')
+        return
+      }
+      setItensInsumo(prev => [...prev, {
+        id: Date.now(),
+        descricao: `${insumoSelecionado.nome} (${insumoQtdNum} ${insumoSelecionado.unidade})`,
+        valor: insumoValorTotal,
+        insumoId: insumoSelecionado.id,
+        quantidade: insumoQtdNum
+      }])
+      setInsumosDisponiveis(prev => prev.map(i =>
+        i.id === insumoSelecionado.id ? { ...i, quantidadeEstoque: res.data.data.quantidadeEstoque } : i
+      ))
+      setInsumoSelecionadoId('')
+      setInsumoQuantidade('1')
+    } catch {
+      setErroInsumo('Erro ao abater estoque do insumo')
+    }
+  }
+
+  const removerItemInsumo = async (item) => {
+    try {
+      await axios.post(`/api/insumos/${item.insumoId}/repor-estoque`, { quantidade: item.quantidade })
+    } catch { /* se falhar a reposição, ao menos remove a linha */ }
+    setItensInsumo(prev => prev.filter(i => i.id !== item.id))
+  }
 
   // Bloquear scroll do body quando modal está aberto
   useEffect(() => {
@@ -46,6 +143,7 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
           new Date(b.data) - new Date(a.data)
         )
         setHistoricos(sorted)
+        setPodeEditar(!!res.data.podeEditar)
       } else {
         setError('Erro ao carregar histórico')
       }
@@ -67,6 +165,54 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
       hour: '2-digit',
       minute: '2-digit'
     })
+  }
+
+  const handleSalvarAtendimento = async () => {
+    if (!novoAtendimento.data) {
+      setError('Informe a data do atendimento')
+      return
+    }
+    setSalvandoAtendimento(true)
+    setError('')
+
+    const linhasExtras = []
+    if (atendimentoExterno && custoDeslocamento > 0) {
+      linhasExtras.push(`Deslocamento: ${distanciaKm || 0}km / ${tempoDeslocamentoMin || 0}min - R$ ${custoDeslocamento.toFixed(2)}`)
+    }
+    itensInsumo.forEach(item => {
+      linhasExtras.push(`Insumo: ${item.descricao} - R$ ${parseFloat(item.valor).toFixed(2)}`)
+    })
+    const observacoesFinal = [novoAtendimento.observacoes, ...linhasExtras].filter(Boolean).join('\n\n')
+
+    const valorBase = parseFloat(String(novoAtendimento.valor).replace(',', '.')) || 0
+    const valorFinal = valorBase + (atendimentoExterno ? custoDeslocamento : 0) + totalInsumos
+
+    try {
+      const res = await axios.post('/api/historico', {
+        petId,
+        data: novoAtendimento.data,
+        tipoAtendimento: novoAtendimento.tipoAtendimento,
+        procedimentos: novoAtendimento.procedimentos,
+        observacoes: observacoesFinal,
+        valor: valorFinal
+      })
+      if (res.data.sucesso) {
+        setNovoAtendimento(NOVO_ATENDIMENTO_VAZIO)
+        setMostrarNovoAtendimento(false)
+        setAtendimentoExterno(false)
+        setDistanciaKm('')
+        setTempoDeslocamentoMin('')
+        setItensInsumo([])
+        setMostrarInsumo(false)
+        await fetchHistorico()
+      } else {
+        setError(res.data.erro || 'Erro ao registrar atendimento')
+      }
+    } catch (err) {
+      setError(err.response?.data?.erro || 'Erro ao registrar atendimento')
+    } finally {
+      setSalvandoAtendimento(false)
+    }
   }
 
   const formatarValor = (valor) => {
@@ -107,6 +253,198 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
         )}
 
         <div className="detalhes-body">
+          {podeEditar && (
+            <div className="historico-novo-atendimento">
+              {!mostrarNovoAtendimento ? (
+                <button
+                  type="button"
+                  className="btn-novo-atendimento"
+                  onClick={() => setMostrarNovoAtendimento(true)}
+                >
+                  + Novo Atendimento
+                </button>
+              ) : (
+                <div className="novo-atendimento-form">
+                  <h4>Novo Atendimento</h4>
+                  <div className="na-field">
+                    <label>Data *</label>
+                    <input
+                      type="date"
+                      value={novoAtendimento.data}
+                      onChange={(e) => setNovoAtendimento({ ...novoAtendimento, data: e.target.value })}
+                    />
+                  </div>
+                  <div className="na-field">
+                    <label>Tipo de atendimento</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Consulta, Vacinação..."
+                      value={novoAtendimento.tipoAtendimento}
+                      onChange={(e) => setNovoAtendimento({ ...novoAtendimento, tipoAtendimento: e.target.value })}
+                    />
+                  </div>
+                  <div className="na-field">
+                    <label>Procedimentos realizados</label>
+                    <textarea
+                      rows="2"
+                      value={novoAtendimento.procedimentos}
+                      onChange={(e) => setNovoAtendimento({ ...novoAtendimento, procedimentos: e.target.value })}
+                    />
+                  </div>
+                  <div className="na-field">
+                    <label>Observações</label>
+                    <textarea
+                      rows="2"
+                      value={novoAtendimento.observacoes}
+                      onChange={(e) => setNovoAtendimento({ ...novoAtendimento, observacoes: e.target.value })}
+                    />
+                  </div>
+                  <div className="na-field">
+                    <label>Valor (R$) <span className="optional">(opcional)</span></label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="0,00"
+                      value={novoAtendimento.valor}
+                      onChange={(e) => setNovoAtendimento({ ...novoAtendimento, valor: e.target.value })}
+                    />
+                  </div>
+
+                  {/* Atendimento Externo (visita domiciliar) */}
+                  <div className="na-toggle-section">
+                    <label className="na-checkbox-row">
+                      <input
+                        type="checkbox"
+                        checked={atendimentoExterno}
+                        onChange={(e) => setAtendimentoExterno(e.target.checked)}
+                      />
+                      <span>🚗 Atendimento Externo (visita domiciliar)</span>
+                    </label>
+
+                    {atendimentoExterno && (
+                      (horaTecnica <= 0 && custoKmVeiculo <= 0) ? (
+                        <p className="na-aviso">
+                          ⚠️ Configure sua <strong>Hora Técnica</strong> e/ou o <strong>veículo</strong> no Perfil (card Precificação) para calcular o custo de deslocamento.
+                        </p>
+                      ) : (
+                        <>
+                          <div className="na-row">
+                            <div className="na-field">
+                              <label>Distância ida+volta (km)</label>
+                              <input
+                                type="number"
+                                placeholder="Ex: 24"
+                                value={distanciaKm}
+                                onChange={(e) => setDistanciaKm(e.target.value)}
+                              />
+                            </div>
+                            <div className="na-field">
+                              <label>Tempo de deslocamento (min)</label>
+                              <input
+                                type="number"
+                                placeholder="Ex: 40"
+                                value={tempoDeslocamentoMin}
+                                onChange={(e) => setTempoDeslocamentoMin(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                          {custoDeslocamento > 0 && (
+                            <p className="na-aviso na-aviso-info">
+                              Custo estimado do deslocamento: <strong>R$ {custoDeslocamento.toFixed(2)}</strong>
+                            </p>
+                          )}
+                        </>
+                      )
+                    )}
+                  </div>
+
+                  {/* Insumos Usados */}
+                  <div className="na-toggle-section">
+                    <label className="na-checkbox-row">
+                      <input
+                        type="checkbox"
+                        checked={mostrarInsumo}
+                        onChange={(e) => setMostrarInsumo(e.target.checked)}
+                      />
+                      <span>📦 Insumos Usados</span>
+                    </label>
+
+                    {mostrarInsumo && (
+                      erroInsumo ? <p className="na-aviso">{erroInsumo}</p> : null
+                    )}
+                    {mostrarInsumo && (
+                      insumosDisponiveis.length === 0 ? (
+                        <p className="na-aviso">⚠️ Nenhum insumo cadastrado. Configure em <strong>Perfil → Estoque de Insumos</strong>.</p>
+                      ) : (
+                        <>
+                          <div className="na-row">
+                            <div className="na-field" style={{ flex: 2 }}>
+                              <label>Insumo do estoque</label>
+                              <select value={insumoSelecionadoId} onChange={(e) => setInsumoSelecionadoId(e.target.value)}>
+                                <option value="">Selecione...</option>
+                                {insumosDisponiveis.map(i => (
+                                  <option key={i.id} value={i.id}>
+                                    {i.nome} ({parseFloat(i.quantidadeEstoque)} {i.unidade} em estoque)
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="na-field">
+                              <label>Quantidade</label>
+                              <input
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                value={insumoQuantidade}
+                                onChange={(e) => setInsumoQuantidade(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                          <div className="na-insumo-acoes">
+                            <button
+                              type="button"
+                              className="na-btn-salvar"
+                              onClick={handleAdicionarInsumo}
+                              disabled={!insumoSelecionado || insumoQtdNum <= 0}
+                            >
+                              ✓ Adicionar Insumo
+                            </button>
+                          </div>
+                        </>
+                      )
+                    )}
+
+                    {itensInsumo.map(item => (
+                      <div key={item.id} className="na-item-fixo">
+                        <span>📦 {item.descricao}</span>
+                        <strong>R$ {parseFloat(item.valor).toFixed(2)}</strong>
+                        <button type="button" onClick={() => removerItemInsumo(item)} title="Remover">🗑️</button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="na-acoes">
+                    <button
+                      type="button"
+                      className="na-btn-cancelar"
+                      onClick={() => { setMostrarNovoAtendimento(false); setNovoAtendimento(NOVO_ATENDIMENTO_VAZIO) }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      className="na-btn-salvar"
+                      onClick={handleSalvarAtendimento}
+                      disabled={salvandoAtendimento}
+                    >
+                      {salvandoAtendimento ? 'Salvando...' : '✓ Registrar'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {historicos.length === 0 ? (
             <div style={{ textAlign: 'center', color: '#8e8e93', padding: '2rem 1rem' }}>
               <p>Nenhum atendimento registrado</p>

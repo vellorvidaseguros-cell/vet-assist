@@ -1,5 +1,6 @@
 import express from 'express';
 import { upload } from '../middleware/upload.js';
+import { exigirAdmin } from '../middleware/auth.js';
 import {
   uploadArquivo,
   listarPorHistorico,
@@ -20,9 +21,12 @@ router.post('/upload', upload.single('arquivo'), uploadArquivo);
 router.get('/file/:id', obterFotoFile);
 router.get('/url/:id', obterFotoUrl);
 router.get('/download/:id', obterArquivo);
-router.get('/debug/todos', listarTodosAnexos);
-router.post('/debug/limpar-orphans', limparFotosOrphans);
-router.post('/debug/force-link/:anexoId/:historicoId', async (req, res) => {
+
+// Ferramentas de debug/manutenção — acessam/alteram dados de QUALQUER conta,
+// por isso exigem admin (não podem ficar abertas para qualquer veterinário)
+router.get('/debug/todos', exigirAdmin, listarTodosAnexos);
+router.post('/debug/limpar-orphans', exigirAdmin, limparFotosOrphans);
+router.post('/debug/force-link/:anexoId/:historicoId', exigirAdmin, async (req, res) => {
   try {
     const { anexoId, historicoId } = req.params;
     const anexo = await Anexo.findByPk(anexoId);

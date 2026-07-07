@@ -5,6 +5,7 @@ import ConfirmModal from './ConfirmModal'
 import StatusMenu from './StatusMenu'
 import { formatarData } from '../utils/dateFormatter'
 import { HORARIOS } from '../utils/horariosDisponiveis'
+import { parseValorBR, formatarValorBR } from '../utils/moeda'
 import './List.css'
 
 const DEFAULT_PRICES = {
@@ -41,7 +42,7 @@ export default function AgendamentosList() {
     tipoAtendimento: '',
     descricao: '',
     observacoes: '',
-    valor: 0
+    valor: ''
   })
 
   useEffect(() => {
@@ -95,11 +96,23 @@ export default function AgendamentosList() {
       setFormData(prev => ({
         ...prev,
         [name]: value,
-        valor: preco
+        valor: formatarValorBR(preco)
       }))
     } else {
       setFormData(prev => ({ ...prev, [name]: value }))
     }
+  }
+
+  // Ao focar no campo Valor: mostra só o número, sem formatação, para facilitar edição
+  const handleValorFocus = () => {
+    const num = parseValorBR(formData.valor)
+    if (num !== null) setFormData(prev => ({ ...prev, valor: String(num) }))
+  }
+
+  // Ao sair do campo Valor: formata para o padrão BR (150,00)
+  const handleValorBlur = () => {
+    const num = parseValorBR(formData.valor)
+    setFormData(prev => ({ ...prev, valor: num !== null ? formatarValorBR(num) : '' }))
   }
 
   const handleClienteChange = (e) => {
@@ -112,7 +125,7 @@ export default function AgendamentosList() {
     try {
       const payload = {
         ...formData,
-        valor: parseFloat(formData.valor) || 0
+        valor: parseValorBR(formData.valor) || 0
       }
 
       let response
@@ -133,7 +146,7 @@ export default function AgendamentosList() {
           tipoAtendimento: '',
           descricao: '',
           observacoes: '',
-          valor: 0
+          valor: ''
         })
         setSelectedCliente('')
         setShowForm(false)
@@ -154,7 +167,7 @@ export default function AgendamentosList() {
     setConfirm({
       open: true,
       title: 'Deletar Agendamento',
-      message: 'Tem certeza que deseja deletar este agendamento? Esta ação não pode ser desfeita.',
+      message: 'Tem certeza que deseja deletar este agendamento? Você pode restaurá-lo na Lixeira depois, se precisar.',
       confirmText: 'Deletar',
       cancelText: 'Cancelar',
       confirmColor: 'danger',
@@ -222,7 +235,7 @@ export default function AgendamentosList() {
       tipoAtendimento: agendamento.tipoAtendimento,
       descricao: agendamento.descricao,
       observacoes: agendamento.observacoes,
-      valor: agendamento.valor || 0
+      valor: formatarValorBR(agendamento.valor || 0)
     })
     setSelectedCliente(agendamento.clienteId.toString())
     setShowForm(true)
@@ -249,7 +262,7 @@ export default function AgendamentosList() {
                 tipoAtendimento: '',
                 descricao: '',
                 observacoes: '',
-                valor: 0
+                valor: ''
               })
               setSelectedCliente('')
             }
@@ -353,12 +366,14 @@ export default function AgendamentosList() {
             <div className="form-group">
               <label>Valor (R$)</label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 name="valor"
                 value={formData.valor}
                 onChange={handleInputChange}
-                placeholder="Valor será preenchido automaticamente"
+                onFocus={handleValorFocus}
+                onBlur={handleValorBlur}
+                placeholder="0,00"
               />
             </div>
           </div>

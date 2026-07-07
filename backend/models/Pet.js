@@ -56,9 +56,13 @@ const Pet = sequelize.define('Pet', {
     type: DataTypes.STRING,
     defaultValue: 'Ativo',
   },
+  foto: {
+    type: DataTypes.STRING,
+  },
 }, {
   tableName: 'pets',
   timestamps: true,
+  paranoid: true,
 });
 
 Cliente.hasMany(Pet, { foreignKey: 'clienteId' });

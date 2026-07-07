@@ -31,7 +31,15 @@
 .main-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden; /* evita que conteúdo largo (tabelas/grids) estoure no iPad */
   padding: 1.5rem 2rem;
+}
+
+/* iPad: menos padding para dar espaço ao conteúdo */
+@media (max-width: 1180px) {
+  .main-content {
+    padding: 1.25rem 1.25rem;
+  }
 }
 
 /* ===== LAYOUT MOBILE (usa bottom nav, não sidebar) ===== */

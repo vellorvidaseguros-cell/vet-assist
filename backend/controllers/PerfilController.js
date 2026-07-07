@@ -64,7 +64,8 @@ export const atualizarPerfil = async (req, res) => {
     const camposPermitidos = [
       'nome', 'email', 'telefone', 'cpf', 'crmv',
       'dataNascimento', 'genero', 'endereco', 'cidade', 'estado',
-      'nomeClinica', 'cnpj', 'especialidade', 'fotoPerfil', 'logomarcaUrl', 'tabelaPrecos', 'whiteLabel'
+      'nomeClinica', 'cnpj', 'especialidade', 'fotoPerfil', 'logomarcaUrl', 'tabelaPrecos', 'whiteLabel',
+      'dadosCobranca', 'precificacao'
     ]
 
     const atualizacoes = {}

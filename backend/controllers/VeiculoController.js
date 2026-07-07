@@ -69,34 +69,49 @@ export const calcularCustoKm = async (req, res) => {
 
     if (!veiculo) return res.status(404).json({ sucesso: false, erro: 'Veículo não encontrado' })
 
-    // Buscar preço do combustível
-    const precoCombustivel = await buscarPrecoCombustivel(veiculo.combustivel)
+    // Preço do combustível: o definido pelo veterinário tem prioridade; senão, média de mercado
+    const precoDefinido = parseFloat(veiculo.precoCombustivel) || 0
+    const precoCombustivel = precoDefinido > 0
+      ? precoDefinido
+      : await buscarPrecoCombustivel(veiculo.combustivel)
 
-    // Validar dados para evitar divisão por zero
-    const kmAtual = parseFloat(veiculo.kmAtual) || 0
+    // Base do cálculo: km rodados POR MÊS a trabalho (não o odômetro!)
+    const kmMensal = parseFloat(veiculo.kmMensal) || 0
     const consumoMedio = parseFloat(veiculo.consumoMedio) || 0
 
-    // Calcular custos mensais (com proteção contra divisão por zero)
-    const custoCombustivel = (consumoMedio > 0)
-      ? (kmAtual / consumoMedio) * precoCombustivel
-      : 0
-    const custoSeguroMensal = parseFloat(veiculo.valorSeguroMensal) || 0
-    const custoManutencaoMensal = parseFloat(veiculo.custoManutencaoEstimado) || 0
-    const custoDepreciacaoMensal = calcularDepreciacao(veiculo.valorAquisicao, veiculo.dataAquisicao)
+    // % do uso do veículo que é profissional — rateia os custos fixos
+    // (combustível não rateia: o kmMensal já é só o km de trabalho)
+    const percentualUso = Math.min(100, Math.max(0, parseInt(veiculo.percentualUsoProfissional) || 100)) / 100
 
-    const totalCustoMensal = custoCombustivel + custoSeguroMensal + custoManutencaoMensal + custoDepreciacaoMensal
-    const custoKm = (kmAtual > 0) ? (totalCustoMensal / kmAtual) : 0
+    // Custo variável: combustível dos km de trabalho do mês
+    const custoCombustivel = (consumoMedio > 0 && kmMensal > 0)
+      ? (kmMensal / consumoMedio) * precoCombustivel
+      : 0
+
+    // Custos fixos mensais (rateados pelo % de uso profissional)
+    const custoSeguroMensal = (parseFloat(veiculo.valorSeguroMensal) || 0) * percentualUso
+    const custoIPVAMensal = ((parseFloat(veiculo.valorIPVAAnual) || 0) / 12) * percentualUso
+    const custoManutencaoMensal = (parseFloat(veiculo.custoManutencaoEstimado) || 0) * percentualUso
+    const custoDepreciacaoMensal = calcularDepreciacao(veiculo.valorAquisicao, veiculo.dataAquisicao) * percentualUso
+
+    const totalCustoMensal = custoCombustivel + custoSeguroMensal + custoIPVAMensal + custoManutencaoMensal + custoDepreciacaoMensal
+    const custoKm = (kmMensal > 0) ? (totalCustoMensal / kmMensal) : 0
 
     res.json({
       sucesso: true,
       data: {
-        custoCombustivel, // Nome corrigido (era custoCombuivel)
+        custoCombustivel,
         custoSeguroMensal,
+        custoIPVAMensal,
         custoManutencaoMensal,
         custoDepreciacaoMensal,
         totalCustoMensal,
         custoKm: custoKm.toFixed(2),
-        precoCombustivelLitro: precoCombustivel
+        kmMensal,
+        percentualUsoProfissional: percentualUso * 100,
+        precoCombustivelLitro: precoCombustivel,
+        // Sinaliza ao frontend que falta configurar o km mensal (cálculo incompleto)
+        configuracaoPendente: kmMensal <= 0
       }
     })
   } catch (erro) {

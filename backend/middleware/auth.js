@@ -10,8 +10,18 @@ const JWT_SECRET = process.env.JWT_SECRET || 'sua-chave-secreta-super-segura-aqu
 // Rotas públicas (caminho relativo ao mount point /api)
 const ROTAS_PUBLICAS = [
   '/veterinarios/login',
+  '/veterinarios/esqueci-senha',
+  '/veterinarios/atualizar-senha',
   '/status',
   '/backend-info',
+]
+
+// Padrões regex para rotas públicas (ex: /compartilhamento/publico/token123)
+const ROTAS_PUBLICAS_REGEX = [
+  /^\/compartilhamento\/publico\/[^/]+$/,  // GET /compartilhamento/publico/:token
+  // POST /compartilhamento/:token/aceitar — apenas 1 segmento (o token).
+  // Não pode capturar /compartilhamento/convites/:id/aceitar (rota autenticada).
+  /^\/compartilhamento\/[^/]+\/aceitar$/,
 ]
 
 // Middleware de autenticação JWT para todas as rotas /api.
@@ -21,6 +31,11 @@ const ROTAS_PUBLICAS = [
 // e mudança de plano/permissões tenham efeito imediato.
 export async function autenticar(req, res, next) {
   if (ROTAS_PUBLICAS.includes(req.path)) {
+    return next()
+  }
+
+  // Verificar rotas públicas por regex (ex: /compartilhamento/publico/token)
+  if (ROTAS_PUBLICAS_REGEX.some(regex => regex.test(req.path))) {
     return next()
   }
 

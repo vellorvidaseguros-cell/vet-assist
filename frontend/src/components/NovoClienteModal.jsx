@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { calcularIdade } from '../utils/idadeUtils'
 import './NovoClienteModal.css'
 
 function useLockBodyScroll() {
@@ -17,9 +18,11 @@ const ANIMAL_VAZIO = {
   raca: '',
   sexo: '',
   porte: '',
-  idade: '',
+  dataNascimento: '',
   cor: '',
-  microchip: ''
+  microchip: '',
+  fotoFile: null,
+  fotoPreview: null
 }
 
 const CLIENTE_VAZIO = {
@@ -48,6 +51,12 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
 
   const handleAnimalChange = (e) => {
     setAnimalForm({ ...animalForm, [e.target.name]: e.target.value })
+  }
+
+  const handleFotoChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAnimalForm(prev => ({ ...prev, fotoFile: file, fotoPreview: URL.createObjectURL(file) }))
   }
 
   const adicionarAnimal = () => {
@@ -87,7 +96,16 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
 
       // 2) Cria cada animal vinculado ao cliente
       for (const animal of animais) {
-        await axios.post('/api/pets', { ...animal, clienteId: novoClienteId })
+        const { fotoFile, fotoPreview, ...dadosAnimal } = animal
+        const resPet = await axios.post('/api/pets', { ...dadosAnimal, clienteId: novoClienteId })
+
+        // 3) Se houver foto selecionada, envia após o pet já ter um ID
+        const novoPetId = resPet.data.data?.id
+        if (fotoFile && novoPetId) {
+          const formData = new FormData()
+          formData.append('foto', fotoFile)
+          await axios.post(`/api/pets/${novoPetId}/foto`, formData)
+        }
       }
 
       onSuccess()
@@ -213,16 +231,27 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
               <div className="ncm-animais-list">
                 {animais.map((animal, index) => (
                   <div key={index} className="ncm-animal-card">
+                    {animal.fotoPreview ? (
+                      <img src={animal.fotoPreview} alt={animal.nome} className="ncm-animal-avatar" />
+                    ) : (
+                      <span className="ncm-animal-avatar ncm-animal-avatar-placeholder">🐾</span>
+                    )}
                     <div className="ncm-animal-card-info">
-                      <p>🐾 {animal.nome} ({animal.especie})</p>
-                      <p>
-                        {[
-                          animal.raca && `Raça: ${animal.raca}`,
-                          animal.sexo && `Sexo: ${animal.sexo === 'M' ? 'Macho' : 'Fêmea'}`,
-                          animal.porte && `Porte: ${animal.porte === 'P' ? 'Pequeno' : animal.porte === 'M' ? 'Médio' : 'Grande'}`,
-                          animal.cor && `Cor: ${animal.cor}`
-                        ].filter(Boolean).join(' | ') || 'Sem detalhes adicionais'}
-                      </p>
+                      <div className="ncm-animal-card-title">
+                        <span>{animal.nome} <span className="ncm-animal-especie">({animal.especie})</span></span>
+                        {animal.dataNascimento && (
+                          <span className="ncm-animal-idade">🎂 {calcularIdade(animal.dataNascimento).texto}</span>
+                        )}
+                      </div>
+                      <div className="ncm-animal-chips">
+                        {animal.raca && <span className="ncm-chip">{animal.raca}</span>}
+                        {animal.sexo && <span className="ncm-chip">{animal.sexo === 'M' ? 'Macho' : 'Fêmea'}</span>}
+                        {animal.porte && <span className="ncm-chip">{animal.porte === 'P' ? 'Pequeno' : animal.porte === 'M' ? 'Médio' : 'Grande'}</span>}
+                        {animal.cor && <span className="ncm-chip">{animal.cor}</span>}
+                        {!animal.raca && !animal.sexo && !animal.porte && !animal.cor && (
+                          <span className="ncm-chip ncm-chip-vazio">Sem detalhes adicionais</span>
+                        )}
+                      </div>
                     </div>
                     <button
                       className="ncm-animal-remove"
@@ -240,6 +269,26 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
             {showAnimalForm ? (
               <div className="ncm-animal-form">
                 <p className="ncm-animal-form-title">➕ Adicionar Animal</p>
+
+                <div className="ncm-foto-picker">
+                  <label htmlFor="ncm-foto-input" className="ncm-foto-preview">
+                    {animalForm.fotoPreview ? (
+                      <img src={animalForm.fotoPreview} alt="Foto do animal" />
+                    ) : (
+                      <span className="ncm-foto-placeholder">🐾</span>
+                    )}
+                  </label>
+                  <input
+                    id="ncm-foto-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFotoChange}
+                    style={{ display: 'none' }}
+                  />
+                  <label htmlFor="ncm-foto-input" className="ncm-foto-btn">
+                    📷 {animalForm.fotoPreview ? 'Trocar Foto' : 'Adicionar Foto'}
+                  </label>
+                </div>
 
                 <div className="ncm-row">
                   <div className="ncm-group">
@@ -296,15 +345,19 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
                     </select>
                   </div>
                   <div className="ncm-group">
-                    <label>Idade (anos)</label>
+                    <label>Data de Nascimento</label>
                     <input
-                      type="number"
-                      name="idade"
-                      placeholder="0"
-                      min="0"
-                      value={animalForm.idade}
+                      type="date"
+                      name="dataNascimento"
+                      max={new Date().toISOString().split('T')[0]}
+                      value={animalForm.dataNascimento}
                       onChange={handleAnimalChange}
                     />
+                    {animalForm.dataNascimento && (
+                      <span className="ncm-idade-calculada">
+                        🎂 {calcularIdade(animalForm.dataNascimento).texto}
+                      </span>
+                    )}
                   </div>
                 </div>
 

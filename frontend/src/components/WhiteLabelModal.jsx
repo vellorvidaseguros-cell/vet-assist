@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import axios from 'axios'
 import './WhiteLabelModal.css'
 
-export default function WhiteLabelModal({ isOpen, onClose }) {
+export default function WhiteLabelModal({ isOpen, onClose, perfil }) {
   const [whiteLabel, setWhiteLabel] = useState({
     nomeClinica: '',
     cnpj: '',
@@ -29,9 +29,21 @@ export default function WhiteLabelModal({ isOpen, onClose }) {
   const fetchWhiteLabel = async () => {
     try {
       setLoading(true)
-      const res = await axios.get('/api/perfil')
-      if (res.data.sucesso && res.data.data) {
-        const vet = res.data.data
+      setError('')
+
+      // Reaproveita os dados já carregados pela página Perfil (evita uma
+      // segunda chamada de rede a /api/perfil que pode falhar/travar em
+      // conexões mais lentas, como acesso mobile via ngrok).
+      let vet = perfil
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 8000)
+
+      if (!vet) {
+        const res = await axios.get('/api/perfil', { signal: controller.signal })
+        if (res.data.sucesso && res.data.data) vet = res.data.data
+      }
+
+      if (vet) {
         let wl
         if (vet.whiteLabel && typeof vet.whiteLabel === 'object') {
           wl = vet.whiteLabel
@@ -49,7 +61,7 @@ export default function WhiteLabelModal({ isOpen, onClose }) {
         }
         if (wl.logomarcaUrl && !wl.logomarcaUrl.startsWith('data:')) {
           try {
-            const logoRes = await axios.get('/api/perfil/logo-base64')
+            const logoRes = await axios.get('/api/perfil/logo-base64', { signal: controller.signal })
             if (logoRes.data.sucesso && logoRes.data.data) {
               wl.logomarcaUrl = logoRes.data.data
             }
@@ -59,8 +71,10 @@ export default function WhiteLabelModal({ isOpen, onClose }) {
         }
         setWhiteLabel(wl)
       }
+      clearTimeout(timeout)
     } catch (err) {
       console.error('Erro ao carregar white label:', err)
+      setError('Erro ao carregar configurações. Tente novamente.')
     } finally {
       setLoading(false)
     }

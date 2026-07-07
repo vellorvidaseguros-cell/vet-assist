@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import CompartilhamentoAceitar from './pages/CompartilhamentoAceitar'
 import { registerServiceWorker } from './utils/serviceWorkerUtils'
 import './App.css'
 
@@ -28,6 +29,10 @@ export default function App() {
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('conta')
+    localStorage.removeItem('activeTab') // próximo login começa na home
+    // Limpa cache da agenda para a próxima conta não ver dados de outra
+    localStorage.removeItem('cache_agendamentos')
+    localStorage.removeItem('cache_faturamentos')
     setIsAuthenticated(false)
   }
 
@@ -37,6 +42,10 @@ export default function App() {
         <Route
           path="/login"
           element={isAuthenticated ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />}
+        />
+        <Route
+          path="/compartilhamento/:token"
+          element={<CompartilhamentoAceitar />}
         />
         <Route
           path="/"

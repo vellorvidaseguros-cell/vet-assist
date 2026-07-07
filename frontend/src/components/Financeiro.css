@@ -94,6 +94,129 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07) !important;
 }
 
+/* ===== LUCRATIVIDADE ===== */
+.lucratividade-section {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+  border-left: 4px solid var(--color-primary);
+}
+
+.lucratividade-header h2 {
+  margin: 0 0 1.25rem;
+  color: #1a1a2e;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.lucratividade-fluxo {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.luc-item {
+  flex: 1;
+  min-width: 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 1rem;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.luc-label {
+  font-size: 0.78rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 600;
+}
+
+.luc-valor {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.luc-valor.positivo { color: #2e7d32; }
+.luc-valor.negativo { color: #c62828; }
+
+.luc-aviso {
+  font-size: 0.7rem;
+  color: #b8860b;
+  font-weight: 600;
+}
+
+.luc-op {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #999;
+  padding: 0 0.25rem;
+}
+
+.luc-resultado {
+  background: #f5f9f6;
+  border: 2px solid var(--color-primary);
+}
+
+.luc-resultado.negativo {
+  background: #fdf3f3;
+  border-color: #c62828;
+}
+
+.luc-valor-grande {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.luc-resultado.negativo .luc-valor-grande {
+  color: #c62828;
+}
+
+.lucratividade-meta {
+  margin-top: 1.25rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 8px;
+  background: #f5f9f6;
+  border-left: 4px solid var(--color-primary);
+}
+
+.lucratividade-meta p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+.meta-ok { color: #2e7d32 !important; font-weight: 600; }
+.meta-faltando { color: #444; }
+
+.lucratividade-meta-neutra {
+  background: #fff8e6;
+  border-left-color: #b8860b;
+}
+
+.lucratividade-meta-neutra p {
+  color: #8a6d0b;
+}
+
+@media (max-width: 900px) {
+  .lucratividade-fluxo {
+    flex-direction: column;
+  }
+  .luc-op {
+    padding: 0.15rem 0;
+  }
+}
+
 .section-header,
 .despesas-header,
 .faturamentos-header {
@@ -198,7 +321,7 @@
   background-color: #fafafa !important;
   border-radius: 8px !important;
   border: 1px solid #eee !important;
-  border-left: 4px solid #667eea !important;
+  border-left: 4px solid var(--color-primary) !important;
   transition: background 0.2s !important;
 }
 
@@ -210,17 +333,20 @@
 .despesa-info {
   flex: 1 !important;
   display: grid !important;
-  grid-template-columns: 160px 200px 130px !important;
-  gap: 2rem !important;
+  /* Colunas flexíveis: encolhem em telas médias (iPad) sem estourar a largura */
+  grid-template-columns: minmax(110px, 160px) minmax(120px, 1fr) minmax(100px, 130px) !important;
+  gap: 1rem !important;
   align-items: center !important;
+  min-width: 0 !important;
 }
 
 .faturamento-info {
   flex: 1 !important;
   display: grid !important;
-  grid-template-columns: 200px 140px 150px 140px !important;
-  gap: 2rem !important;
+  grid-template-columns: minmax(130px, 1.4fr) minmax(90px, 1fr) minmax(100px, 1fr) minmax(90px, 1fr) !important;
+  gap: 1rem !important;
   align-items: center !important;
+  min-width: 0 !important;
 }
 
 .despesa-col-categoria,
@@ -440,7 +566,8 @@
 }
 
 /* ===== RESPONSIVIDADE ===== */
-@media (max-width: 1024px) {
+/* iPad e telas médias: itens empilham em vez de estourar a largura */
+@media (max-width: 1180px) {
   .despesa-info,
   .faturamento-info {
     grid-template-columns: 1fr !important;
@@ -458,6 +585,8 @@
     width: 100% !important;
     flex-direction: row !important;
     justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
   }
 }
 

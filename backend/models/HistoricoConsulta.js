@@ -45,6 +45,7 @@ const HistoricoConsulta = sequelize.define('HistoricoConsulta', {
 }, {
   tableName: 'historico_consultas',
   timestamps: true,
+  paranoid: true,
 })
 
 export default HistoricoConsulta

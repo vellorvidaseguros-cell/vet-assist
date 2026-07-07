@@ -32,7 +32,7 @@
 }
 
 .status-menu-btn:hover {
-  border-color: #667eea;
+  border-color: var(--color-primary);
   background-color: #f5f7ff;
 }
 

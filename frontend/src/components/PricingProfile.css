@@ -36,7 +36,7 @@
 }
 
 .pricing-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   color: white;
 }
 
@@ -90,7 +90,7 @@
 
 .price-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -101,14 +101,14 @@
 .final-price {
   background-color: #f0f3ff;
   font-size: 1.05rem;
-  color: #667eea;
+  color: var(--color-primary);
   min-width: 140px;
 }
 
 .highlight {
   padding: 0.5rem 1rem;
   background-color: #e8f0ff;
-  border-left: 3px solid #667eea;
+  border-left: 3px solid var(--color-primary);
   border-radius: 4px;
   display: inline-block;
 }
@@ -121,7 +121,7 @@
 
 .btn-save {
   padding: 0.75rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   color: white;
   border: none;
   border-radius: 4px;

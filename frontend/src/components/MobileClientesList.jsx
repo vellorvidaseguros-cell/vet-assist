@@ -3,18 +3,58 @@ import axios from 'axios'
 import './MobileClientesList.css'
 import NovoClienteModal from './NovoClienteModal'
 import MobileClienteDetalhes from './MobileClienteDetalhes'
+import AnimalHistoryModal from './AnimalHistoryModal'
 
 export default function MobileClientesList() {
   const [clientes, setClientes] = useState([])
+  const [compartilhados, setCompartilhados] = useState([])
+  const [convites, setConvites] = useState([])
+  const [processandoConvite, setProcessandoConvite] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [showNovoClienteModal, setShowNovoClienteModal] = useState(false)
   const [selectedClienteId, setSelectedClienteId] = useState(null)
+  const [animalCompartilhado, setAnimalCompartilhado] = useState(null)
 
   useEffect(() => {
     fetchClientes()
+    fetchCompartilhados()
+    fetchConvites()
   }, [])
+
+  const fetchConvites = async () => {
+    try {
+      const response = await axios.get('/api/compartilhamento/convites-recebidos')
+      if (response.data.sucesso) setConvites(response.data.data || [])
+    } catch (err) {
+      console.error('Erro ao carregar convites', err)
+    }
+  }
+
+  const handleAceitarConvite = async (id) => {
+    setProcessandoConvite(id)
+    try {
+      await axios.post(`/api/compartilhamento/convites/${id}/aceitar`)
+      await Promise.all([fetchConvites(), fetchCompartilhados()])
+    } catch (err) {
+      setError('Erro ao aceitar convite')
+    } finally {
+      setProcessandoConvite(null)
+    }
+  }
+
+  const handleRecusarConvite = async (id) => {
+    setProcessandoConvite(id)
+    try {
+      await axios.post(`/api/compartilhamento/convites/${id}/recusar`)
+      await fetchConvites()
+    } catch (err) {
+      setError('Erro ao recusar convite')
+    } finally {
+      setProcessandoConvite(null)
+    }
+  }
 
   const fetchClientes = async () => {
     try {
@@ -28,6 +68,17 @@ export default function MobileClientesList() {
       console.error(err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchCompartilhados = async () => {
+    try {
+      const response = await axios.get('/api/compartilhamento/compartilhados-comigo')
+      if (response.data.sucesso) {
+        setCompartilhados(response.data.data || [])
+      }
+    } catch (err) {
+      console.error('Erro ao carregar animais compartilhados', err)
     }
   }
 
@@ -60,6 +111,14 @@ export default function MobileClientesList() {
         />
       )}
 
+      {animalCompartilhado && (
+        <AnimalHistoryModal
+          petId={animalCompartilhado.id}
+          petName={animalCompartilhado.nome}
+          onClose={() => setAnimalCompartilhado(null)}
+        />
+      )}
+
       {error && (
         <div className="mobile-error">
           {error}
@@ -74,6 +133,60 @@ export default function MobileClientesList() {
           + Novo
         </button>
       </div>
+
+      {/* Convites de compartilhamento recebidos (pendentes) */}
+      {convites.length > 0 && (
+        <div className="mobile-convites">
+          <div className="mobile-convites-header">
+            📨 Convites recebidos
+            <span className="mobile-convites-badge">{convites.length}</span>
+          </div>
+          {convites.map(conv => (
+            <div key={conv.id} className="mobile-convite-item">
+              <div className="mobile-convite-info">
+                <span className="mconv-nome">🐾 {conv.Pet?.nome || 'Animal'} {conv.Pet?.especie ? `(${conv.Pet.especie})` : ''}</span>
+                <span className="mconv-origem">de {conv.veterinarioOrigem?.nome || 'veterinário'}</span>
+              </div>
+              <div className="mobile-convite-acoes">
+                <button
+                  className="mconv-btn mconv-aceitar"
+                  onClick={() => handleAceitarConvite(conv.id)}
+                  disabled={processandoConvite === conv.id}
+                >
+                  {processandoConvite === conv.id ? '...' : '✓ Aceitar'}
+                </button>
+                <button
+                  className="mconv-btn mconv-recusar"
+                  onClick={() => handleRecusarConvite(conv.id)}
+                  disabled={processandoConvite === conv.id}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Animais compartilhados comigo */}
+      {compartilhados.length > 0 && (
+        <div className="mobile-compartilhados">
+          <div className="mobile-compartilhados-header">
+            🔗 Compartilhados comigo
+          </div>
+          {compartilhados.map(comp => (
+            <div
+              key={comp.id}
+              className="mobile-compartilhado-item"
+              onClick={() => comp.Pet && setAnimalCompartilhado(comp.Pet)}
+            >
+              <span className="mci-nome">🐾 {comp.Pet?.nome || 'Animal'}</span>
+              <span className="mci-especie">{comp.Pet?.especie || ''}</span>
+              <span className="mci-origem">de {comp.veterinarioOrigem?.nome || 'veterinário'}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Barra de busca */}
       <div className="mobile-busca-container">

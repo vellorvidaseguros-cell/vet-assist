@@ -21,6 +21,12 @@ const Veiculo = sequelize.define('Veiculo', {
   kmAtual: {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0,
+    comment: 'Odômetro do veículo (informativo, NÃO usado no cálculo de custo)'
+  },
+  kmMensal: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0,
+    comment: 'Km rodados por mês A TRABALHO — base do cálculo de custo/km'
   },
   consumoMedio: {
     type: DataTypes.DECIMAL(5, 2),
@@ -29,6 +35,16 @@ const Veiculo = sequelize.define('Veiculo', {
   combustivel: {
     type: DataTypes.STRING,
     defaultValue: 'Gasolina',
+  },
+  precoCombustivel: {
+    type: DataTypes.DECIMAL(5, 2),
+    allowNull: true,
+    comment: 'Preço do litro definido pelo veterinário (null = usar média de mercado)'
+  },
+  percentualUsoProfissional: {
+    type: DataTypes.INTEGER,
+    defaultValue: 100,
+    comment: '% do uso do veículo que é profissional (rateia custos fixos)'
   },
   valorSeguroMensal: DataTypes.DECIMAL(10, 2),
   valorIPVAAnual: DataTypes.DECIMAL(10, 2),

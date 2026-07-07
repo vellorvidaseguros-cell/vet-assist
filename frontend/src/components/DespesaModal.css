@@ -138,7 +138,7 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -187,7 +187,7 @@
 }
 
 .btn-registrar {
-  background-color: #667eea;
+  background-color: var(--color-primary);
   color: white;
 }
 

@@ -85,6 +85,33 @@ const Veterinario = sequelize.define('Veterinario', {
     defaultValue: {},
     comment: 'Valores customizados para tipos de atendimento'
   },
+  dadosCobranca: {
+    type: DataTypes.TEXT,
+    defaultValue: '',
+    comment: 'Dados bancários/Pix definidos livremente pelo veterinário, exibidos no rodapé da cobrança enviada ao cliente'
+  },
+  precificacao: {
+    type: DataTypes.TEXT, // JSON serializado (compatibilidade SQLite)
+    allowNull: true,
+    comment: 'Hora técnica: { custosFixosMensais, proLaboreDesejado, horasPorSemana, ocupacaoPercent, margemLucroPercent, horaTecnica }',
+    get() {
+      const value = this.getDataValue('precificacao')
+      if (!value) return null
+      if (typeof value === 'object') return value
+      try {
+        return JSON.parse(value)
+      } catch (e) {
+        return null
+      }
+    },
+    set(value) {
+      if (value && typeof value === 'object') {
+        this.setDataValue('precificacao', JSON.stringify(value))
+      } else {
+        this.setDataValue('precificacao', value)
+      }
+    }
+  },
   whiteLabel: {
     type: DataTypes.TEXT, // Usar TEXT em vez de JSON para melhor compatibilidade com SQLite
     defaultValue: null,

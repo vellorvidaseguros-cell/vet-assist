@@ -46,6 +46,7 @@ const Cliente = sequelize.define('Cliente', {
 }, {
   tableName: 'clientes',
   timestamps: true,
+  paranoid: true,
 });
 
 Veterinario.hasMany(Cliente, { foreignKey: 'veterinarioId' });
