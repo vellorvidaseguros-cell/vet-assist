@@ -228,7 +228,11 @@ async function iniciarServidor() {
     app.use('/api/veiculos', exigirRecurso('despesas'), veiculosRoutes);
     app.use('/api/despesas', exigirRecurso('despesas'), despesasRoutes);
     app.use('/api/perfil', perfilRoutes);
-    app.use('/api/anexos', exigirRecurso('agenda'), anexosRoutes);
+    // Sem gate de plano aqui de propósito: um vet convidado por compartilhamento
+    // (plano sem 'agenda') precisa anexar fotos ao diário do animal compartilhado.
+    // A segurança real já é garantida dentro do AnexoController (anexoPertenceAoVet),
+    // que confirma que o agendamento/histórico de destino pertence a quem faz a chamada.
+    app.use('/api/anexos', anexosRoutes);
     app.use('/api/admin', adminRoutes);
     app.use('/api/lixeira', lixeiraRoutes);
     app.use('/api/orcamento', exigirRecurso('clientes'), orcamentoRoutes);

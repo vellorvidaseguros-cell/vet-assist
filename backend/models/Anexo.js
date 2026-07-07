@@ -8,8 +8,10 @@ const Anexo = sequelize.define('Anexo', {
     autoIncrement: true,
   },
   agendamentoId: {
+    // Opcional: um anexo pode estar vinculado só a um histórico (ex: atendimento
+    // registrado direto no diário compartilhado, sem passar por um Agendamento)
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   historicoConsultaId: {
     type: DataTypes.INTEGER,

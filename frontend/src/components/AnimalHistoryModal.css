@@ -43,6 +43,11 @@
   padding-top: max(16px, env(safe-area-inset-top));
   border-bottom: 1px solid #e5e5ea;
   background-color: #f5f5f5;
+  /* Fixo no topo: sem isso o título/contador rola junto com a lista e fica
+     cortado pela borda da tela ao rolar para baixo */
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .detalhes-titulo {

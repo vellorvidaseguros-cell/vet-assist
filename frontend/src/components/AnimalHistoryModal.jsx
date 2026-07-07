@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import PhotoUploadModal from './PhotoUploadModal'
 import './AnimalHistoryModal.css'
 
 const NOVO_ATENDIMENTO_VAZIO = {
@@ -21,6 +22,7 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
   const [mostrarNovoAtendimento, setMostrarNovoAtendimento] = useState(false)
   const [novoAtendimento, setNovoAtendimento] = useState(NOVO_ATENDIMENTO_VAZIO)
   const [salvandoAtendimento, setSalvandoAtendimento] = useState(false)
+  const [historicoParaFoto, setHistoricoParaFoto] = useState(null)
 
   // Atendimento Externo (visita domiciliar) — mesma fórmula do Orçamento/Agendamento
   const [atendimentoExterno, setAtendimentoExterno] = useState(false)
@@ -197,6 +199,7 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
         valor: valorFinal
       })
       if (res.data.sucesso) {
+        const novoId = res.data.data?.id
         setNovoAtendimento(NOVO_ATENDIMENTO_VAZIO)
         setMostrarNovoAtendimento(false)
         setAtendimentoExterno(false)
@@ -205,6 +208,8 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
         setItensInsumo([])
         setMostrarInsumo(false)
         await fetchHistorico()
+        // Oferece anexar fotos ao atendimento recém-criado
+        if (novoId) setHistoricoParaFoto(novoId)
       } else {
         setError(res.data.erro || 'Erro ao registrar atendimento')
       }
@@ -582,6 +587,15 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
             ← Voltar
           </button>
         </div>
+      )}
+
+      {/* Upload de fotos do atendimento recém-registrado */}
+      {historicoParaFoto && (
+        <PhotoUploadModal
+          historicoId={historicoParaFoto}
+          onClose={() => setHistoricoParaFoto(null)}
+          onUploadSuccess={fetchHistorico}
+        />
       )}
     </div>,
     document.body

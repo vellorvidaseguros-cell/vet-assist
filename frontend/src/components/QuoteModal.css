@@ -953,7 +953,7 @@
 .btn-visita-adicionar {
   flex: 1;
   min-width: 0;
-  padding: 0.65rem 0.75rem;
+  padding: 0.65rem 0.5rem;
   border-radius: 6px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -963,6 +963,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   transition: all 0.2s ease;
+}
+
+@media (max-width: 360px) {
+  .btn-visita-cancelar,
+  .btn-visita-adicionar {
+    font-size: 0.78rem;
+    padding: 0.6rem 0.35rem;
+  }
 }
 
 .btn-visita-cancelar {

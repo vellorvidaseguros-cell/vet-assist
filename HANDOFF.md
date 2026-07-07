@@ -86,6 +86,7 @@ O projeto **não usa `sequelize-cli`**, as migrations são scripts avulsos em `s
 | 7 | `scripts/migrate-precificacao.js` | Campos de precificação no Veiculo/Veterinario |
 | 8 | `scripts/migrate-insumos.js` | Cria tabela `insumos` (estoque) |
 | 9 | `scripts/migrate-documentos.js` | Cria tabela `documentos_emitidos` |
+| 10 | `scripts/migrate-anexo-agendamento-opcional.js` | Torna `anexos.agendamentoId` opcional (anexo pode estar vinculado só a um histórico, sem Agendamento) |
 
 **Em produção (Railway/Postgres)**: essas mesmas migrations precisam ser rodadas contra o `DATABASE_URL` de produção. Veja `scripts/migrar-dados-producao.js` para o padrão de conexão usado nesses casos.
 
@@ -115,6 +116,7 @@ Durante o trabalho, encontramos e corrigimos os seguintes problemas de isolament
 - **`VacinaController.js` / `/api/vacinas`** — mesmo padrão de falha (sem filtro por veterinário) e também sem uso real no frontend — **removido completamente**.
 - **Rotas de debug em `backend/routes/anexos.js`** (`/debug/todos`, `/debug/limpar-orphans`, `/debug/force-link/...`) — permitiam a qualquer veterinário comum ler/apagar/religar anexos de **qualquer conta**. Agora exigem `exigirAdmin` (mesmo middleware usado no painel administrativo).
 - **Permissão de compartilhamento (`Compartilhamento.permissoes`)** — o campo existia no banco mas nunca era verificado em lugar nenhum do código; qualquer veterinário convidado (mesmo só com "ver") teria, na prática, acesso equivalente. Agora `criarHistorico`/`historicoDoAnimal` verificam corretamente se o veterinário é dono do animal OU tem compartilhamento aceito com permissão `editar` antes de permitir escrita.
+- **`/api/anexos`** exigia o recurso de plano `'agenda'`, o que bloqueava um veterinário convidado (plano básico) de anexar fotos ao diário compartilhado mesmo tendo permissão de editar. O gate de plano foi removido dessa rota — a segurança real já é garantida dentro do `AnexoController.js` pela função `anexoPertenceAoVet`, que confirma que o agendamento/histórico de destino pertence a quem está fazendo a chamada.
 
 Se for fazer uma auditoria de segurança mais completa depois, vale revisar com a mesma lente (busca por `findByPk`/`findAll` sem `where: { veterinarioId: ... }`) os demais controllers — os citados acima foram os únicos confirmados com problema real nesta rodada.
 

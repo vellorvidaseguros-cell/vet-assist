@@ -884,7 +884,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                       onClick={handleAdicionarVisita}
                       disabled={visitaSubtotal <= 0}
                     >
-                      ✓ Adicionar ao Orçamento
+                      ✓ Adicionar
                     </button>
                   </div>
                 </>
@@ -1004,7 +1004,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                     onClick={handleAdicionarInsumo}
                     disabled={(!insumoSelecionado || insumoQtdNum <= 0) && materiaisAvulsosNum <= 0}
                   >
-                    ✓ Adicionar ao Orçamento
+                    ✓ Adicionar
                   </button>
                 </div>
               </>
