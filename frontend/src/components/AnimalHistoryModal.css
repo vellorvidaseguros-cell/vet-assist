@@ -747,7 +747,7 @@
 /* Botão de adicionar fotos a um atendimento já registrado */
 .historico-add-foto {
   width: auto !important;
-  margin: 8px 0 0 !important;
+  margin: 0 !important;
   padding: 0.4rem 0.85rem;
   background: white;
   border: 1.5px dashed #007aff;
@@ -756,6 +756,36 @@
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* Linha de ações dentro de cada card de atendimento (PDF + fotos) */
+.historico-card-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.historico-btn-pdf {
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0.4rem 0.85rem;
+  background: #0d6b3a;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.historico-btn-pdf:active {
+  background: #0a512c;
+}
+
+.historico-btn-pdf:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Barra de largura total (fora da coluna estreita do título) — evita que o

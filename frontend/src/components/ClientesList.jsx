@@ -13,6 +13,8 @@ import AnimalHistoryModal from './AnimalHistoryModal'
 export default function ClientesList() {
   const [clientes, setClientes] = useState([])
   const [compartilhados, setCompartilhados] = useState([])
+  const [convites, setConvites] = useState([])
+  const [processandoConvite, setProcessandoConvite] = useState(null)
   const [animalCompartilhado, setAnimalCompartilhado] = useState(null)
   const [expandedClienteId, setExpandedClienteId] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -72,6 +74,7 @@ export default function ClientesList() {
   useEffect(() => {
     fetchClientes()
     fetchCompartilhados()
+    fetchConvites()
   }, [])
 
   const fetchClientes = async () => {
@@ -96,6 +99,39 @@ export default function ClientesList() {
       }
     } catch (err) {
       console.error('Erro ao carregar animais compartilhados', err)
+    }
+  }
+
+  const fetchConvites = async () => {
+    try {
+      const response = await axios.get('/api/compartilhamento/convites-recebidos')
+      if (response.data.sucesso) setConvites(response.data.data || [])
+    } catch (err) {
+      console.error('Erro ao carregar convites', err)
+    }
+  }
+
+  const handleAceitarConvite = async (id) => {
+    setProcessandoConvite(id)
+    try {
+      await axios.post(`/api/compartilhamento/convites/${id}/aceitar`)
+      await Promise.all([fetchConvites(), fetchCompartilhados()])
+    } catch (err) {
+      setError('Erro ao aceitar convite')
+    } finally {
+      setProcessandoConvite(null)
+    }
+  }
+
+  const handleRecusarConvite = async (id) => {
+    setProcessandoConvite(id)
+    try {
+      await axios.post(`/api/compartilhamento/convites/${id}/recusar`)
+      await fetchConvites()
+    } catch (err) {
+      setError('Erro ao recusar convite')
+    } finally {
+      setProcessandoConvite(null)
     }
   }
 
@@ -297,6 +333,42 @@ export default function ClientesList() {
           + Novo Cliente
         </button>
       </div>
+
+      {/* Convites de compartilhamento recebidos (pendentes de aceite) */}
+      {convites.length > 0 && (
+        <div className="convites-recebidos-desktop">
+          <div className="convites-recebidos-titulo">
+            📨 Convites recebidos
+            <span className="convites-recebidos-badge">{convites.length}</span>
+          </div>
+          <div className="convites-recebidos-lista">
+            {convites.map(conv => (
+              <div key={conv.id} className="convite-recebido-item">
+                <div className="crd-info">
+                  <span className="crd-nome">🐾 {conv.Pet?.nome || 'Animal'} {conv.Pet?.especie ? `(${conv.Pet.especie})` : ''}</span>
+                  <span className="crd-origem">de {conv.veterinarioOrigem?.nome || 'veterinário'}</span>
+                </div>
+                <div className="crd-acoes">
+                  <button
+                    className="crd-btn crd-aceitar"
+                    onClick={() => handleAceitarConvite(conv.id)}
+                    disabled={processandoConvite === conv.id}
+                  >
+                    {processandoConvite === conv.id ? '...' : '✓ Aceitar'}
+                  </button>
+                  <button
+                    className="crd-btn crd-recusar"
+                    onClick={() => handleRecusarConvite(conv.id)}
+                    disabled={processandoConvite === conv.id}
+                  >
+                    ✕ Recusar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Animais compartilhados comigo por outros veterinários */}
       {compartilhados.length > 0 && (

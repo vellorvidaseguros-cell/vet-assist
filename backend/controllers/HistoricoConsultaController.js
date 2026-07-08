@@ -14,6 +14,144 @@ const formatarUrlAnexo = (anexo) => {
   return { ...anexo.toJSON(), caminhoArquivo: url }
 }
 
+// "data" do atendimento vem de um <input type="date"> (sem hora real) e é salva
+// como DATE em UTC-meia-noite. Formatar com `new Date(str).toLocaleDateString()`
+// aplica o fuso do servidor (America/Sao_Paulo = UTC-3) e volta um dia — por isso
+// extraímos ano/mês/dia da string e montamos a data local, sem conversão de fuso.
+const formatarDataSemFuso = (data, opcoes = { day: '2-digit', month: '2-digit', year: 'numeric' }) => {
+  if (!data) return ''
+  const datePart = String(data).split('T')[0]
+  const [year, month, day] = datePart.split('-').map(Number)
+  return new Date(year, month - 1, day).toLocaleDateString('pt-BR', opcoes)
+}
+
+// ===== Helpers de PDF timbrado (padrão único usado em todos os PDFs do app) =====
+const VERDE_PDF = '#0d6b3a'
+
+// Carrega dados da clínica (nome, contato, endereço, logo) a partir do dono.
+// Usado para timbrar os PDFs sempre com a identidade da clínica dona do animal.
+const carregarDadosClinica = async (veterinarioId) => {
+  const veterinarioDono = await Veterinario.findByPk(veterinarioId)
+  let wl = veterinarioDono?.whiteLabel || null
+  if (wl && typeof wl === 'string') {
+    try { wl = JSON.parse(wl) } catch { wl = null }
+  }
+  return {
+    veterinarioDono,
+    nomeClinica: veterinarioDono?.nomeClinica || wl?.nomeClinica || 'VetAssist',
+    cnpj: veterinarioDono?.cnpj || wl?.cnpj || '',
+    telefone: veterinarioDono?.telefone || wl?.telefone || '',
+    email: veterinarioDono?.email || wl?.email || '',
+    endereco: veterinarioDono?.endereco || wl?.endereco || '',
+    cidade: veterinarioDono?.cidade || wl?.cidade || '',
+    estado: veterinarioDono?.estado || wl?.estado || '',
+  }
+}
+
+// Desenha o cabeçalho timbrado (logo + nome da clínica + subtítulo + linhas de identificação).
+const desenharCabecalhoTimbrado = (doc, { fs, path, uploadsDir, clinica, subtitulo, linhasInfo }) => {
+  let logoDesenhada = false
+  if (clinica.veterinarioDono?.logomarcaUrl) {
+    try {
+      const caminhoLogo = path.join(uploadsDir, path.basename(clinica.veterinarioDono.logomarcaUrl))
+      if (fs.existsSync(caminhoLogo)) {
+        doc.image(caminhoLogo, 40, 40, { fit: [70, 55] })
+        logoDesenhada = true
+      }
+    } catch (e) {
+      console.error('[PDF] Erro ao incluir logo:', e.message)
+    }
+  }
+
+  const textoX = logoDesenhada ? 125 : 40
+  const larguraTexto = 555 - textoX
+  doc.fontSize(16).font('Helvetica-Bold').fillColor(VERDE_PDF).text(clinica.nomeClinica, textoX, 42, { width: larguraTexto })
+  doc.fontSize(8).font('Helvetica').fillColor('#888')
+    .text(subtitulo, textoX, doc.y + 2, { characterSpacing: 1, width: larguraTexto })
+
+  doc.fontSize(9).fillColor('#444')
+  let primeiro = true
+  for (const linha of linhasInfo.filter(Boolean)) {
+    doc.text(linha, textoX, doc.y + (primeiro ? 6 : 2), { width: larguraTexto })
+    primeiro = false
+  }
+
+  const headerBottom = Math.max(doc.y + 10, 108)
+  doc.moveTo(40, headerBottom).lineTo(555, headerBottom).lineWidth(2).strokeColor(VERDE_PDF).stroke()
+  doc.y = headerBottom + 14
+  doc.x = 40
+}
+
+// Desenha uma seção (barra verde + conteúdo). Ignora conteúdo vazio.
+const desenharSecaoTimbrada = (doc, titulo, conteudo) => {
+  if (!conteudo) return
+  if (doc.y > 660) doc.addPage()
+  const y = doc.y
+  doc.rect(40, y, 515, 18).fill(VERDE_PDF)
+  doc.fontSize(10).font('Helvetica-Bold').fillColor('white').text(titulo.toUpperCase(), 48, y + 5)
+  doc.fillColor('#333').font('Helvetica').fontSize(10)
+  doc.text(String(conteudo), 48, y + 26, { width: 500 })
+  doc.moveDown(0.8)
+  doc.x = 40
+}
+
+// Desenha o rodapé timbrado em todas as páginas (usa bufferPages).
+const desenharRodapeTimbrado = (doc, clinica) => {
+  const infoPartes = [
+    clinica.cnpj && `CNPJ: ${clinica.cnpj}`,
+    clinica.telefone && `Tel: ${clinica.telefone}`,
+    clinica.email
+  ].filter(Boolean).join('   •   ')
+  const enderecoLinha = [
+    clinica.endereco,
+    clinica.cidade && clinica.estado ? `${clinica.cidade} - ${clinica.estado}` : (clinica.cidade || clinica.estado)
+  ].filter(Boolean).join(', ')
+  const geradoEm = `Documento gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`
+
+  const { start, count } = doc.bufferedPageRange()
+  for (let i = start; i < start + count; i++) {
+    doc.switchToPage(i)
+    const rodapeY = doc.page.height - doc.page.margins.bottom - 34
+    doc.moveTo(40, rodapeY).lineTo(555, rodapeY).lineWidth(2).strokeColor(VERDE_PDF).stroke()
+    doc.fontSize(8).font('Helvetica').fillColor('#666')
+    let yTexto = rodapeY + 6
+    if (infoPartes) { doc.text(infoPartes, 40, yTexto, { align: 'center', width: 515 }); yTexto = doc.y }
+    if (enderecoLinha) { doc.text(enderecoLinha, 40, yTexto, { align: 'center', width: 515 }); yTexto = doc.y }
+    doc.fontSize(7).text(geradoEm, 40, yTexto + 1, { align: 'center', width: 515 })
+    doc.fillColor('#000')
+  }
+}
+
+// Desenha a grade de fotos de um atendimento a partir dos anexos.
+const desenharFotosAtendimento = (doc, { fs, path, uploadsDir, anexos }) => {
+  if (!anexos || anexos.length === 0) return
+  if (doc.y > 620) doc.addPage()
+  const y0 = doc.y
+  doc.rect(40, y0, 515, 18).fill(VERDE_PDF)
+  doc.fontSize(10).font('Helvetica-Bold').fillColor('white').text('FOTOS DO ATENDIMENTO', 48, y0 + 5)
+  doc.y = y0 + 26
+  doc.x = 40
+
+  let x = 48
+  let y = doc.y
+  const photoW = 100, photoH = 100, spacing = 12
+  for (const anexo of anexos) {
+    try {
+      const caminho = path.join(uploadsDir, path.basename(anexo.caminhoArquivo))
+      if (fs.existsSync(caminho)) {
+        if (x + photoW > 555) { y += photoH + spacing; x = 48 }
+        if (y + photoH > doc.page.height - 70) { doc.addPage(); y = 50; x = 48 }
+        doc.image(caminho, x, y, { width: photoW, height: photoH })
+        x += photoW + spacing
+      }
+    } catch (erroFoto) {
+      console.error('[PDF] Erro ao incluir foto:', erroFoto.message)
+    }
+  }
+  doc.y = y + photoH + 10
+  doc.x = 40
+}
+
 export const listarHistorico = async (req, res) => {
   try {
     const historico = await HistoricoConsulta.findAll({
@@ -130,6 +268,27 @@ export const criarHistorico = async (req, res) => {
 
     const historico = await HistoricoConsulta.create(historicoData)
 
+    // Se o atendimento tem valor, gera a cobrança automaticamente — atribuída a
+    // quem registrou o atendimento (req.veterinario.id), não ao dono do animal.
+    // Isso é o que faz o valor lançado pelo vet convidado (compartilhamento)
+    // aparecer nas Cobranças/Financeiro DELE, mesmo quando o animal é de outro vet.
+    if (parseFloat(historicoData.valor) > 0) {
+      try {
+        await Faturamento.create({
+          historicoConsultaId: historico.id,
+          clienteId: historicoData.clienteId,
+          veterinarioId: req.veterinario.id,
+          valor: historicoData.valor,
+          status: 'Pendente',
+          descricao: `${historicoData.tipoAtendimento || 'Atendimento'} - ${pet?.nome || 'Animal'}`,
+          dataEmissao: historicoData.data
+        })
+      } catch (erroFat) {
+        console.error('[WARNING] Erro ao criar cobrança automática do atendimento:', erroFat.message)
+        // Não falha a requisição — o histórico já foi salvo
+      }
+    }
+
     // Se houver proximoRetorno, criar agendamento automaticamente
     if (historicoData.proximoRetorno) {
       try {
@@ -143,7 +302,7 @@ export const criarHistorico = async (req, res) => {
           data: historicoData.proximoRetorno,
           hora: horaRetorno || '10:00',
           tipoAtendimento: `Retorno - ${historicoData.tipoAtendimento || 'Consulta'}`,
-          observacoes: `Retorno agendado automaticamente. Consulta anterior: ${new Date(historicoData.data).toLocaleDateString('pt-BR')}`,
+          observacoes: `Retorno agendado automaticamente. Consulta anterior: ${formatarDataSemFuso(historicoData.data)}`,
           status: 'Pendente'
         })
         console.log(`[INFO] Agendamento de retorno criado para ${new Date(historicoData.proximoRetorno).toLocaleDateString('pt-BR')}`)
@@ -185,7 +344,7 @@ export const atualizarHistorico = async (req, res) => {
           data: req.body.proximoRetorno,
           hora: horaRetorno || '10:00',
           tipoAtendimento: `Retorno - ${historico.tipoAtendimento || 'Consulta'}`,
-          observacoes: `Retorno agendado automaticamente. Consulta anterior: ${new Date(historico.data).toLocaleDateString('pt-BR')}`,
+          observacoes: `Retorno agendado automaticamente. Consulta anterior: ${formatarDataSemFuso(historico.data)}`,
           status: 'Pendente'
         })
         console.log(`[INFO] Agendamento de retorno criado para ${new Date(req.body.proximoRetorno).toLocaleDateString('pt-BR')}`)
@@ -305,9 +464,7 @@ export const gerarPDFCobranca = async (req, res) => {
     const especieRaca = historico.Pet
       ? `${historico.Pet.especie || ''}${historico.Pet.raca ? ' • ' + historico.Pet.raca : ''}`.trim()
       : ''
-    const dataConsulta = historico.data
-      ? new Date(historico.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-      : ''
+    const dataConsulta = formatarDataSemFuso(historico.data)
 
     doc.fontSize(9).fillColor('#444')
     doc.text(`Proprietário: ${historico.Cliente?.nome || '—'}`, textoX, doc.y + 6, { width: larguraTexto })
@@ -432,10 +589,14 @@ export const gerarPDFHistorico = async (req, res) => {
     })()
 
     const PDFDocument = (await import('pdfkit')).default
-    const fs = await import('fs')
-    const path = await import('path')
+    const fs = (await import('fs')).default
+    const path = (await import('path')).default
     const { fileURLToPath } = await import('url')
     const doc = new PDFDocument({ margin: 40, bufferPages: true })
+
+    // Timbre sempre da clínica dona do animal (prontuário oficial)
+    const clinica = await carregarDadosClinica(historico.Pet?.veterinarioId || req.veterinario.id)
+    const uploadsDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../uploads')
 
     const petNomePdf = (historico.Pet?.nome || 'historico').replace(/[^a-zA-Z0-9-_]/g, '_')
     res.setHeader('Content-Type', 'application/pdf')
@@ -443,153 +604,36 @@ export const gerarPDFHistorico = async (req, res) => {
     res.setHeader('Content-Disposition', `inline; filename="historico_${petNomePdf}_${historico.id}.pdf"`)
     doc.pipe(res)
 
-    // Header
-    doc.fontSize(20).font('Helvetica-Bold').text('VetAssist', { align: 'center' })
-    doc.fontSize(12).font('Helvetica').text('Relatório de Histórico de Consulta', { align: 'center' })
-    doc.moveTo(40, doc.y + 5).lineTo(550, doc.y + 5).stroke()
-    doc.moveDown(0.5)
-
-    // Cliente
-    doc.fontSize(11).font('Helvetica-Bold').text('CLIENTE')
-    doc.fontSize(10).font('Helvetica').text(historico.Cliente?.nome || '—', { indent: 10 })
-    if (historico.Cliente?.telefone) {
-      doc.text(`Telefone: ${historico.Cliente.telefone}`, { indent: 10 })
-    }
-    if (historico.Cliente?.email) {
-      doc.text(`Email: ${historico.Cliente.email}`, { indent: 10 })
-    }
-    doc.moveDown()
-
-    // Animal
-    doc.fontSize(11).font('Helvetica-Bold').text('ANIMAL')
+    // ===== Cabeçalho timbrado =====
     const nomeAnimal = historico.Pet?.nome || '—'
-    const especieRaca = historico.Pet ? `${historico.Pet.especie || ''}${historico.Pet.raca ? ` • ${historico.Pet.raca}` : ''}`.trim() : '—'
-    doc.fontSize(10).font('Helvetica').text(nomeAnimal, { indent: 10 })
-    if (especieRaca) {
-      doc.text(especieRaca, { indent: 10 })
-    }
-    doc.moveDown()
+    const especieRaca = historico.Pet
+      ? `${historico.Pet.especie || ''}${historico.Pet.raca ? ' • ' + historico.Pet.raca : ''}`.trim()
+      : ''
+    const dataConsulta = formatarDataSemFuso(historico.data)
+    desenharCabecalhoTimbrado(doc, {
+      fs, path, uploadsDir, clinica,
+      subtitulo: 'HISTÓRICO DE ATENDIMENTO',
+      linhasInfo: [
+        historico.Cliente ? `Proprietário: ${historico.Cliente.nome || '—'}` : null,
+        `Animal: ${nomeAnimal}${especieRaca ? ` (${especieRaca})` : ''}`,
+        `${dataConsulta ? `Data: ${dataConsulta}   ` : ''}Tipo: ${historico.tipoAtendimento || 'Atendimento'}`
+      ]
+    })
 
-    // Data e Tipo
-    doc.fontSize(11).font('Helvetica-Bold').text('CONSULTA')
-    const dataFormatada = historico.data
-      ? new Date(historico.data).toLocaleDateString('pt-BR', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        })
-      : '—'
-    doc.fontSize(10).font('Helvetica').text(`Data: ${dataFormatada}`, { indent: 10 })
-    if (historico.tipoAtendimento) {
-      doc.text(`Tipo: ${historico.tipoAtendimento}`, { indent: 10 })
-    }
-    doc.moveDown()
-
-    // Detalhes
-    if (historico.procedimentos) {
-      doc.fontSize(11).font('Helvetica-Bold').text('PROCEDIMENTOS')
-      doc.fontSize(10).font('Helvetica').text(historico.procedimentos, { align: 'left', indent: 10 })
-      doc.moveDown(0.5)
-    }
-
-    if (historico.diagnostico) {
-      doc.fontSize(11).font('Helvetica-Bold').text('DIAGNÓSTICO')
-      doc.fontSize(10).font('Helvetica').text(historico.diagnostico, { align: 'left', indent: 10 })
-      doc.moveDown(0.5)
-    }
-
-    if (historico.medicamentos) {
-      doc.fontSize(11).font('Helvetica-Bold').text('MEDICAMENTOS')
-      doc.fontSize(10).font('Helvetica').text(historico.medicamentos, { align: 'left', indent: 10 })
-      doc.moveDown(0.5)
-    }
-
-    if (historico.observacoes) {
-      doc.fontSize(11).font('Helvetica-Bold').text('OBSERVAÇÕES')
-      doc.fontSize(10).font('Helvetica').text(historico.observacoes, { align: 'left', indent: 10 })
-      doc.moveDown(0.5)
-    }
-
+    // ===== Seções =====
+    desenharSecaoTimbrada(doc, 'Procedimentos Realizados', historico.procedimentos)
+    desenharSecaoTimbrada(doc, 'Diagnóstico', historico.diagnostico)
+    desenharSecaoTimbrada(doc, 'Medicamentos Prescritos', historico.medicamentos)
+    desenharSecaoTimbrada(doc, 'Observações', historico.observacoes)
     if (historico.proximoRetorno) {
-      doc.fontSize(11).font('Helvetica-Bold').text('PRÓXIMO RETORNO')
-      const dataRetorno = new Date(historico.proximoRetorno).toLocaleDateString('pt-BR')
-      doc.fontSize(10).font('Helvetica').text(dataRetorno, { indent: 10 })
-      doc.moveDown(0.5)
+      desenharSecaoTimbrada(doc, 'Próximo Retorno', formatarDataSemFuso(historico.proximoRetorno))
     }
 
-    // Fotos do histórico
-    if (historico.Anexos && historico.Anexos.length > 0) {
-      doc.fontSize(11).font('Helvetica-Bold').text('FOTOS DO ATENDIMENTO')
-      doc.moveDown(0.3)
+    // ===== Fotos (o valor do atendimento NÃO entra no PDF de prontuário) =====
+    desenharFotosAtendimento(doc, { fs, path, uploadsDir, anexos: historico.Anexos })
 
-      let x = 50
-      let y = doc.y
-      const photoWidth = 100
-      const photoHeight = 100
-      const spacing = 15
-
-      // Os arquivos ficam sempre em backend/uploads com nome único,
-      // então basta o basename independente do formato salvo no banco
-      const uploadsDir = path.default.join(
-        path.default.dirname(fileURLToPath(import.meta.url)),
-        '../uploads'
-      )
-
-      for (const anexo of historico.Anexos) {
-        try {
-          const caminhoCompleto = path.default.join(
-            uploadsDir,
-            path.default.basename(anexo.caminhoArquivo)
-          )
-
-          if (fs.default.existsSync(caminhoCompleto)) {
-            // Adicionar nova linha se necessário
-            if (x + photoWidth + spacing > 550) {
-              y += photoHeight + spacing
-              x = 50
-            }
-
-            doc.image(caminhoCompleto, x, y, { width: photoWidth, height: photoHeight })
-            x += photoWidth + spacing
-          }
-        } catch (erroFoto) {
-          console.error('[PDF] Erro ao incluir foto:', erroFoto.message)
-        }
-      }
-
-      doc.y = y + photoHeight + 10
-      doc.moveDown(0.5)
-    }
-
-    // Valor
-    if (historico.valor) {
-      doc.fontSize(11).font('Helvetica-Bold').text('VALOR')
-      const valorFormatado = parseFloat(historico.valor).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      })
-      doc.fontSize(10).font('Helvetica').text(valorFormatado, { indent: 10 })
-      doc.moveDown()
-    }
-
-    // Dados de cobrança (Pix/bancários) NÃO aparecem no PDF de histórico —
-    // eles são exibidos apenas no PDF de cobrança (gerarPDFCobranca), conforme regra do produto.
-
-    // Rodapé travado no fim de CADA página (independente de onde o conteúdo terminou),
-    // desenhado por último com bufferPages para poder voltar a páginas já renderizadas
-    const geradoEm = `Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`
-    const { start, count } = doc.bufferedPageRange()
-    for (let i = start; i < start + count; i++) {
-      doc.switchToPage(i)
-      const rodapeY = doc.page.height - doc.page.margins.bottom - 20
-      doc.moveTo(40, rodapeY).lineTo(550, rodapeY).stroke()
-      doc.fontSize(8).font('Helvetica').fillColor('#666')
-        .text(geradoEm, 40, rodapeY + 5, { align: 'center', width: 510 })
-      doc.fillColor('#000')
-    }
+    // ===== Rodapé timbrado em todas as páginas =====
+    desenharRodapeTimbrado(doc, clinica)
 
     doc.end()
   } catch (erro) {
@@ -625,121 +669,63 @@ export const gerarPDFHistoricoAnimal = async (req, res) => {
     }
 
     const PDFDocument = (await import('pdfkit')).default
-    const fs = await import('fs')
-    const path = await import('path')
+    const fs = (await import('fs')).default
+    const path = (await import('path')).default
     const { fileURLToPath } = await import('url')
     const doc = new PDFDocument({ margin: 40, bufferPages: true })
 
     const pet = historicos[0].Pet
+    // Timbre sempre da clínica dona do animal (prontuário oficial)
+    const clinica = await carregarDadosClinica(pet?.veterinarioId || req.veterinario.id)
+    const uploadsDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../uploads')
+
     const petNomePdf = (pet?.nome || 'historico').replace(/[^a-zA-Z0-9-_]/g, '_')
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', `inline; filename="historico_completo_${petNomePdf}.pdf"`)
     doc.pipe(res)
 
-    const uploadsDir = path.default.join(
-      path.default.dirname(fileURLToPath(import.meta.url)),
-      '../uploads'
-    )
+    // ===== Cabeçalho timbrado (uma vez) =====
+    const especieRaca = `${pet?.especie || ''}${pet?.raca ? ' • ' + pet.raca : ''}`.trim()
+    const clientePrimeiro = dono ? historicos.find(h => h.Cliente)?.Cliente : null
+    desenharCabecalhoTimbrado(doc, {
+      fs, path, uploadsDir, clinica,
+      subtitulo: 'HISTÓRICO COMPLETO DE ATENDIMENTOS',
+      linhasInfo: [
+        clientePrimeiro ? `Proprietário: ${clientePrimeiro.nome || '—'}` : null,
+        `Animal: ${pet?.nome || '—'}${especieRaca ? ` (${especieRaca})` : ''}`,
+        `Total de atendimentos: ${historicos.length}`
+      ]
+    })
 
+    // ===== Um bloco por atendimento =====
     historicos.forEach((historico, idx) => {
-      if (idx > 0) doc.addPage()
-
-      // Cabeçalho
-      doc.fontSize(20).font('Helvetica-Bold').text('VetAssist', { align: 'center' })
-      doc.fontSize(12).font('Helvetica').text('Histórico Completo de Atendimentos', { align: 'center' })
-      doc.moveTo(40, doc.y + 5).lineTo(550, doc.y + 5).stroke()
-      doc.moveDown(0.5)
-
-      if (dono && historico.Cliente) {
-        doc.fontSize(11).font('Helvetica-Bold').text('CLIENTE')
-        doc.fontSize(10).font('Helvetica').text(historico.Cliente.nome || '—', { indent: 10 })
-        if (historico.Cliente.telefone) doc.text(`Telefone: ${historico.Cliente.telefone}`, { indent: 10 })
-        doc.moveDown()
-      }
-
-      doc.fontSize(11).font('Helvetica-Bold').text('ANIMAL')
-      const especieRaca = `${pet?.especie || ''}${pet?.raca ? ` • ${pet.raca}` : ''}`.trim()
-      doc.fontSize(10).font('Helvetica').text(pet?.nome || '—', { indent: 10 })
-      if (especieRaca) doc.text(especieRaca, { indent: 10 })
-      doc.moveDown()
-
-      doc.fontSize(11).font('Helvetica-Bold').text(`ATENDIMENTO ${idx + 1} de ${historicos.length}`)
+      // Título do atendimento (data + tipo) como barra verde
       const dataFormatada = historico.data
-        ? new Date(historico.data).toLocaleDateString('pt-BR', {
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-          })
+        ? formatarDataSemFuso(historico.data, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
         : '—'
-      doc.fontSize(10).font('Helvetica').text(dataFormatada, { indent: 10 })
-      if (historico.tipoAtendimento) doc.text(`Tipo: ${historico.tipoAtendimento}`, { indent: 10 })
-      if (historico.veterinario) doc.text(`Veterinário: ${historico.veterinario}`, { indent: 10 })
-      doc.moveDown()
+      const tituloAtend = `Atendimento ${idx + 1}/${historicos.length} — ${dataFormatada}`
+      const cabecalhoAtend = [
+        historico.tipoAtendimento ? `Tipo: ${historico.tipoAtendimento}` : null,
+        historico.veterinario ? `Veterinário: ${historico.veterinario}` : null
+      ].filter(Boolean).join('\n')
+      desenharSecaoTimbrada(doc, tituloAtend, cabecalhoAtend || ' ')
 
-      if (historico.procedimentos) {
-        doc.fontSize(11).font('Helvetica-Bold').text('PROCEDIMENTOS')
-        doc.fontSize(10).font('Helvetica').text(historico.procedimentos, { indent: 10 })
-        doc.moveDown(0.5)
-      }
-      if (historico.diagnostico) {
-        doc.fontSize(11).font('Helvetica-Bold').text('DIAGNÓSTICO')
-        doc.fontSize(10).font('Helvetica').text(historico.diagnostico, { indent: 10 })
-        doc.moveDown(0.5)
-      }
-      if (historico.medicamentos) {
-        doc.fontSize(11).font('Helvetica-Bold').text('MEDICAMENTOS')
-        doc.fontSize(10).font('Helvetica').text(historico.medicamentos, { indent: 10 })
-        doc.moveDown(0.5)
-      }
-      if (historico.observacoes) {
-        doc.fontSize(11).font('Helvetica-Bold').text('OBSERVAÇÕES')
-        doc.fontSize(10).font('Helvetica').text(historico.observacoes, { indent: 10 })
-        doc.moveDown(0.5)
-      }
-      if (historico.valor) {
-        doc.fontSize(11).font('Helvetica-Bold').text('VALOR')
-        const valorFormatado = parseFloat(historico.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-        doc.fontSize(10).font('Helvetica').text(valorFormatado, { indent: 10 })
-        doc.moveDown(0.5)
-      }
+      desenharSecaoTimbrada(doc, 'Procedimentos Realizados', historico.procedimentos)
+      desenharSecaoTimbrada(doc, 'Diagnóstico', historico.diagnostico)
+      desenharSecaoTimbrada(doc, 'Medicamentos Prescritos', historico.medicamentos)
+      desenharSecaoTimbrada(doc, 'Observações', historico.observacoes)
+      // O valor do atendimento NÃO entra no PDF de prontuário
+      desenharFotosAtendimento(doc, { fs, path, uploadsDir, anexos: historico.Anexos })
 
-      if (historico.Anexos && historico.Anexos.length > 0) {
-        doc.fontSize(11).font('Helvetica-Bold').text('FOTOS DO ATENDIMENTO')
-        doc.moveDown(0.3)
-
-        let x = 50
-        let y = doc.y
-        const photoWidth = 100
-        const photoHeight = 100
-        const spacing = 15
-
-        for (const anexo of historico.Anexos) {
-          try {
-            const caminhoCompleto = path.default.join(uploadsDir, path.default.basename(anexo.caminhoArquivo))
-            if (fs.default.existsSync(caminhoCompleto)) {
-              if (x + photoWidth + spacing > 550) {
-                y += photoHeight + spacing
-                x = 50
-              }
-              doc.image(caminhoCompleto, x, y, { width: photoWidth, height: photoHeight })
-              x += photoWidth + spacing
-            }
-          } catch (erroFoto) {
-            console.error('[PDF] Erro ao incluir foto:', erroFoto.message)
-          }
-        }
-        doc.y = y + photoHeight + 10
+      // Separador entre atendimentos
+      if (idx < historicos.length - 1) {
+        if (doc.y > 700) doc.addPage()
+        else doc.moveDown(0.5)
       }
     })
 
-    const geradoEm = `Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`
-    const { start, count } = doc.bufferedPageRange()
-    for (let i = start; i < start + count; i++) {
-      doc.switchToPage(i)
-      const rodapeY = doc.page.height - doc.page.margins.bottom - 20
-      doc.moveTo(40, rodapeY).lineTo(550, rodapeY).stroke()
-      doc.fontSize(8).font('Helvetica').fillColor('#666')
-        .text(geradoEm, 40, rodapeY + 5, { align: 'center', width: 510 })
-      doc.fillColor('#000')
-    }
+    // ===== Rodapé timbrado em todas as páginas =====
+    desenharRodapeTimbrado(doc, clinica)
 
     doc.end()
   } catch (erro) {

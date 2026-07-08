@@ -555,3 +555,109 @@
   color: #0d6b3a;
   font-size: 0.8rem;
 }
+
+/* Convites de compartilhamento recebidos (pendentes de aceite) */
+.convites-recebidos-desktop {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+
+.convites-recebidos-titulo {
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #92400e;
+  border-bottom: 1px solid #fde68a;
+  background: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.convites-recebidos-badge {
+  background: #d97706;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.convites-recebidos-lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.convite-recebido-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(253, 230, 138, 0.6);
+}
+
+.convite-recebido-item:last-child {
+  border-bottom: none;
+}
+
+.crd-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.crd-nome {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.crd-origem {
+  font-size: 0.8rem;
+  color: #92400e;
+  font-style: italic;
+}
+
+.crd-acoes {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.crd-btn {
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.crd-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.crd-aceitar {
+  background: #16a34a;
+  color: #fff;
+}
+
+.crd-recusar {
+  background: #fff;
+  color: #b91c1c;
+  border: 1px solid #fca5a5 !important;
+}

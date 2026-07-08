@@ -24,10 +24,11 @@ function lerPortaBackend() {
 }
 
 const backendPort = lerPortaBackend()
-// Usar localhost em dev local, mas permitir IP externo se necessário
+// Usar 127.0.0.1 em dev local (evita corrida IPv4/IPv6 do "localhost" no Windows,
+// que causava ECONNREFUSED intermitente no proxy), mas permitir IP externo se necessário
 const backendUrl = process.env.BACKEND_HOST
   ? `http://${process.env.BACKEND_HOST}:${backendPort}`
-  : `http://localhost:${backendPort}`
+  : `http://127.0.0.1:${backendPort}`
 
 export default defineConfig({
   plugins: [react()],
@@ -40,7 +41,8 @@ export default defineConfig({
       '127.0.0.1',
       '192.168.15.27',
       '.ngrok-free.dev',
-      '.ngrok.dev'
+      '.ngrok.dev',
+      '.trycloudflare.com'
     ],
     proxy: {
       '/api': {

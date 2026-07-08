@@ -1,6 +1,18 @@
 import { Faturamento, HistoricoConsulta, Cliente, Pet } from '../models/index.js'
 import { Op } from 'sequelize'
 
+// Mascara os dados do proprietário (Cliente) quando quem está cobrando não é o
+// dono desse cliente — caso do vet convidado (compartilhamento) que registra e
+// fatura seu próprio atendimento num animal que não é dele. Mesma regra de
+// privacidade já aplicada no diário/PDF: quem não é dono não vê dados do proprietário.
+const mascararClienteSeNaoDono = (faturamento) => {
+  const json = typeof faturamento.toJSON === 'function' ? faturamento.toJSON() : faturamento
+  if (json.Cliente && json.Cliente.veterinarioId !== json.veterinarioId) {
+    json.Cliente = null
+  }
+  return json
+}
+
 export const listarFaturamentos = async (req, res) => {
   try {
     // Tentar com includes, se falhar tentar sem
@@ -27,7 +39,7 @@ export const listarFaturamentos = async (req, res) => {
         order: [['dataEmissao', 'DESC']]
       })
     }
-    res.json({ sucesso: true, data: faturamentos })
+    res.json({ sucesso: true, data: faturamentos.map(mascararClienteSeNaoDono) })
   } catch (erro) {
     console.error('[ERROR] listarFaturamentos:', erro)
     res.status(500).json({ sucesso: false, erro: erro.message })
@@ -190,7 +202,7 @@ export const registrarPagamento = async (req, res) => {
       const atualizado = await Faturamento.findByPk(faturamentoId, {
         include: [{ model: Cliente, required: false }]
       })
-      return res.json({ sucesso: true, mensagem: 'Registrado como gratuito!', data: atualizado })
+      return res.json({ sucesso: true, mensagem: 'Registrado como gratuito!', data: mascararClienteSeNaoDono(atualizado) })
     }
 
     // Validar valor de pagamento (deve ser positivo e número válido)
@@ -266,7 +278,7 @@ export const registrarPagamento = async (req, res) => {
     res.json({
       sucesso: true,
       mensagem: 'Pagamento registrado com sucesso!',
-      data: faturamento
+      data: mascararClienteSeNaoDono(faturamento)
     })
   } catch (erro) {
     console.error('[ERROR] registrarPagamento:', erro)

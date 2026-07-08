@@ -161,15 +161,20 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
     }
   }
 
+  // "data" do atendimento é escolhida num <input type="date"> (sem hora real).
+  // O backend salva como DATE em UTC-meia-noite; usar `new Date(data)` direto
+  // aplicaria o fuso do navegador (Brasil = UTC-3) e voltaria para o dia anterior
+  // às 21h. Por isso extraímos ano/mês/dia da string e montamos a data local,
+  // sem exibir hora (que nunca foi informada pelo usuário).
   const formatarData = (data) => {
-    const d = new Date(data)
+    const datePart = String(data).split('T')[0]
+    const [year, month, day] = datePart.split('-').map(Number)
+    const d = new Date(year, month - 1, day)
     return d.toLocaleDateString('pt-BR', {
       weekday: 'short',
       year: 'numeric',
       month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: 'numeric'
     })
   }
 
@@ -268,30 +273,43 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
     }).format(valor)
   }
 
-  const [gerandoPdfCompleto, setGerandoPdfCompleto] = useState(false)
+  const [gerandoPdf, setGerandoPdf] = useState(null)
 
-  const handleAbrirPdfCompleto = async () => {
-    setGerandoPdfCompleto(true)
-    // Abre a janela ANTES do await para preservar o gesto do usuário (Safari/iOS)
+  // Abre um PDF do backend em nova aba: mesmo padrão usado em QuoteModal e
+  // DocumentosEmitidosModal (window.open('','_blank') ANTES do await, para
+  // preservar o gesto do usuário e não ser bloqueado por popup blocker, depois
+  // troca a location para o blob). É esse padrão — não um link direto com token
+  // na query — que dá o viewer nativo com botão de voltar/compartilhar/imprimir
+  // no celular; um <a>/location para uma URL simples perde esse viewer no PWA.
+  const abrirPdfEmNovaAba = async (chave, url) => {
+    setGerandoPdf(chave)
     const novaJanela = window.open('', '_blank')
     try {
-      const res = await axios.get(`/api/historico/animal/${petId}/pdf`, { responseType: 'blob' })
-      const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+      const res = await axios.get(url, { responseType: 'blob' })
+      const blobUrl = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
       if (novaJanela) {
-        novaJanela.location = url
+        novaJanela.location = blobUrl
       } else {
         const a = document.createElement('a')
-        a.href = url
-        a.download = `historico_${petName || 'animal'}.pdf`
+        a.href = blobUrl
+        a.download = `${petName || 'historico'}.pdf`
         a.click()
       }
-      setTimeout(() => URL.revokeObjectURL(url), 10000)
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000)
     } catch (err) {
       if (novaJanela) novaJanela.close()
-      setError(err.response?.data?.erro || 'Erro ao gerar o PDF do histórico')
+      setError(err.response?.data?.erro || 'Erro ao gerar o PDF')
     } finally {
-      setGerandoPdfCompleto(false)
+      setGerandoPdf(null)
     }
+  }
+
+  const handleAbrirPdfCompleto = () => {
+    abrirPdfEmNovaAba('completo', `/api/historico/animal/${petId}/pdf`)
+  }
+
+  const handleAbrirPdfAtendimento = (histId) => {
+    abrirPdfEmNovaAba(`atendimento-${histId}`, `/api/historico/pdf/${histId}`)
   }
 
   if (loading) {
@@ -337,9 +355,9 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                 type="button"
                 className="btn-pdf-completo"
                 onClick={handleAbrirPdfCompleto}
-                disabled={gerandoPdfCompleto}
+                disabled={gerandoPdf === 'completo'}
               >
-                {gerandoPdfCompleto ? '⏳ Gerando...' : '📄 Ver Histórico Completo em PDF'}
+                {gerandoPdf === 'completo' ? '⏳ Gerando...' : '📄 Ver Histórico Completo em PDF'}
               </button>
             </div>
           )}
@@ -638,7 +656,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                           {hist.proximoRetorno && (
                             <div className="historico-field">
                               <span className="historico-label">Próximo Retorno:</span>
-                              <span className="historico-value">{new Date(hist.proximoRetorno).toLocaleDateString('pt-BR')}</span>
+                              <span className="historico-value">{formatarData(hist.proximoRetorno)}</span>
                             </div>
                           )}
 
@@ -672,15 +690,25 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                             </div>
                           )}
 
-                          {podeEditar && (
+                          <div className="historico-card-acoes">
                             <button
                               type="button"
-                              className="historico-add-foto"
-                              onClick={(e) => { e.stopPropagation(); setHistoricoParaFoto(hist.id) }}
+                              className="historico-btn-pdf"
+                              onClick={(e) => { e.stopPropagation(); handleAbrirPdfAtendimento(hist.id) }}
+                              disabled={gerandoPdf === `atendimento-${hist.id}`}
                             >
-                              📸 Adicionar fotos
+                              {gerandoPdf === `atendimento-${hist.id}` ? '⏳ Gerando...' : '📄 PDF deste atendimento'}
                             </button>
-                          )}
+                            {podeEditar && (
+                              <button
+                                type="button"
+                                className="historico-add-foto"
+                                onClick={(e) => { e.stopPropagation(); setHistoricoParaFoto(hist.id) }}
+                              >
+                                📸 Adicionar fotos
+                              </button>
+                            )}
+                          </div>
                         </>
                       )}
 
