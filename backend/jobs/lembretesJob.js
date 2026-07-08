@@ -3,7 +3,10 @@
  * Executa a cada minuto
  */
 import schedule from 'node-schedule'
-import { Agendamento, Cliente, Pet } from '../models/index.js'
+import { Agendamento, Cliente, Pet, Veterinario } from '../models/index.js'
+
+// Antecedências padrão (minutos) caso o vet não tenha configurado nada
+const ANTECEDENCIAS_PADRAO = [5, 30]
 
 // Manter em memória quais lembretes já foram enviados
 const lembretesEnviados = new Set()
@@ -46,6 +49,22 @@ async function verificarLembretes(io) {
 
     console.log(`[LEMBRETE] 📋 Total de agendamentos Pendente/Confirmado: ${agendamentos.length}`)
 
+    // Antecedências configuradas por veterinário (cache por ciclo de verificação)
+    const prefsPorVet = {}
+    const getAntecedencias = async (vetId) => {
+      if (vetId == null) return ANTECEDENCIAS_PADRAO
+      if (!(vetId in prefsPorVet)) {
+        try {
+          const vet = await Veterinario.findByPk(vetId, { attributes: ['preferenciasNotificacao'] })
+          const arr = vet?.preferenciasNotificacao?.antecedenciasAgendamento
+          prefsPorVet[vetId] = Array.isArray(arr) && arr.length > 0 ? arr : ANTECEDENCIAS_PADRAO
+        } catch {
+          prefsPorVet[vetId] = ANTECEDENCIAS_PADRAO
+        }
+      }
+      return prefsPorVet[vetId]
+    }
+
     for (const agendamento of agendamentos) {
       // Converter data para local usando UTC para evitar problema de fuso horário
       // Banco salva "2026-05-18T00:00:00Z" que vira "2026-05-17 21:00:00 GMT-3"
@@ -82,16 +101,14 @@ async function verificarLembretes(io) {
       // Calcular diferença em minutos
       const diffMinutos = Math.round((dataHora.getTime() - agora.getTime()) / 60000)
 
-      console.log(`[LEMBRETE] ⏱️ Diferença: ${diffMinutos}min (agendado ${dataHora.toLocaleTimeString('pt-BR')}, agora: ${agora.toLocaleTimeString('pt-BR')})`)
+      // Antecedências que ESTE vet configurou (ou padrão 5/30)
+      const antecedencias = await getAntecedencias(agendamento.veterinarioId)
 
-      if (diffMinutos >= 4 && diffMinutos <= 6) {
-        console.log(`[LEMBRETE] ✅ ENVIANDO LEMBRETE 5min para agendamento ${agendamento.id}`)
-        enviarLembrete(agendamento, io)
-      } else if (diffMinutos >= 29 && diffMinutos <= 31) {
-        console.log(`[LEMBRETE] ✅ ENVIANDO LEMBRETE 30min para agendamento ${agendamento.id}`)
-        enviarLembrete(agendamento, io, '30min')
-      } else {
-        console.log(`[LEMBRETE] ⏭️ Agendamento fora da janela de lembrete (faltam ${diffMinutos}min)`)
+      // Dispara se a diferença bate (±1min) com alguma antecedência configurada
+      const alvo = antecedencias.find(min => Math.abs(diffMinutos - min) <= 1)
+      if (alvo != null) {
+        console.log(`[LEMBRETE] ✅ ENVIANDO LEMBRETE ${alvo}min para agendamento ${agendamento.id} (vet ${agendamento.veterinarioId})`)
+        enviarLembrete(agendamento, io, `${alvo}min`)
       }
     }
   } catch (err) {
@@ -118,21 +135,23 @@ function enviarLembrete(agendamento, io, tipo = '5min') {
   const cliente = agendamento.Cliente?.nome || 'Cliente'
   const pet = agendamento.Pet?.nome || 'Pet'
   const tipoAtend = agendamento.tipoAtendimento || 'Consulta'
-  const [hora] = (agendamento.hora || '00:00').split(':')
 
-  let mensagem = ''
-  if (tipo === '5min') {
-    mensagem = `🔔 Lembrete: ${cliente} - ${pet} (${tipoAtend}) em 5 minutos às ${hora}h`
-  } else {
-    mensagem = `📬 Próxima consulta: ${cliente} - ${pet} (${tipoAtend}) daqui a 30 minutos`
-  }
+  // Texto amigável da antecedência (ex: "5min" -> "5 minutos", "1440min" -> "1 dia")
+  const minutos = parseInt(tipo) || 0
+  let quando = `${minutos} minutos`
+  if (minutos >= 1440) { const d = Math.round(minutos / 1440); quando = d === 1 ? '1 dia' : `${d} dias` }
+  else if (minutos >= 60) { const h = Math.round(minutos / 60); quando = h === 1 ? '1 hora' : `${h} horas` }
+  const mensagem = `🔔 Lembrete: ${cliente} - ${pet} (${tipoAtend}) em ${quando} (às ${agendamento.hora || ''})`
 
   // Enviar para todos os clientes conectados via WebSocket
   if (io) {
     try {
       const payload = {
         id: agendamento.id,
-        titulo: `Lembrete de Consulta - ${tipo}`,
+        // veterinarioId permite ao front descartar lembretes de outro vet
+        // (o socket é broadcast; o filtro por dono acontece no cliente)
+        veterinarioId: agendamento.veterinarioId,
+        titulo: `Lembrete de Consulta`,
         body: mensagem,
         cliente,
         pet,

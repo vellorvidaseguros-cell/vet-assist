@@ -137,6 +137,30 @@ const Veterinario = sequelize.define('Veterinario', {
       }
     }
   },
+  // Preferências de notificação do veterinário (JSON serializado).
+  // antecedenciasAgendamento: minutos antes do agendamento em que quer ser avisado (ex: [30, 60, 1440]).
+  // avisarVencimentoCobranca / diasAntesVencimento: aviso de cobranças a vencer.
+  preferenciasNotificacao: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    get() {
+      const value = this.getDataValue('preferenciasNotificacao')
+      if (!value) return null
+      if (typeof value === 'object') return value
+      try {
+        return JSON.parse(value)
+      } catch (e) {
+        return null
+      }
+    },
+    set(value) {
+      if (value && typeof value === 'object') {
+        this.setDataValue('preferenciasNotificacao', JSON.stringify(value))
+      } else {
+        this.setDataValue('preferenciasNotificacao', value)
+      }
+    }
+  },
 }, {
   tableName: 'veterinarios',
   timestamps: true,

@@ -65,7 +65,7 @@ export const atualizarPerfil = async (req, res) => {
       'nome', 'email', 'telefone', 'cpf', 'crmv',
       'dataNascimento', 'genero', 'endereco', 'cidade', 'estado',
       'nomeClinica', 'cnpj', 'especialidade', 'fotoPerfil', 'logomarcaUrl', 'tabelaPrecos', 'whiteLabel',
-      'dadosCobranca', 'precificacao'
+      'dadosCobranca', 'precificacao', 'preferenciasNotificacao'
     ]
 
     const atualizacoes = {}

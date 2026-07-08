@@ -10,6 +10,7 @@ import ExportarDadosModal from './ExportarDadosModal'
 import PrecificacaoModal from './PrecificacaoModal'
 import EstoqueInsumosModal from './EstoqueInsumosModal'
 import DocumentosEmitidosModal from './DocumentosEmitidosModal'
+import NotificacoesModal from './NotificacoesModal'
 import MoneyInput from './MoneyInput'
 import './Perfil.css'
 
@@ -29,6 +30,7 @@ export default function Perfil() {
   const [precificacaoModalOpen, setPrecificacaoModalOpen] = useState(false)
   const [estoqueModalOpen, setEstoqueModalOpen] = useState(false)
   const [documentosModalOpen, setDocumentosModalOpen] = useState(false)
+  const [notificacoesModalOpen, setNotificacoesModalOpen] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [dadosCobranca, setDadosCobranca] = useState('')
@@ -728,6 +730,22 @@ export default function Perfil() {
           </div>
         </div>
 
+        {/* Seção de Notificações */}
+        <div className="perfil-card">
+          <div className="card-header">
+            <h2>🔔 Notificações</h2>
+          </div>
+          <div className="card-content">
+            <p className="card-description">Escolha com quanto tempo de antecedência quer ser avisado dos agendamentos e o aviso de cobranças a vencer.</p>
+            <button
+              className="btn-manage-pricing"
+              onClick={() => setNotificacoesModalOpen(true)}
+            >
+              🔔 Configurar Notificações
+            </button>
+          </div>
+        </div>
+
         {/* Seção de White Label */}
         <div className="perfil-card">
           <div className="card-header">
@@ -928,6 +946,14 @@ export default function Perfil() {
         isOpen={documentosModalOpen}
         onClose={() => setDocumentosModalOpen(false)}
       />
+
+      {/* Notificações Modal */}
+      {notificacoesModalOpen && (
+        <NotificacoesModal
+          veterinarioId={veterinarioId}
+          onClose={() => setNotificacoesModalOpen(false)}
+        />
+      )}
 
       {/* Precificação Modal */}
       <PrecificacaoModal

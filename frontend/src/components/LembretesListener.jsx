@@ -29,6 +29,36 @@ function marcarDispensado() {
   localStorage.setItem(CHAVE_DISPENSADO, String(Date.now()))
 }
 
+// Dispensa do modal "Ativar Lembretes" e do banner "instalar PWA".
+// Sem isso, o modal reaparecia a cada abertura do app no iOS PWA (bug relatado),
+// pois a decisão "Agora não" não era persistida. Cooldown longo: quem dispensou
+// pode reativar depois pelo Perfil.
+const CHAVE_PEDIR_DISPENSADO = 'vetassist_notif_pedir_dispensado_em'
+const COOLDOWN_PEDIR_MS = 7 * 24 * 60 * 60 * 1000 // 7 dias
+
+function foiPedirDispensado() {
+  const em = localStorage.getItem(CHAVE_PEDIR_DISPENSADO)
+  if (!em) return false
+  return Date.now() - parseInt(em, 10) < COOLDOWN_PEDIR_MS
+}
+
+function marcarPedirDispensado() {
+  localStorage.setItem(CHAVE_PEDIR_DISPENSADO, String(Date.now()))
+}
+
+// Id do veterinário logado (extraído do JWT) — usado para descartar lembretes
+// que pertencem a outra conta, já que o socket faz broadcast para todos.
+function getVetIdLogado() {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) return null
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.id ?? null
+  } catch {
+    return null
+  }
+}
+
 // Descobrir URL do backend para Socket.IO
 // O Vite proxy de WebSocket é instável; conectar DIRETO ao backend quando possível.
 async function descobrirSocketUrl() {
@@ -89,16 +119,20 @@ export default function LembretesListener() {
   // Verificar estado da permissão e decidir banner
   useEffect(() => {
     if (!('Notification' in window)) {
-      // iOS Safari sem PWA - não suporta notificações
-      if (isIOS && !isPWA) setBanner('ios')
+      // iOS Safari sem PWA - não suporta notificações. Só sugere instalar
+      // se o usuário ainda não dispensou (senão o banner reaparecia sempre).
+      if (isIOS && !isPWA && !foiPedirDispensado()) setBanner('ios')
       return
     }
 
     const perm = Notification.permission
     if (perm === 'granted') {
       setBanner(null)
+    } else if (foiPedirDispensado()) {
+      // Usuário já dispensou o pedido recentemente — não insistir a cada abertura
+      setBanner(null)
     } else if (isIOS && isPWA) {
-      // No iOS PWA: sempre mostrar modal para pedir com user gesture
+      // No iOS PWA: mostrar modal para pedir com user gesture
       // O iOS bloqueia silenciosamente quando chamado sem toque
       setBanner('pedir')
     } else if (perm === 'default') {
@@ -109,6 +143,10 @@ export default function LembretesListener() {
   }, [])
 
   const handleLembrete = useCallback((data) => {
+    // Descarta lembrete de outra conta (o socket faz broadcast p/ todos)
+    const vetId = getVetIdLogado()
+    if (data.veterinarioId != null && vetId != null && data.veterinarioId !== vetId) return
+
     const chave = `${data.id}-${data.tipo}`
     if (notificacoesRef.current.has(chave)) return
     notificacoesRef.current.add(chave)
@@ -281,7 +319,7 @@ export default function LembretesListener() {
               ✅ Ativar agora
             </button>
             <button
-              onClick={() => setBanner(null)}
+              onClick={() => { marcarPedirDispensado(); setBanner(null) }}
               style={{
                 width: '100%', padding: '12px',
                 background: 'transparent', color: '#999',
@@ -295,13 +333,27 @@ export default function LembretesListener() {
         </div>
       )}
 
-      {/* iOS: instruções para instalar PWA */}
+      {/* iOS: sugestão minimalista para instalar PWA (pílula discreta no rodapé) */}
       {banner === 'ios' && (
-        <div style={{ ...estilosBanner.container, background: '#1a73e8' }}>
-          <div style={estilosBanner.texto}>
-            📱 Para notificações no iPhone: toque em <strong>⎙ Compartilhar</strong> → <strong>Adicionar à Tela Inicial</strong>
-          </div>
-          <button onClick={() => setBanner(null)} style={estilosBanner.fechar}>✕</button>
+        <div style={{
+          position: 'fixed', bottom: '76px', left: '50%',
+          transform: 'translateX(-50%)', zIndex: 9998,
+          background: 'rgba(26,26,26,0.92)', color: 'white',
+          padding: '8px 12px', borderRadius: '999px',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+          display: 'flex', alignItems: 'center', gap: '8px',
+          maxWidth: '92vw', fontSize: '12.5px', fontWeight: 500
+        }}>
+          <span style={{ whiteSpace: 'nowrap' }}>📲 Instalar: Compartilhar → Tela de Início</span>
+          <button
+            onClick={() => { marcarPedirDispensado(); setBanner(null) }}
+            style={{
+              background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white',
+              fontSize: '13px', cursor: 'pointer', borderRadius: '999px',
+              width: '20px', height: '20px', flexShrink: 0, lineHeight: 1,
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}
+          >✕</button>
         </div>
       )}
 
