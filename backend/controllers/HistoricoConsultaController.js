@@ -404,14 +404,32 @@ export const gerarPDFCobranca = async (req, res) => {
 export const gerarPDFHistorico = async (req, res) => {
   try {
     const { id } = req.params
-    const historico = await HistoricoConsulta.findOne({
-      where: { id, veterinarioId: req.veterinario.id },
+    // Acesso ao PDF: dono do animal OU compartilhado (aceito) — não trava mais
+    // pelo autor específico da entrada, que pode ser o outro vet do diário.
+    const historicoQualquerVet = await HistoricoConsulta.findOne({
+      where: { id },
       include: [Pet, Cliente, Anexo]
     })
-
-    if (!historico) {
+    if (!historicoQualquerVet) {
       return res.status(404).json({ sucesso: false, erro: 'Histórico não encontrado' })
     }
+    const ehDono = historicoQualquerVet.Pet?.veterinarioId === req.veterinario.id
+    let podeAcessar = ehDono
+    if (!podeAcessar) {
+      const compartilhado = await Compartilhamento.findOne({
+        where: { animalId: historicoQualquerVet.petId, veterinarioConvidadoId: req.veterinario.id, status: 'aceito' }
+      })
+      podeAcessar = !!compartilhado
+    }
+    if (!podeAcessar) {
+      return res.status(404).json({ sucesso: false, erro: 'Histórico não encontrado' })
+    }
+    // Se não é dono, oculta dados do proprietário no PDF (mesma regra do diário)
+    const historico = ehDono ? historicoQualquerVet : (() => {
+      const h = historicoQualquerVet
+      h.Cliente = null
+      return h
+    })()
 
     const PDFDocument = (await import('pdfkit')).default
     const fs = await import('fs')
@@ -576,6 +594,156 @@ export const gerarPDFHistorico = async (req, res) => {
     doc.end()
   } catch (erro) {
     console.error('[PDF] Erro ao gerar PDF:', erro)
+    res.status(500).json({ sucesso: false, erro: erro.message })
+  }
+}
+
+// PDF com TODOS os atendimentos de um animal (diário completo), incluindo fotos.
+// Acesso: dono do animal OU compartilhado (aceito) — igual ao historicoDoAnimal.
+// Dados do proprietário só aparecem para o dono; o vet convidado vê o prontuário
+// clínico sem dados do Cliente, igual ao restante do diário compartilhado.
+export const gerarPDFHistoricoAnimal = async (req, res) => {
+  try {
+    const { petId } = req.params
+
+    const dono = await Pet.findOne({ where: { id: petId, veterinarioId: req.veterinario.id } })
+    const compartilhado = dono ? null : await Compartilhamento.findOne({
+      where: { animalId: petId, veterinarioConvidadoId: req.veterinario.id, status: 'aceito' }
+    })
+    if (!dono && !compartilhado) {
+      return res.status(404).json({ sucesso: false, erro: 'Animal não encontrado' })
+    }
+
+    const historicos = await HistoricoConsulta.findAll({
+      where: { petId },
+      include: dono ? [Pet, Cliente, Anexo] : [Pet, Anexo],
+      order: [['data', 'DESC']]
+    })
+
+    if (historicos.length === 0) {
+      return res.status(400).json({ sucesso: false, erro: 'Nenhum atendimento registrado para este animal' })
+    }
+
+    const PDFDocument = (await import('pdfkit')).default
+    const fs = await import('fs')
+    const path = await import('path')
+    const { fileURLToPath } = await import('url')
+    const doc = new PDFDocument({ margin: 40, bufferPages: true })
+
+    const pet = historicos[0].Pet
+    const petNomePdf = (pet?.nome || 'historico').replace(/[^a-zA-Z0-9-_]/g, '_')
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', `inline; filename="historico_completo_${petNomePdf}.pdf"`)
+    doc.pipe(res)
+
+    const uploadsDir = path.default.join(
+      path.default.dirname(fileURLToPath(import.meta.url)),
+      '../uploads'
+    )
+
+    historicos.forEach((historico, idx) => {
+      if (idx > 0) doc.addPage()
+
+      // Cabeçalho
+      doc.fontSize(20).font('Helvetica-Bold').text('VetAssist', { align: 'center' })
+      doc.fontSize(12).font('Helvetica').text('Histórico Completo de Atendimentos', { align: 'center' })
+      doc.moveTo(40, doc.y + 5).lineTo(550, doc.y + 5).stroke()
+      doc.moveDown(0.5)
+
+      if (dono && historico.Cliente) {
+        doc.fontSize(11).font('Helvetica-Bold').text('CLIENTE')
+        doc.fontSize(10).font('Helvetica').text(historico.Cliente.nome || '—', { indent: 10 })
+        if (historico.Cliente.telefone) doc.text(`Telefone: ${historico.Cliente.telefone}`, { indent: 10 })
+        doc.moveDown()
+      }
+
+      doc.fontSize(11).font('Helvetica-Bold').text('ANIMAL')
+      const especieRaca = `${pet?.especie || ''}${pet?.raca ? ` • ${pet.raca}` : ''}`.trim()
+      doc.fontSize(10).font('Helvetica').text(pet?.nome || '—', { indent: 10 })
+      if (especieRaca) doc.text(especieRaca, { indent: 10 })
+      doc.moveDown()
+
+      doc.fontSize(11).font('Helvetica-Bold').text(`ATENDIMENTO ${idx + 1} de ${historicos.length}`)
+      const dataFormatada = historico.data
+        ? new Date(historico.data).toLocaleDateString('pt-BR', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+          })
+        : '—'
+      doc.fontSize(10).font('Helvetica').text(dataFormatada, { indent: 10 })
+      if (historico.tipoAtendimento) doc.text(`Tipo: ${historico.tipoAtendimento}`, { indent: 10 })
+      if (historico.veterinario) doc.text(`Veterinário: ${historico.veterinario}`, { indent: 10 })
+      doc.moveDown()
+
+      if (historico.procedimentos) {
+        doc.fontSize(11).font('Helvetica-Bold').text('PROCEDIMENTOS')
+        doc.fontSize(10).font('Helvetica').text(historico.procedimentos, { indent: 10 })
+        doc.moveDown(0.5)
+      }
+      if (historico.diagnostico) {
+        doc.fontSize(11).font('Helvetica-Bold').text('DIAGNÓSTICO')
+        doc.fontSize(10).font('Helvetica').text(historico.diagnostico, { indent: 10 })
+        doc.moveDown(0.5)
+      }
+      if (historico.medicamentos) {
+        doc.fontSize(11).font('Helvetica-Bold').text('MEDICAMENTOS')
+        doc.fontSize(10).font('Helvetica').text(historico.medicamentos, { indent: 10 })
+        doc.moveDown(0.5)
+      }
+      if (historico.observacoes) {
+        doc.fontSize(11).font('Helvetica-Bold').text('OBSERVAÇÕES')
+        doc.fontSize(10).font('Helvetica').text(historico.observacoes, { indent: 10 })
+        doc.moveDown(0.5)
+      }
+      if (historico.valor) {
+        doc.fontSize(11).font('Helvetica-Bold').text('VALOR')
+        const valorFormatado = parseFloat(historico.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+        doc.fontSize(10).font('Helvetica').text(valorFormatado, { indent: 10 })
+        doc.moveDown(0.5)
+      }
+
+      if (historico.Anexos && historico.Anexos.length > 0) {
+        doc.fontSize(11).font('Helvetica-Bold').text('FOTOS DO ATENDIMENTO')
+        doc.moveDown(0.3)
+
+        let x = 50
+        let y = doc.y
+        const photoWidth = 100
+        const photoHeight = 100
+        const spacing = 15
+
+        for (const anexo of historico.Anexos) {
+          try {
+            const caminhoCompleto = path.default.join(uploadsDir, path.default.basename(anexo.caminhoArquivo))
+            if (fs.default.existsSync(caminhoCompleto)) {
+              if (x + photoWidth + spacing > 550) {
+                y += photoHeight + spacing
+                x = 50
+              }
+              doc.image(caminhoCompleto, x, y, { width: photoWidth, height: photoHeight })
+              x += photoWidth + spacing
+            }
+          } catch (erroFoto) {
+            console.error('[PDF] Erro ao incluir foto:', erroFoto.message)
+          }
+        }
+        doc.y = y + photoHeight + 10
+      }
+    })
+
+    const geradoEm = `Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`
+    const { start, count } = doc.bufferedPageRange()
+    for (let i = start; i < start + count; i++) {
+      doc.switchToPage(i)
+      const rodapeY = doc.page.height - doc.page.margins.bottom - 20
+      doc.moveTo(40, rodapeY).lineTo(550, rodapeY).stroke()
+      doc.fontSize(8).font('Helvetica').fillColor('#666')
+        .text(geradoEm, 40, rodapeY + 5, { align: 'center', width: 510 })
+      doc.fillColor('#000')
+    }
+
+    doc.end()
+  } catch (erro) {
+    console.error('[PDF] Erro ao gerar PDF completo do animal:', erro)
     res.status(500).json({ sucesso: false, erro: erro.message })
   }
 }

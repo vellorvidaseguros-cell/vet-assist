@@ -8,9 +8,12 @@ import NovoClienteModal from './NovoClienteModal'
 import TransferirProprietarioModal from './TransferirProprietarioModal'
 import ConfirmModal from './ConfirmModal'
 import QuoteModal from './QuoteModal'
+import AnimalHistoryModal from './AnimalHistoryModal'
 
 export default function ClientesList() {
   const [clientes, setClientes] = useState([])
+  const [compartilhados, setCompartilhados] = useState([])
+  const [animalCompartilhado, setAnimalCompartilhado] = useState(null)
   const [expandedClienteId, setExpandedClienteId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -68,6 +71,7 @@ export default function ClientesList() {
 
   useEffect(() => {
     fetchClientes()
+    fetchCompartilhados()
   }, [])
 
   const fetchClientes = async () => {
@@ -81,6 +85,17 @@ export default function ClientesList() {
       setError('Erro ao carregar clientes')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchCompartilhados = async () => {
+    try {
+      const response = await axios.get('/api/compartilhamento/compartilhados-comigo')
+      if (response.data.sucesso) {
+        setCompartilhados(response.data.data || [])
+      }
+    } catch (err) {
+      console.error('Erro ao carregar animais compartilhados', err)
     }
   }
 
@@ -282,6 +297,36 @@ export default function ClientesList() {
           + Novo Cliente
         </button>
       </div>
+
+      {/* Animais compartilhados comigo por outros veterinários */}
+      {compartilhados.length > 0 && (
+        <div className="compartilhados-comigo-desktop">
+          <div className="compartilhados-comigo-titulo">🔗 Compartilhados comigo</div>
+          <div className="compartilhados-comigo-lista">
+            {compartilhados.map(comp => (
+              <div
+                key={comp.id}
+                className="compartilhado-comigo-item-desktop"
+                onClick={() => comp.Pet && setAnimalCompartilhado({ ...comp.Pet, compartilhadoPor: comp.veterinarioOrigem?.nome })}
+              >
+                <span className="ccd-nome">🐾 {comp.Pet?.nome || 'Animal'}</span>
+                <span className="ccd-especie">{comp.Pet?.especie || ''}</span>
+                <span className="ccd-origem">de {comp.veterinarioOrigem?.nome || 'veterinário'}</span>
+                <span className="ccd-seta">▶</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {animalCompartilhado && (
+        <AnimalHistoryModal
+          petId={animalCompartilhado.id}
+          petName={animalCompartilhado.nome}
+          compartilhadoPor={animalCompartilhado.compartilhadoPor}
+          onClose={() => setAnimalCompartilhado(null)}
+        />
+      )}
 
       {/* Formulário inline só para EDIÇÃO de cliente existente */}
       {showNewClienteForm && editingClienteId && (

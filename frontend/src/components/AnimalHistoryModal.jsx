@@ -268,6 +268,32 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
     }).format(valor)
   }
 
+  const [gerandoPdfCompleto, setGerandoPdfCompleto] = useState(false)
+
+  const handleAbrirPdfCompleto = async () => {
+    setGerandoPdfCompleto(true)
+    // Abre a janela ANTES do await para preservar o gesto do usuário (Safari/iOS)
+    const novaJanela = window.open('', '_blank')
+    try {
+      const res = await axios.get(`/api/historico/animal/${petId}/pdf`, { responseType: 'blob' })
+      const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+      if (novaJanela) {
+        novaJanela.location = url
+      } else {
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `historico_${petName || 'animal'}.pdf`
+        a.click()
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 10000)
+    } catch (err) {
+      if (novaJanela) novaJanela.close()
+      setError(err.response?.data?.erro || 'Erro ao gerar o PDF do histórico')
+    } finally {
+      setGerandoPdfCompleto(false)
+    }
+  }
+
   if (loading) {
     return createPortal(
       <div className="modal-overlay animal-historico-overlay">
@@ -287,12 +313,15 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
           <div className="detalhes-titulo">
             <h3>📋 {petName}</h3>
             <span className="detalhes-data">{historicos.length} atendimento(s)</span>
-            {compartilhadoPor && (
-              <span className="detalhes-compartilhado">🔗 Compartilhado por {compartilhadoPor}</span>
-            )}
           </div>
           <button className="btn-close" onClick={onClose} type="button">×</button>
         </div>
+
+        {compartilhadoPor && (
+          <div className="detalhes-compartilhado-bar">
+            🔗 Compartilhado por <strong>{compartilhadoPor}</strong>
+          </div>
+        )}
 
         {error && (
           <div className="error-message">
@@ -302,6 +331,19 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
         )}
 
         <div className="detalhes-body">
+          {historicos.length > 0 && (
+            <div className="historico-pdf-completo-wrap">
+              <button
+                type="button"
+                className="btn-pdf-completo"
+                onClick={handleAbrirPdfCompleto}
+                disabled={gerandoPdfCompleto}
+              >
+                {gerandoPdfCompleto ? '⏳ Gerando...' : '📄 Ver Histórico Completo em PDF'}
+              </button>
+            </div>
+          )}
+
           {podeEditar && (
             <div className="historico-novo-atendimento">
               {!mostrarNovoAtendimento ? (

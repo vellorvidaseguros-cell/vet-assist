@@ -93,6 +93,27 @@ export default function AdminPanel() {
     atualizarConta(conta.id, { senha }, 'Senha redefinida')
   }
 
+  // Exclusão é permanente e apaga todos os dados do assinante (clientes, animais,
+  // agendamentos, histórico, cobranças...). Confirmação dupla para evitar clique acidental.
+  const excluirConta = async (conta) => {
+    if (!window.confirm(`⚠️ EXCLUIR PERMANENTEMENTE a conta de ${conta.nome}?\n\nTodos os clientes, animais, agendamentos e histórico dessa conta serão apagados para sempre. Esta ação NÃO pode ser desfeita.`)) return
+    const digitado = window.prompt(`Para confirmar, digite o nome da conta exatamente: ${conta.nome}`)
+    if (digitado !== conta.nome) {
+      if (digitado !== null) setErro('Nome digitado não confere. Exclusão cancelada.')
+      return
+    }
+    setErro('')
+    try {
+      const res = await axios.delete(`/api/admin/contas/${conta.id}`)
+      if (res.data.sucesso) {
+        avisar('Conta excluída permanentemente')
+        carregar()
+      }
+    } catch (err) {
+      setErro(err.response?.data?.erro || 'Erro ao excluir conta')
+    }
+  }
+
   const abrirPermissoes = (conta) => {
     setEditandoId(conta.id)
     setPermissoesEdit([...(conta.permissoesEfetivas || [])])
@@ -251,6 +272,11 @@ export default function AdminPanel() {
                   <button className="admin-btn-senha" onClick={() => resetarSenha(conta)}>
                     🔑 Redefinir Senha
                   </button>
+                  {conta.role !== 'admin' && (
+                    <button className="admin-btn-excluir" onClick={() => excluirConta(conta)}>
+                      🗑️ Excluir Conta
+                    </button>
+                  )}
                 </div>
               </>
             )}

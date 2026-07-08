@@ -758,9 +758,41 @@
   cursor: pointer;
 }
 
-.detalhes-compartilhado {
-  font-size: 12px;
+/* Barra de largura total (fora da coluna estreita do título) — evita que o
+   texto quebre palavra por palavra dentro de um espaço apertado */
+.detalhes-compartilhado-bar {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 16px;
+  font-size: 13px;
   color: #0d6b3a;
+  background: #f0fdf4;
+  border-bottom: 1px solid #bbf7d0;
+  flex-shrink: 0;
+}
+
+/* PDF completo do histórico do animal */
+.historico-pdf-completo-wrap {
+  margin: 0 12px 0.75rem 12px;
+}
+
+.btn-pdf-completo {
+  width: 100%;
+  padding: 0.7rem;
+  background: #007aff;
+  border: none;
+  border-radius: 8px;
+  color: white;
   font-weight: 600;
-  font-style: italic;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.btn-pdf-completo:active:not(:disabled) {
+  background: #0062cc;
+}
+
+.btn-pdf-completo:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

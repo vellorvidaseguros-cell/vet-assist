@@ -141,6 +141,16 @@ export default function Perfil() {
     }
   }
 
+  const handleRevogarCompartilhamento = async (comp) => {
+    if (!window.confirm(`Remover o acesso ao animal "${comp.Pet?.nome || ''}"? O veterinário convidado deixará de ver o diário deste animal.`)) return
+    try {
+      await axios.delete(`/api/compartilhamento/animais/${comp.animalId}/compartilhamentos/${comp.id}`)
+      setCompartilhamentosFeitos(prev => prev.filter(c => c.id !== comp.id))
+    } catch (err) {
+      setError('Erro ao revogar acesso')
+    }
+  }
+
   const handleSavePerfil = async (e) => {
     e.preventDefault()
     try {
@@ -798,6 +808,14 @@ export default function Perfil() {
                     <span className={`cfi-status cfi-status-${comp.status}`}>
                       {comp.status === 'aceito' ? '✅ Aceito' : comp.status === 'pendente' ? '⏳ Pendente' : comp.status}
                     </span>
+                    <button
+                      type="button"
+                      className="cfi-btn-revogar"
+                      onClick={() => handleRevogarCompartilhamento(comp)}
+                      title="Revogar acesso"
+                    >
+                      🗑️
+                    </button>
                   </div>
                 ))}
               </div>

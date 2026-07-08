@@ -198,13 +198,27 @@ async function iniciarServidor() {
       if (req.veterinario?.role === 'admin') return next()
       if (req.veterinario?.permissoes?.includes('agenda')) return next()
 
-      // Sem o recurso: liberar GET /animal/:petId de animal compartilhado (ver diário)
-      const matchGet = req.method === 'GET' && req.path.match(/^\/animal\/(\d+)$/)
+      // Sem o recurso: liberar GET /animal/:petId (ver diário) e /animal/:petId/pdf
+      // (histórico completo em PDF) de animal compartilhado
+      const matchGet = req.method === 'GET' && req.path.match(/^\/animal\/(\d+)(?:\/pdf)?$/)
       if (matchGet) {
         const compartilhado = await Compartilhamento.findOne({
           where: { animalId: matchGet[1], veterinarioConvidadoId: req.veterinario.id, status: 'aceito' }
         })
         if (compartilhado) return next()
+      }
+
+      // GET /pdf/:id (PDF de uma entrada específica) — resolve o petId da entrada
+      // e checa se há compartilhamento aceito para esse animal
+      const matchPdfEntrada = req.method === 'GET' && req.path.match(/^\/pdf\/(\d+)$/)
+      if (matchPdfEntrada) {
+        const historico = await HistoricoConsulta.findByPk(matchPdfEntrada[1])
+        if (historico) {
+          const compartilhado = await Compartilhamento.findOne({
+            where: { animalId: historico.petId, veterinarioConvidadoId: req.veterinario.id, status: 'aceito' }
+          })
+          if (compartilhado) return next()
+        }
       }
 
       // POST / (criar) de animal compartilhado com permissão 'editar' — o diário

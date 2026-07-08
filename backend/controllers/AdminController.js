@@ -2,7 +2,11 @@ import bcrypt from 'bcryptjs'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
-import { Veterinario, Cliente, Agendamento } from '../models/index.js'
+import { Op } from 'sequelize'
+import {
+  Veterinario, Cliente, Pet, Agendamento, HistoricoConsulta, Anexo,
+  Faturamento, Veiculo, Despesa, Compartilhamento, Insumo, DocumentoEmitido
+} from '../models/index.js'
 import { RECURSOS, PLANOS, permissoesEfetivas } from '../config/planos.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -140,6 +144,61 @@ export const atualizarConta = async (req, res) => {
 
     res.json({ sucesso: true, mensagem: 'Conta atualizada!', data })
   } catch (erro) {
+    res.status(500).json({ sucesso: false, erro: erro.message })
+  }
+}
+
+// Exclui permanentemente a conta e TODOS os dados vinculados a ela.
+// Ação destrutiva e irreversível — usada quando o assinante pede o
+// cancelamento definitivo (ex: exigência de LGPD/direito ao esquecimento).
+export const deletarConta = async (req, res) => {
+  try {
+    const conta = await Veterinario.findByPk(req.params.id)
+    if (!conta) return res.status(404).json({ sucesso: false, erro: 'Conta não encontrada' })
+
+    if (conta.id === req.veterinario.id) {
+      return res.status(400).json({ sucesso: false, erro: 'Você não pode excluir a própria conta' })
+    }
+    if (conta.role === 'admin') {
+      return res.status(400).json({ sucesso: false, erro: 'Não é possível excluir uma conta de administrador' })
+    }
+
+    const veterinarioId = conta.id
+
+    // Apaga na ordem certa (filhos antes dos pais) para não deixar registros órfãos.
+    // Anexo não tem veterinarioId direto — remove pelos agendamentos/históricos do vet.
+    const agendamentoIds = (await Agendamento.findAll({ where: { veterinarioId }, attributes: ['id'], paranoid: false })).map(a => a.id)
+    const historicoIds = (await HistoricoConsulta.findAll({ where: { veterinarioId }, attributes: ['id'], paranoid: false })).map(h => h.id)
+
+    if (agendamentoIds.length > 0 || historicoIds.length > 0) {
+      await Anexo.destroy({
+        where: {
+          [Op.or]: [
+            agendamentoIds.length > 0 ? { agendamentoId: agendamentoIds } : null,
+            historicoIds.length > 0 ? { historicoConsultaId: historicoIds } : null
+          ].filter(Boolean)
+        },
+        force: true
+      })
+    }
+
+    await Faturamento.destroy({ where: { veterinarioId }, force: true })
+    await HistoricoConsulta.destroy({ where: { veterinarioId }, force: true })
+    await Agendamento.destroy({ where: { veterinarioId }, force: true })
+    await Despesa.destroy({ where: { veterinarioId }, force: true })
+    await Veiculo.destroy({ where: { veterinarioId }, force: true })
+    await Insumo.destroy({ where: { veterinarioId }, force: true })
+    await DocumentoEmitido.destroy({ where: { veterinarioId }, force: true })
+    await Compartilhamento.destroy({
+      where: { [Op.or]: [{ veterinarioOrigemId: veterinarioId }, { veterinarioConvidadoId: veterinarioId }] }
+    })
+    await Pet.destroy({ where: { veterinarioId }, force: true })
+    await Cliente.destroy({ where: { veterinarioId }, force: true })
+    await conta.destroy({ force: true })
+
+    res.json({ sucesso: true, mensagem: 'Conta e todos os dados vinculados foram excluídos permanentemente.' })
+  } catch (erro) {
+    console.error('[ERROR] deletarConta:', erro)
     res.status(500).json({ sucesso: false, erro: erro.message })
   }
 }

@@ -567,3 +567,19 @@
 
 .cfi-status-aceito { color: #0d6b3a; }
 .cfi-status-pendente { color: #b8860b; }
+
+.cfi-btn-revogar {
+  width: auto !important;
+  margin: 0 !important;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem !important;
+  border-radius: 6px;
+}
+
+.cfi-btn-revogar:active {
+  background: #ffebee;
+}

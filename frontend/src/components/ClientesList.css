@@ -491,3 +491,67 @@
   color: #666;
   font-size: 0.95rem;
 }
+
+/* Animais compartilhados comigo (desktop) */
+.compartilhados-comigo-desktop {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+
+.compartilhados-comigo-titulo {
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0d6b3a;
+  border-bottom: 1px solid #bbf7d0;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.compartilhados-comigo-lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.compartilhado-comigo-item-desktop {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid rgba(187, 247, 208, 0.5);
+}
+
+.compartilhado-comigo-item-desktop:last-child {
+  border-bottom: none;
+}
+
+.compartilhado-comigo-item-desktop:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.ccd-nome {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+}
+
+.ccd-especie {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.ccd-origem {
+  font-size: 0.8rem;
+  color: #0d6b3a;
+  font-style: italic;
+}
+
+.ccd-seta {
+  color: #0d6b3a;
+  font-size: 0.8rem;
+}
