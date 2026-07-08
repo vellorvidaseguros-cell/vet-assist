@@ -757,3 +757,10 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+.detalhes-compartilhado {
+  font-size: 12px;
+  color: #0d6b3a;
+  font-weight: 600;
+  font-style: italic;
+}

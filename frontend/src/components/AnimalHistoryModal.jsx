@@ -12,7 +12,7 @@ const NOVO_ATENDIMENTO_VAZIO = {
   valor: ''
 }
 
-export default function AnimalHistoryModal({ petId, petName, onClose }) {
+export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, onClose }) {
   const [historicos, setHistoricos] = useState([])
   const [podeEditar, setPodeEditar] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -287,6 +287,9 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
           <div className="detalhes-titulo">
             <h3>📋 {petName}</h3>
             <span className="detalhes-data">{historicos.length} atendimento(s)</span>
+            {compartilhadoPor && (
+              <span className="detalhes-compartilhado">🔗 Compartilhado por {compartilhadoPor}</span>
+            )}
           </div>
           <button className="btn-close" onClick={onClose} type="button">×</button>
         </div>

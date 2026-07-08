@@ -34,6 +34,7 @@ export default function Perfil() {
   const [dadosCobranca, setDadosCobranca] = useState('')
   const [salvandoCobranca, setSalvandoCobranca] = useState(false)
   const [meusPets, setMeusPets] = useState([])
+  const [compartilhamentosFeitos, setCompartilhamentosFeitos] = useState([])
 
   const veterinarioId = 1 // Será obtido do localStorage ou token
 
@@ -119,11 +120,24 @@ export default function Perfil() {
       if (petsRes.data.sucesso && Array.isArray(petsRes.data.data)) {
         setMeusPets(petsRes.data.data)
       }
+
+      fetchCompartilhamentosFeitos()
     } catch (err) {
       setError('Erro ao carregar dados do perfil')
       console.error(err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchCompartilhamentosFeitos = async () => {
+    try {
+      const res = await axios.get('/api/compartilhamento/meus')
+      if (res.data.sucesso && Array.isArray(res.data.data)) {
+        setCompartilhamentosFeitos(res.data.data)
+      }
+    } catch (err) {
+      console.error('Erro ao buscar compartilhamentos feitos:', err)
     }
   }
 
@@ -769,6 +783,25 @@ export default function Perfil() {
             >
               🔗 Compartilhar Animal
             </button>
+
+            {compartilhamentosFeitos.length > 0 && (
+              <div className="compartilhados-lista">
+                <div className="compartilhados-lista-titulo">Animais que você compartilhou</div>
+                {compartilhamentosFeitos.map(comp => (
+                  <div key={comp.id} className="compartilhado-feito-item">
+                    <div className="compartilhado-feito-info">
+                      <span className="cfi-animal">🐾 {comp.Pet?.nome || 'Animal removido'}{comp.Pet?.especie ? ` (${comp.Pet.especie})` : ''}</span>
+                      <span className="cfi-quem">
+                        com {comp.veterinarioConvidado?.nome || comp.emailConvidado || 'convidado'}
+                      </span>
+                    </div>
+                    <span className={`cfi-status cfi-status-${comp.status}`}>
+                      {comp.status === 'aceito' ? '✅ Aceito' : comp.status === 'pendente' ? '⏳ Pendente' : comp.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -849,7 +882,7 @@ export default function Perfil() {
       {/* Compartilhar Animal Modal */}
       <CompartilharAnimalModal
         isOpen={compartilharModalOpen}
-        onClose={() => setCompartilharModalOpen(false)}
+        onClose={() => { setCompartilharModalOpen(false); fetchCompartilhamentosFeitos() }}
         animais={meusPets}
         onCompartilharSuccess={() => fetchData()}
       />

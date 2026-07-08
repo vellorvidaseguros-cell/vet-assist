@@ -115,6 +115,7 @@ export default function MobileClientesList() {
         <AnimalHistoryModal
           petId={animalCompartilhado.id}
           petName={animalCompartilhado.nome}
+          compartilhadoPor={animalCompartilhado.compartilhadoPor}
           onClose={() => setAnimalCompartilhado(null)}
         />
       )}
@@ -178,7 +179,7 @@ export default function MobileClientesList() {
             <div
               key={comp.id}
               className="mobile-compartilhado-item"
-              onClick={() => comp.Pet && setAnimalCompartilhado(comp.Pet)}
+              onClick={() => comp.Pet && setAnimalCompartilhado({ ...comp.Pet, compartilhadoPor: comp.veterinarioOrigem?.nome })}
             >
               <span className="mci-nome">🐾 {comp.Pet?.nome || 'Animal'}</span>
               <span className="mci-especie">{comp.Pet?.especie || ''}</span>
