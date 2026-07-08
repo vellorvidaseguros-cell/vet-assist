@@ -24,6 +24,10 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
   const [salvandoAtendimento, setSalvandoAtendimento] = useState(false)
   const [historicoParaFoto, setHistoricoParaFoto] = useState(null)
 
+  // Fotos escolhidas no formulário — enviadas automaticamente após registrar o atendimento
+  const [fotosSelecionadas, setFotosSelecionadas] = useState([])
+  const [previewsFotos, setPreviewsFotos] = useState([])
+
   // Atendimento Externo (visita domiciliar) — mesma fórmula do Orçamento/Agendamento
   const [atendimentoExterno, setAtendimentoExterno] = useState(false)
   const [horaTecnica, setHoraTecnica] = useState(0)
@@ -169,6 +173,36 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
     })
   }
 
+  // Seleção de fotos no formulário (guardadas até registrar o atendimento)
+  const handleSelecionarFotos = (e) => {
+    const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'))
+    if (files.length === 0) return
+    setFotosSelecionadas(prev => [...prev, ...files])
+    files.forEach(file => {
+      const reader = new FileReader()
+      reader.onloadend = () => setPreviewsFotos(prev => [...prev, reader.result])
+      reader.readAsDataURL(file)
+    })
+    e.target.value = '' // permite selecionar o mesmo arquivo de novo se remover
+  }
+
+  const removerFotoSelecionada = (index) => {
+    setFotosSelecionadas(prev => prev.filter((_, i) => i !== index))
+    setPreviewsFotos(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const resetFormNovoAtendimento = () => {
+    setNovoAtendimento(NOVO_ATENDIMENTO_VAZIO)
+    setMostrarNovoAtendimento(false)
+    setAtendimentoExterno(false)
+    setDistanciaKm('')
+    setTempoDeslocamentoMin('')
+    setItensInsumo([])
+    setMostrarInsumo(false)
+    setFotosSelecionadas([])
+    setPreviewsFotos([])
+  }
+
   const handleSalvarAtendimento = async () => {
     if (!novoAtendimento.data) {
       setError('Informe a data do atendimento')
@@ -200,16 +234,23 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
       })
       if (res.data.sucesso) {
         const novoId = res.data.data?.id
-        setNovoAtendimento(NOVO_ATENDIMENTO_VAZIO)
-        setMostrarNovoAtendimento(false)
-        setAtendimentoExterno(false)
-        setDistanciaKm('')
-        setTempoDeslocamentoMin('')
-        setItensInsumo([])
-        setMostrarInsumo(false)
+        // Envia as fotos escolhidas no formulário para o atendimento recém-criado
+        if (novoId && fotosSelecionadas.length > 0) {
+          for (const foto of fotosSelecionadas) {
+            try {
+              const form = new FormData()
+              form.append('arquivo', foto)
+              form.append('historicoConsultaId', String(novoId))
+              await axios.post('/api/anexos/upload', form, {
+                headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000
+              })
+            } catch (errFoto) {
+              console.error('Erro ao enviar foto:', errFoto)
+            }
+          }
+        }
+        resetFormNovoAtendimento()
         await fetchHistorico()
-        // Oferece anexar fotos ao atendimento recém-criado
-        if (novoId) setHistoricoParaFoto(novoId)
       } else {
         setError(res.data.erro || 'Erro ao registrar atendimento')
       }
@@ -428,11 +469,38 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
                     ))}
                   </div>
 
+                  {/* Fotos do atendimento */}
+                  <div className="na-toggle-section">
+                    <div className="na-fotos-header">
+                      <span>📸 Fotos do atendimento</span>
+                      <label className="na-btn-add-foto">
+                        + Adicionar
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleSelecionarFotos}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                    </div>
+                    {previewsFotos.length > 0 && (
+                      <div className="na-fotos-grid">
+                        {previewsFotos.map((preview, index) => (
+                          <div key={index} className="na-foto-item">
+                            <img src={preview} alt={`Foto ${index + 1}`} />
+                            <button type="button" onClick={() => removerFotoSelecionada(index)} title="Remover">✕</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="na-acoes">
                     <button
                       type="button"
                       className="na-btn-cancelar"
-                      onClick={() => { setMostrarNovoAtendimento(false); setNovoAtendimento(NOVO_ATENDIMENTO_VAZIO) }}
+                      onClick={resetFormNovoAtendimento}
                     >
                       Cancelar
                     </button>
@@ -442,7 +510,9 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
                       onClick={handleSalvarAtendimento}
                       disabled={salvandoAtendimento}
                     >
-                      {salvandoAtendimento ? 'Salvando...' : '✓ Registrar'}
+                      {salvandoAtendimento
+                        ? (fotosSelecionadas.length > 0 ? 'Salvando e enviando fotos...' : 'Salvando...')
+                        : '✓ Registrar'}
                     </button>
                   </div>
                 </div>
@@ -555,6 +625,16 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
                             <div className="historico-footer">
                               👨‍⚕️ {hist.veterinario}
                             </div>
+                          )}
+
+                          {podeEditar && (
+                            <button
+                              type="button"
+                              className="historico-add-foto"
+                              onClick={(e) => { e.stopPropagation(); setHistoricoParaFoto(hist.id) }}
+                            >
+                              📸 Adicionar fotos
+                            </button>
                           )}
                         </>
                       )}
