@@ -43,11 +43,42 @@
   padding-top: max(16px, env(safe-area-inset-top));
   border-bottom: 1px solid #e5e5ea;
   background-color: #f5f5f5;
-  /* Fixo no topo: sem isso o título/contador rola junto com a lista e fica
-     cortado pela borda da tela ao rolar para baixo */
-  position: sticky;
-  top: 0;
-  z-index: 10;
+}
+
+/* ===== Layout robusto do modal de histórico do animal =====
+   Em vez de sticky (que bugava no scroll do iOS e cortava o nome do animal),
+   o modal é uma coluna flex: cabeçalho fixo no topo, corpo rolável no meio,
+   ações fixas embaixo. O padding-top do overlay afasta tudo do notch. */
+.animal-historico-overlay {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* quem rola é o corpo, não o overlay inteiro */
+  padding-top: env(safe-area-inset-top);
+}
+
+.animal-historico-overlay .modal-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
+}
+
+.animal-historico-overlay .modal-header {
+  flex-shrink: 0;
+  padding-top: 16px; /* o notch já é tratado pelo overlay */
+}
+
+.animal-historico-overlay .detalhes-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.animal-historico-overlay .modal-actions {
+  flex-shrink: 0;
+  margin-top: 0;
 }
 
 .detalhes-titulo {

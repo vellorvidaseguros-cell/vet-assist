@@ -270,7 +270,7 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
 
   if (loading) {
     return createPortal(
-      <div className="modal-overlay">
+      <div className="modal-overlay animal-historico-overlay">
         <div className="modal-content detalhes-modal">
           <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando histórico...</div>
         </div>
@@ -280,7 +280,7 @@ export default function AnimalHistoryModal({ petId, petName, onClose }) {
   }
 
   return createPortal(
-    <div className="modal-overlay">
+    <div className="modal-overlay animal-historico-overlay">
       <div className="modal-content detalhes-modal">
         {/* Header */}
         <div className="modal-header">
