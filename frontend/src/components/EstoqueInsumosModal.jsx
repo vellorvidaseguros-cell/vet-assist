@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { Pencil, Trash2 } from 'lucide-react'
 import MoneyInput from './MoneyInput'
 import ConfirmModal from './ConfirmModal'
 import './EstoqueInsumosModal.css'
@@ -124,7 +125,7 @@ export default function EstoqueInsumosModal({ isOpen, onClose }) {
     <div className="ei-modal-overlay">
       <div className="ei-modal">
         <div className="ei-modal-header">
-          <h2>📦 Estoque de Insumos</h2>
+          <h2>Estoque de Insumos</h2>
           <button className="ei-btn-close" onClick={onClose}>✕</button>
         </div>
 
@@ -154,7 +155,7 @@ export default function EstoqueInsumosModal({ isOpen, onClose }) {
                         <div className="ei-item-info">
                           <span className="ei-item-nome">
                             {insumo.nome}
-                            {estoqueBaixo && <span className="ei-badge-baixo">⚠️ estoque baixo</span>}
+                            {estoqueBaixo && <span className="ei-badge-baixo">estoque baixo</span>}
                           </span>
                           <span className="ei-item-detalhes">
                             {parseFloat(insumo.quantidadeEstoque)} {insumo.unidade} em estoque
@@ -162,8 +163,8 @@ export default function EstoqueInsumosModal({ isOpen, onClose }) {
                           </span>
                         </div>
                         <div className="ei-item-acoes">
-                          <button className="ei-btn-icon" onClick={() => abrirEdicao(insumo)} title="Editar">✏️</button>
-                          <button className="ei-btn-icon" onClick={() => handleRemover(insumo)} title="Remover">🗑️</button>
+                          <button className="ei-btn-icon" onClick={() => abrirEdicao(insumo)} title="Editar"><Pencil size={16} /></button>
+                          <button className="ei-btn-icon" onClick={() => handleRemover(insumo)} title="Remover"><Trash2 size={16} /></button>
                         </div>
                       </div>
                     )
@@ -250,7 +251,7 @@ export default function EstoqueInsumosModal({ isOpen, onClose }) {
                   Cancelar
                 </button>
                 <button type="submit" className="ei-btn-salvar" disabled={salvando}>
-                  {salvando ? 'Salvando...' : '💾 Salvar'}
+                  {salvando ? 'Salvando...' : 'Salvar'}
                 </button>
               </div>
             </form>

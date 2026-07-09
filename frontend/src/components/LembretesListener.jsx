@@ -6,6 +6,7 @@
  */
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { io } from 'socket.io-client'
+import { isAdmin } from '../utils/conta'
 
 // Detectar plataforma
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
@@ -106,7 +107,7 @@ async function descobrirSocketUrl() {
   return origin
 }
 
-export default function LembretesListener() {
+export default function LembretesListener({ onNovoFeedback, onNovaSolicitacaoSenha } = {}) {
   const socketRef = useRef(null)
   const notificacoesRef = useRef(new Set())
   const [alertas, setAlertas] = useState([])
@@ -206,6 +207,65 @@ export default function LembretesListener() {
     }
   }, [removerAlerta])
 
+  // Novo feedback (dúvida/sugestão/bug) enviado por algum veterinário — só o
+  // admin recebe o alerta (o evento é broadcast, o filtro é feito aqui no cliente).
+  const handleNovoFeedback = useCallback((data) => {
+    if (!isAdmin()) return
+
+    const chave = `feedback-${data.id}`
+    setAlertas(prev => [{
+      id: chave,
+      titulo: 'Nova mensagem recebida',
+      mensagem: data.mensagem,
+      cliente: data.autorNome,
+      pet: '',
+      tipo: 'feedback',
+      hora_recebido: new Date().toLocaleTimeString('pt-BR')
+    }, ...prev.slice(0, 4)])
+    setTimeout(() => removerAlerta(chave), 30000)
+
+    onNovoFeedback?.(data)
+
+    if ('Notification' in window && Notification.permission === 'granted' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.ready
+        .then(reg => reg.showNotification('Nova mensagem recebida', {
+          body: `${data.autorNome}: ${data.mensagem}`,
+          icon: '/favicon.ico',
+          tag: chave
+        }))
+        .catch(() => {})
+    }
+  }, [removerAlerta, onNovoFeedback])
+
+  // Novo pedido de redefinição de senha — só o admin recebe o alerta.
+  const handleNovaSolicitacaoSenha = useCallback((data) => {
+    if (!isAdmin()) return
+
+    const chave = `senha-${data.id}`
+    setAlertas(prev => [{
+      id: chave,
+      titulo: 'Pedido de redefinição de senha',
+      mensagem: `${data.nome} esqueceu a senha e precisa de um novo código.`,
+      cliente: data.nome,
+      pet: '',
+      tipo: 'feedback',
+      hora_recebido: new Date().toLocaleTimeString('pt-BR')
+    }, ...prev.slice(0, 4)])
+    setTimeout(() => removerAlerta(chave), 30000)
+
+    onNovaSolicitacaoSenha?.(data)
+
+    if ('Notification' in window && Notification.permission === 'granted' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.ready
+        .then(reg => reg.showNotification('Pedido de redefinição de senha', {
+          body: `${data.nome} precisa de um novo código de acesso.`,
+          icon: '/favicon.ico',
+          tag: chave
+        }))
+        .catch(() => {})
+    }
+  }, [removerAlerta, onNovaSolicitacaoSenha])
+
   // Conectar Socket.IO
   useEffect(() => {
     let cancelado = false
@@ -230,6 +290,8 @@ export default function LembretesListener() {
       socket.on('connect_error', err => console.warn('[Socket] ⚠️', err.message))
       socket.on('disconnect', reason => console.log('[Socket] Desconectado:', reason))
       socket.on('lembrete', handleLembrete)
+      socket.on('novoFeedback', handleNovoFeedback)
+      socket.on('novaSolicitacaoSenha', handleNovaSolicitacaoSenha)
     })
 
     return () => {
@@ -237,7 +299,7 @@ export default function LembretesListener() {
       socketRef.current?.disconnect()
       socketRef.current = null
     }
-  }, [handleLembrete])
+  }, [handleLembrete, handleNovoFeedback, handleNovaSolicitacaoSenha])
 
   // Pedir permissão de notificação — DEVE ser chamado dentro de um toque do usuário
   const pedirPermissao = async () => {
@@ -257,14 +319,14 @@ export default function LembretesListener() {
         try {
           if ('serviceWorker' in navigator) {
             const reg = await navigator.serviceWorker.ready
-            await reg.showNotification('🔔 Lembretes ativados!', {
+            await reg.showNotification('Lembretes ativados!', {
               body: 'Você receberá avisos 5 e 30 minutos antes das consultas.',
               icon: '/favicon.ico',
               badge: '/favicon.ico',
               vibrate: [200, 100, 200]
             })
           } else {
-            new Notification('🔔 Lembretes ativados!', {
+            new Notification('Lembretes ativados!', {
               body: 'Você receberá avisos 5 e 30 minutos antes das consultas.',
               icon: '/favicon.ico'
             })
@@ -299,7 +361,6 @@ export default function LembretesListener() {
             padding: '32px 24px', maxWidth: '360px', width: '100%',
             textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.4)'
           }}>
-            <div style={{ fontSize: '52px', marginBottom: '12px' }}>🔔</div>
             <div style={{ fontSize: '20px', fontWeight: '700', color: '#1a1a1a', marginBottom: '10px' }}>
               Ativar Lembretes
             </div>
@@ -316,7 +377,7 @@ export default function LembretesListener() {
                 cursor: 'pointer', marginBottom: '12px'
               }}
             >
-              ✅ Ativar agora
+              Ativar agora
             </button>
             <button
               onClick={() => { marcarPedirDispensado(); setBanner(null) }}
@@ -344,7 +405,7 @@ export default function LembretesListener() {
           display: 'flex', alignItems: 'center', gap: '8px',
           maxWidth: '92vw', fontSize: '12.5px', fontWeight: 500
         }}>
-          <span style={{ whiteSpace: 'nowrap' }}>📲 Instalar: Compartilhar → Tela de Início</span>
+          <span style={{ whiteSpace: 'nowrap' }}>Instalar: Compartilhar → Tela de Início</span>
           <button
             onClick={() => { marcarPedirDispensado(); setBanner(null) }}
             style={{
@@ -370,7 +431,6 @@ export default function LembretesListener() {
             padding: '28px 24px', maxWidth: '360px', width: '100%',
             textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.4)'
           }}>
-            <div style={{ fontSize: '48px', marginBottom: '10px' }}>🔄</div>
             <div style={{ fontSize: '18px', fontWeight: '700', color: '#1a1a1a', marginBottom: '12px' }}>
               Reinstalar o App
             </div>
@@ -379,7 +439,7 @@ export default function LembretesListener() {
               <strong>1.</strong> Pressione e segure o ícone do VetAssist<br/>
               <strong>2.</strong> Toque <strong>"Remover App"</strong><br/>
               <strong>3.</strong> Abra o <strong>Safari</strong> e acesse o site<br/>
-              <strong>4.</strong> <strong>⎙ Compartilhar → Adicionar à Tela Inicial</strong><br/>
+              <strong>4.</strong> <strong>Compartilhar → Adicionar à Tela Inicial</strong><br/>
               <strong>5.</strong> Abra pelo ícone → toque <strong>"Ativar agora"</strong><br/><br/>
               <span style={{ color: '#888', fontSize: '12px' }}>
                 Isso vai registrar o app corretamente nas notificações do iPhone.
@@ -410,19 +470,18 @@ export default function LembretesListener() {
             padding: '28px 24px', maxWidth: '360px', width: '100%',
             textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.4)'
           }}>
-            <div style={{ fontSize: '48px', marginBottom: '10px' }}>⚙️</div>
             <div style={{ fontSize: '18px', fontWeight: '700', color: '#1a1a1a', marginBottom: '12px' }}>
               Ativar no iPhone
             </div>
             <div style={{ fontSize: '14px', color: '#444', marginBottom: '20px', lineHeight: 1.7, textAlign: 'left' }}>
               Para ativar as notificações do VetAssist no iPhone, siga os passos:<br/><br/>
               <strong>1.</strong> Feche este app<br/>
-              <strong>2.</strong> Abra <strong>Configurações ⚙️</strong> do iPhone<br/>
+              <strong>2.</strong> Abra <strong>Configurações</strong> do iPhone<br/>
               <strong>3.</strong> Role até encontrar <strong>VetAssist</strong><br/>
               <strong>4.</strong> Toque em <strong>Notificações</strong><br/>
               <strong>5.</strong> Ative <strong>"Permitir Notificações"</strong><br/><br/>
               <span style={{ color: '#888', fontSize: '13px' }}>
-                ⚠️ Se VetAssist não aparecer na lista, remova o app da tela inicial e adicione novamente pelo Safari.
+                Se VetAssist não aparecer na lista, remova o app da tela inicial e adicione novamente pelo Safari.
               </span>
             </div>
             <button
@@ -452,11 +511,10 @@ export default function LembretesListener() {
           width: 'max-content', maxWidth: '90vw', fontSize: '13px', fontWeight: '500'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '16px', whiteSpace: 'nowrap' }}>🔕</span>
             <span style={{ whiteSpace: 'nowrap' }}>Notificações bloqueadas</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', fontSize: '12px' }}>
-            <span>Toque 🔒</span>
+            <span>Toque para permitir</span>
           </div>
           <button onClick={() => { marcarDispensado(); setBanner(null) }} style={{
             background: 'none', border: 'none', color: 'white',
@@ -474,17 +532,19 @@ export default function LembretesListener() {
             onClick={() => removerAlerta(alerta.id)}
             style={{
               ...estilosAlertas.card,
-              background: alerta.tipo === '5min'
-                ? 'linear-gradient(135deg, #dc3545, #b02a37)'
-                : 'linear-gradient(135deg, #fd7e14, #c96a00)'
+              background: alerta.tipo === 'feedback'
+                ? 'linear-gradient(135deg, #0d6b3a, #0a512c)'
+                : alerta.tipo === '5min'
+                  ? 'linear-gradient(135deg, #dc3545, #b02a37)'
+                  : 'linear-gradient(135deg, #fd7e14, #c96a00)'
             }}
           >
-            <div style={estilosAlertas.titulo}>🔔 {alerta.titulo}</div>
+            <div style={estilosAlertas.titulo}>{alerta.titulo}</div>
             <div style={estilosAlertas.mensagem}>{alerta.mensagem}</div>
             <div style={estilosAlertas.info}>
-              <span>👤 {alerta.cliente}</span>
-              <span>🐾 {alerta.pet}</span>
-              <span>🕐 {alerta.hora_recebido}</span>
+              <span>{alerta.cliente}</span>
+              {alerta.pet && <span>{alerta.pet}</span>}
+              <span>{alerta.hora_recebido}</span>
             </div>
             <div style={estilosAlertas.fechar}>Toque para fechar</div>
           </div>

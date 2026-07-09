@@ -54,8 +54,8 @@
 
 .nam-header h2 {
   margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   color: #1a1a2e;
   text-align: center;
   white-space: nowrap;
@@ -64,7 +64,7 @@
 .nam-close {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: var(--font-size-3xl);
   cursor: pointer;
   color: #999;
   line-height: 1;
@@ -99,8 +99,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.88rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -127,14 +127,14 @@
 }
 
 .nam-group label {
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #333;
 }
 
 .nam-group label .optional {
-  font-size: 0.75rem;
-  font-weight: 400;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
   color: #8e8e93;
   margin-left: 0.25rem;
 }
@@ -145,7 +145,7 @@
   padding: 0.65rem 0.75rem;
   border: 1.5px solid #ddd;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   background: white;
   transition: border-color 0.2s;
   width: 100%;
@@ -197,8 +197,8 @@
   background: none;
   border: 1.5px solid #ccc;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #555;
   cursor: pointer;
   transition: all 0.2s;
@@ -220,8 +220,8 @@
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -240,7 +240,7 @@
   background: #ffebee;
   color: #d32f2f;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }
 
 /* ===== RESPONSIVO ===== */
@@ -279,7 +279,7 @@
   }
 
   .nam-header h2 {
-    font-size: 1rem;
+    font-size: var(--font-size-lg);
   }
 
   .nam-body {
@@ -296,7 +296,7 @@
   }
 
   .nam-section-title {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     padding-bottom: 0.5rem;
   }
 
@@ -306,14 +306,14 @@
   }
 
   .nam-group label {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .nam-group input,
   .nam-group select,
   .nam-group textarea {
     padding: 0.6rem 0.65rem;
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
   }
 
   .nam-footer {
@@ -331,7 +331,7 @@
   .nam-btn-salvar,
   .nam-btn-cancelar {
     padding: 0.85rem 1rem;
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
     min-height: 48px;
     width: 100%;  /* botões ocupam toda largura */
     text-align: center;
@@ -351,13 +351,13 @@
   }
 
   .nam-header h2 {
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
   }
 
   .nam-close {
     width: 28px;
     height: 28px;
-    font-size: 1.3rem;
+    font-size: var(--font-size-2xl);
   }
 
   .nam-body {
@@ -368,19 +368,19 @@
   }
 
   .nam-section-title {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     padding-bottom: 0.4rem;
   }
 
   .nam-group label {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .nam-group input,
   .nam-group select,
   .nam-group textarea {
     padding: 0.7rem 0.75rem;
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
     /* Prevenir zoom automático no iPhone (input >= 16px não dá zoom) */
     font-size: max(0.95rem, 16px);
   }
@@ -392,13 +392,13 @@
   .nam-btn-salvar,
   .nam-btn-cancelar {
     padding: 0.85rem 1rem;
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
     min-height: 44px;
   }
 
   .nam-error {
     padding: 0.65rem 0.85rem;
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 }
 
@@ -427,8 +427,8 @@
 }
 
 .tipo-item-label {
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary);
   margin: 0;
   flex: 1;
@@ -447,8 +447,8 @@
 }
 
 .tipo-field-label {
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: #555;
   margin: 0;
 }
@@ -504,20 +504,20 @@
 }
 
 .valor-total-label {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .valor-total-amount {
-  font-size: 1.4rem;
+  font-size: var(--font-size-3xl);
   font-weight: 800;
 }
 
 .valor-total-hint {
   margin: 8px 0 0 0;
-  font-size: 0.8rem;
+  font-size: var(--font-size-sm);
   color: #888;
   text-align: center;
   font-style: italic;
@@ -525,12 +525,12 @@
 
 .btn-remover-tipo {
   background-color: transparent;
-  color: #ff3b30;
-  border: 1px solid #ff3b30;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
   border-radius: 6px;
   padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -540,7 +540,7 @@
 }
 
 .btn-remover-tipo:active {
-  background-color: #ff3b30;
+  background-color: var(--color-danger);
   color: white;
   transform: scale(0.95);
 }
@@ -548,12 +548,12 @@
 .btn-adicionar-tipo {
   width: 100%;
   background-color: #ffffff;
-  color: #007aff;
-  border: 1.5px dashed #007aff;
+  color: var(--color-primary);
+  border: 1.5px dashed var(--color-primary);
   border-radius: 8px;
   padding: 14px 16px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   margin-top: 12px;
@@ -578,7 +578,7 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
 }
 
@@ -590,7 +590,7 @@
 
 .nam-aviso {
   margin-top: 0.6rem;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #8a6d0b;
   background: #fff8e6;
   border-left: 4px solid #b8860b;
@@ -632,8 +632,8 @@
   flex: 1;
   padding: 0.55rem 0.9rem;
   border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
 }
 
@@ -669,8 +669,8 @@
 .nam-item-fixo span {
   flex: 1;
   min-width: 0;
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #333;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -678,7 +678,7 @@
 }
 
 .nam-item-fixo strong {
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   color: #0d6b3a;
   white-space: nowrap;
 }
@@ -688,7 +688,7 @@
   margin: 0 !important;
   background: none;
   border: none;
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
   cursor: pointer;
   padding: 0.2rem 0.35rem !important;
   border-radius: 6px;

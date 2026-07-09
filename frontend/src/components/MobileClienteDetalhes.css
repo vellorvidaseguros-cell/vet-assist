@@ -63,22 +63,22 @@
 }
 
 .detalhes-titulo h3 {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
   color: #000;
   margin: 0;
 }
 
 .detalhes-data {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: #8e8e93;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .btn-close {
   background: none;
   border: none;
-  font-size: 28px;
+  font-size: var(--font-size-4xl);
   color: #8e8e93;
   cursor: pointer;
   padding: 0;
@@ -94,31 +94,7 @@
   transform: scale(0.9);
 }
 
-.error-message {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #ff3b30;
-  color: white;
-  padding: 12px 16px;
-  font-size: 14px;
-  gap: 10px;
-}
 
-.error-message button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
 
 .detalhes-body {
   padding: 12px 0;
@@ -139,8 +115,8 @@
 }
 
 .detalhes-section h4 {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #000;
   margin: 0 0 8px 0;
   display: flex;
@@ -149,7 +125,7 @@
 }
 
 .detalhes-text {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #333;
   margin: 0 0 8px 0;
   word-break: break-word;
@@ -185,12 +161,12 @@
 
 .animais-btn-adicionar {
   padding: 6px 12px;
-  background-color: #007aff;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 1;
@@ -219,12 +195,12 @@
 .novo-animal-btn-save {
   width: 100%;
   padding: 10px;
-  background-color: #34c759;
+  background-color: var(--color-success);
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   box-sizing: border-box;
@@ -269,10 +245,13 @@
 }
 
 .pet-icon {
-  font-size: 24px;
   flex-shrink: 0;
   line-height: 1;
   margin-top: 2px;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pet-info-card {
@@ -284,8 +263,8 @@
 }
 
 .pet-name {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #000;
   margin: 0;
   word-break: break-word;
@@ -293,7 +272,7 @@
 }
 
 .pet-details {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: #8e8e93;
   margin: 0;
   line-height: 1.4;
@@ -301,60 +280,28 @@
   white-space: normal;
 }
 
-.pet-edit-btn {
-  background: white;
-  border: 1.5px solid #007aff;
-  color: #007aff;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex: 1;
-  box-sizing: border-box;
-}
-
-.pet-edit-btn:active {
-  background-color: #f0f8ff;
-  transform: scale(0.98);
-}
-
-.pet-history-btn {
-  background: white;
-  border: 1.5px solid #34c759;
-  color: #34c759;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex: 1;
-  box-sizing: border-box;
-}
-
-.pet-history-btn:active {
-  background-color: #f0fdf4;
-  transform: scale(0.98);
-}
-
+.pet-edit-btn,
+.pet-history-btn,
 .pet-quote-btn {
   background: white;
-  border: 1.5px solid #ff9500;
-  color: #ff9500;
+  border: 1.5px solid var(--color-gray-medium);
+  color: var(--color-text);
   border-radius: 6px;
   padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   flex: 1;
   box-sizing: border-box;
 }
 
+.pet-edit-btn:active,
+.pet-history-btn:active,
 .pet-quote-btn:active {
-  background-color: #fffaf0;
+  background-color: var(--color-primary-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
   transform: scale(0.98);
 }
 
@@ -382,8 +329,8 @@
   color: #333;
   border: none;
   border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -396,12 +343,12 @@
 .pet-form-btn-save {
   flex: 1;
   padding: 8px;
-  background-color: #007aff;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -421,7 +368,7 @@
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 12px;
-  border: 1px solid #007aff;
+  border: 1px solid var(--color-primary);
   width: 100%;
   box-sizing: border-box;
   display: flex;
@@ -449,8 +396,8 @@
   color: #333;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -472,11 +419,11 @@
   }
 
   .detalhes-titulo h3 {
-    font-size: 16px;
+    font-size: var(--font-size-lg);
   }
 
   .detalhes-data {
-    font-size: 12px;
+    font-size: var(--font-size-xs);
   }
 
   .detalhes-body {
@@ -494,12 +441,12 @@
   }
 
   .detalhes-section h4 {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     margin-bottom: 6px;
   }
 
   .detalhes-text {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     margin-bottom: 6px;
   }
 
@@ -509,11 +456,11 @@
   }
 
   .pet-name {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 
   .pet-details {
-    font-size: 11px;
+    font-size: var(--font-size-2xs);
   }
 
   .modal-actions {
@@ -523,7 +470,7 @@
 
   .btn-cancelar {
     padding: 10px 12px;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 }
 
@@ -536,7 +483,7 @@
   padding: 8px !important;
   border: 1px solid #ddd !important;
   border-radius: 6px !important;
-  font-size: 13px !important;
+  font-size: var(--font-size-sm) !important;
   width: 100% !important;
   box-sizing: border-box !important;
   min-height: 40px !important;

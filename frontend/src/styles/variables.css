@@ -3,6 +3,7 @@
   --color-primary: #0d6b3a;
   --color-primary-dark: #094a2a;
   --color-primary-light: #16a952;
+  --color-primary-bg: #e8f3ec;
 
   /* Cores Neutras */
   --color-white: #ffffff;
@@ -10,12 +11,17 @@
   --color-gray-medium: #e0e0e0;
   --color-gray-dark: #666666;
   --color-text: #333333;
+  --color-text-secondary: #5f5e5a;
 
-  /* Cores de Status */
-  --color-success: #4caf50;
-  --color-warning: #ff9800;
-  --color-danger: #d32f2f;
-  --color-info: #2196f3;
+  /* Cores de Status (usar SOMENTE quando o significado for real: pago/pendente/erro/aviso) */
+  --color-success: #1d6e42;
+  --color-success-bg: #e8f3ec;
+  --color-warning: #8a5a12;
+  --color-warning-bg: #fdf1de;
+  --color-danger: #a32d2d;
+  --color-danger-bg: #fbeaea;
+  --color-info: #185fa5;
+  --color-info-bg: #e6f1fb;
 
   /* Sombras */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -33,4 +39,22 @@
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
+
+  /* Escala Tipográfica (usar estas variáveis em vez de valores soltos) */
+  --font-size-2xs: 0.6875rem; /* 11px — badges, metadados minúsculos */
+  --font-size-xs: 0.75rem;    /* 12px — texto pequeno, legendas */
+  --font-size-sm: 0.8125rem;  /* 13px — texto secundário */
+  --font-size-base: 0.875rem; /* 14px — corpo padrão */
+  --font-size-md: 0.9375rem;  /* 15px — corpo enfatizado */
+  --font-size-lg: 1rem;       /* 16px — texto de destaque, valores */
+  --font-size-xl: 1.125rem;   /* 18px — subtítulo */
+  --font-size-2xl: 1.25rem;   /* 20px — título de seção */
+  --font-size-3xl: 1.5rem;    /* 24px — título de página */
+  --font-size-4xl: 1.75rem;   /* 28px — destaque grande */
+  --font-size-5xl: 2rem;      /* 32px — números/hero */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 }

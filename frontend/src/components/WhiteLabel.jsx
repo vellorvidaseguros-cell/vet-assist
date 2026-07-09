@@ -168,7 +168,7 @@ export default function WhiteLabel() {
                   <span className="value">{whiteLabel.email || 'N/A'}</span>
                 </div>
               </div>
-              <p className="endereco-info">📍 {whiteLabel.endereco || 'Endereço'}, {whiteLabel.cidade || 'Cidade'} - {whiteLabel.estado || 'UF'}</p>
+              <p className="endereco-info">{whiteLabel.endereco || 'Endereço'}, {whiteLabel.cidade || 'Cidade'} - {whiteLabel.estado || 'UF'}</p>
             </div>
 
             <div className="pdf-section">
@@ -346,7 +346,7 @@ export default function WhiteLabel() {
                   <span className="value">{whiteLabel.email || 'N/A'}</span>
                 </div>
               </div>
-              <p className="endereco-info" style={{ marginTop: '1rem' }}>📍 {whiteLabel.endereco || 'Endereço'}, {whiteLabel.cidade || 'Cidade'} - {whiteLabel.estado || 'UF'}</p>
+              <p className="endereco-info" style={{ marginTop: '1rem' }}>{whiteLabel.endereco || 'Endereço'}, {whiteLabel.cidade || 'Cidade'} - {whiteLabel.estado || 'UF'}</p>
             </div>
 
             <div className="pdf-section">
@@ -426,7 +426,7 @@ export default function WhiteLabel() {
             </div>
 
             <div className="pdf-section" style={{ backgroundColor: '#e8f5e9', padding: '2rem', borderRadius: '8px', textAlign: 'center', marginBottom: '2rem', border: '2px solid #2e7d32' }}>
-              <h2 style={{ color: '#2e7d32', margin: '0 0 0.5rem 0', fontSize: '1.8rem' }}>✓ PAGAMENTO RECEBIDO</h2>
+              <h2 style={{ color: '#2e7d32', margin: '0 0 0.5rem 0', fontSize: '1.8rem' }}>PAGAMENTO RECEBIDO</h2>
               <p style={{ color: '#2e7d32', margin: 0, fontSize: '1.1rem', fontWeight: '500' }}>Comprovante de Recebimento</p>
             </div>
 
@@ -488,10 +488,10 @@ export default function WhiteLabel() {
       <div className="white-label-content">
         {/* Seção Esquerda: Formulário */}
         <div className="white-label-form">
-          <h3>⚙️ Configurar White Label</h3>
+          <h3>Configurar White Label</h3>
 
           <div className="form-section">
-            <label>📷 Logomarca da Clínica</label>
+            <label>Logomarca da Clínica</label>
             <div className="logo-upload">
               {whiteLabel.logomarcaUrl && (
                 <div className="logo-preview">
@@ -599,38 +599,38 @@ export default function WhiteLabel() {
             onClick={handleSave}
             disabled={loading}
           >
-            {loading ? 'Salvando...' : '💾 Salvar Configurações'}
+            {loading ? 'Salvando...' : 'Salvar Configurações'}
           </button>
         </div>
 
         {/* Seção Direita: Pré-visualização */}
         <div className="white-label-preview">
-          <h3>👀 Pré-visualização dos PDFs</h3>
+          <h3>Pré-visualização dos PDFs</h3>
 
           <div className="preview-tabs">
             <button
               className={`tab ${previewTab === 'protocolo' ? 'active' : ''}`}
               onClick={() => setPreviewTab('protocolo')}
             >
-              📋 Protocolo
+              Protocolo
             </button>
             <button
               className={`tab ${previewTab === 'receita' ? 'active' : ''}`}
               onClick={() => setPreviewTab('receita')}
             >
-              💊 Receita
+              Receita
             </button>
             <button
               className={`tab ${previewTab === 'historico' ? 'active' : ''}`}
               onClick={() => setPreviewTab('historico')}
             >
-              📚 Histórico
+              Histórico
             </button>
             <button
               className={`tab ${previewTab === 'comprovante' ? 'active' : ''}`}
               onClick={() => setPreviewTab('comprovante')}
             >
-              ✓ Comprovante
+              Comprovante
             </button>
           </div>
 

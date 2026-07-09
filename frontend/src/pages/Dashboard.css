@@ -23,9 +23,9 @@
 
 .dashboard-header h1 {
   color: #1a1a2e;
-  font-size: 1.5rem;
+  font-size: var(--font-size-3xl);
   margin: 0;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .main-content {
@@ -96,8 +96,8 @@
   color: #8e8e93;
   transition: color 0.2s;
   padding: 4px;
-  font-size: 10px;
-  font-weight: 500;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
   width: auto;
   margin: 0;
   min-width: 0;
@@ -106,21 +106,21 @@
 }
 
 .mobile-bottom-nav .nav-item:hover {
-  color: #007aff;
+  color: var(--color-primary);
 }
 
 .mobile-bottom-nav .nav-item.ativo {
-  color: #007aff;
+  color: var(--color-primary);
 }
 
 .nav-icon {
-  font-size: 22px;
+  font-size: var(--font-size-2xl);
   line-height: 1;
   display: block;
 }
 
 .nav-label {
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   white-space: nowrap;
   line-height: 1;
 }
@@ -138,7 +138,7 @@
   }
 
   .dashboard-header h1 {
-    font-size: 1.2rem;
+    font-size: var(--font-size-2xl);
   }
 }
 
@@ -147,6 +147,6 @@
     height: calc(56px + env(safe-area-inset-bottom));
   }
 
-  .nav-icon { font-size: 20px; }
-  .nav-label { font-size: 9px; }
+  .nav-icon { font-size: var(--font-size-2xl); }
+  .nav-label { font-size: var(--font-size-2xs); }
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
+import { Clock, CircleCheck, X, Calendar, Trash2 } from 'lucide-react'
 import MobileAgendamentoDetalhes from './MobileAgendamentoDetalhes'
 import './MobileAgendamentosCard.css'
 
@@ -9,18 +10,6 @@ export default function MobileAgendamentosCard({ agendamento, onStatusChange, mo
   const [showDetalhes, setShowDetalhes] = useState(false)
   const [showStatusMenu, setShowStatusMenu] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
-
-  // Mapeamento de emojis para tipos de pet (campo correto do backend: especie)
-  const getPetEmoji = () => {
-    const tipo = (agendamento.Pet?.especie || agendamento.Pet?.tipo || '').toLowerCase()
-    if (tipo.includes('gato')) return '🐱'
-    if (tipo.includes('cachorro') || tipo.includes('cão') || tipo.includes('cao')) return '🐕'
-    if (tipo.includes('pássaro') || tipo.includes('ave') || tipo.includes('passaro')) return '🦜'
-    if (tipo.includes('coelho')) return '🐰'
-    if (tipo.includes('hamster')) return '🐹'
-    if (tipo.includes('tartaruga')) return '🐢'
-    return '🐾'
-  }
 
   // Obter status visual
   const getStatusDisplay = () => {
@@ -176,28 +165,28 @@ export default function MobileAgendamentosCard({ agendamento, onStatusChange, mo
                 onClick={() => handleMudarStatus('Pendente')}
                 disabled={loading}
               >
-                ⏳ PENDENTE
+                <Clock size={16} /> PENDENTE
               </button>
               <button
                 className="status-option status-concluido"
                 onClick={() => handleMudarStatus('Concluído')}
                 disabled={loading}
               >
-                ✓ CONCLUÍDO
+                <CircleCheck size={16} /> CONCLUÍDO
               </button>
               <button
                 className="status-option status-cancelado"
                 onClick={() => handleMudarStatus('Cancelado')}
                 disabled={loading}
               >
-                ✗ CANCELADO
+                <X size={16} /> CANCELADO
               </button>
               <button
                 className="status-option status-reagendado"
                 onClick={() => handleMudarStatus('Reagendado')}
                 disabled={loading}
               >
-                📅 REAGENDADO
+                <Calendar size={16} /> REAGENDADO
               </button>
             </div>
           </div>
@@ -241,7 +230,7 @@ export default function MobileAgendamentosCard({ agendamento, onStatusChange, mo
               disabled={loading}
               title="Deletar agendamento"
             >
-              🗑️
+              <Trash2 size={16} />
             </button>
           </div>
         </div>
@@ -249,7 +238,7 @@ export default function MobileAgendamentosCard({ agendamento, onStatusChange, mo
         {/* Linha 2: Cliente | Animal */}
         <div className="card-row">
           <span className="card-cliente">{agendamento.Cliente?.nome || 'Cliente'}</span>
-          <span className="card-animal">{getPetEmoji()} {agendamento.Pet?.nome || 'Pet'}</span>
+          <span className="card-animal">{agendamento.Pet?.nome || 'Animal'}</span>
         </div>
 
         {/* Linha 3: Hora | Valor */}

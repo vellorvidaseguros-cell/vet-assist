@@ -187,19 +187,19 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
         <div className="detalhes-body">
           {/* Informações básicas */}
           <div className="detalhes-section info-section">
-            <h4>👤 Cliente</h4>
+            <h4>Cliente</h4>
             <p className="detalhes-text">{agendamento.Cliente?.nome}</p>
-            <h4>🐾 Animal</h4>
+            <h4>Animal</h4>
             <p className="detalhes-text">{agendamento.Pet?.nome} ({agendamento.Pet?.especie})</p>
-            <h4>💼 Tipo de Atendimento</h4>
+            <h4>Tipo de Atendimento</h4>
             <p className="detalhes-text">{agendamento.tipoAtendimento}</p>
             {agendamento.descricao && (
               <>
-                <h4>📝 Descrição</h4>
+                <h4>Descrição</h4>
                 <p className="detalhes-text">{agendamento.descricao}</p>
               </>
             )}
-            <h4>💰 Valor</h4>
+            <h4>Valor</h4>
             <p className="detalhes-valor">
               R$ {parseFloat(agendamento.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
@@ -208,7 +208,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
           {/* Seção de Fotos */}
           <div className="detalhes-section fotos-section">
             <div className="section-header">
-              <h4>📸 Fotos e Anexos</h4>
+              <h4>Fotos e Anexos</h4>
               <label className="btn-adicionar-foto" htmlFor={`foto-input-${agendamentoId}`}>
                 {uploadingPhoto ? '⏳ Enviando...' : '+ Foto'}
               </label>
@@ -249,7 +249,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
           {/* Formulário de detalhes (edição) */}
           <div className="detalhes-section form-section">
             <div className="form-group">
-              <label>💊 Medicação Prescrita</label>
+              <label>Medicação Prescrita</label>
               <textarea
                 name="medicamentos"
                 value={formData.medicamentos}
@@ -261,7 +261,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
             </div>
 
             <div className="form-group">
-              <label>🔍 Diagnósticos</label>
+              <label>Diagnósticos</label>
               <textarea
                 name="diagnostico"
                 value={formData.diagnostico}
@@ -273,7 +273,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
             </div>
 
             <div className="form-group">
-              <label>⚕️ Procedimentos / Insumos Utilizados</label>
+              <label>Procedimentos / Insumos Utilizados</label>
               <textarea
                 name="procedimentos"
                 value={formData.procedimentos}
@@ -285,7 +285,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
             </div>
 
             <div className="form-group">
-              <label>📋 Observações e Notas</label>
+              <label>Observações e Notas</label>
               <textarea
                 name="observacoes"
                 value={formData.observacoes}
@@ -297,7 +297,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
             </div>
 
             <div className="form-group">
-              <label>📅 Próximo Agendamento Recomendado</label>
+              <label>Próximo Agendamento Recomendado</label>
               <input
                 type="date"
                 name="proximoRetorno"
@@ -313,7 +313,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
 
           {/* Status */}
           <div className="detalhes-section status-section">
-            <h4>📊 Status</h4>
+            <h4>Status</h4>
             <div className={`status-badge status-${agendamento.status?.toLowerCase()}`}>
               {agendamento.status}
             </div>
@@ -334,7 +334,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
             onClick={handleSave}
             disabled={salvando}
           >
-            {salvando ? '⏳ Salvando...' : salvoComSucesso ? '✓ Salvo!' : 'Salvar'}
+            {salvando ? '⏳ Salvando...' : salvoComSucesso ? 'Salvo!' : 'Salvar'}
           </button>
         </div>
       </div>

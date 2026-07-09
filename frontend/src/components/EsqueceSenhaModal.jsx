@@ -4,14 +4,13 @@ import axios from 'axios'
 import './EsqueceSenhaModal.css'
 
 export default function EsqueceSenhaModal({ isOpen, onClose }) {
-  const [step, setStep] = useState('email') // 'email' | 'whatsapp-sent' | 'reset-password' | 'sucesso'
+  const [step, setStep] = useState('email') // 'email' | 'aguardando' | 'reset-password' | 'sucesso'
   const [email, setEmail] = useState('')
   const [codigo, setCodigo] = useState('')
   const [novaSenha, setNovaSenha] = useState('')
   const [confirmarSenha, setConfirmarSenha] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [codigoGerado, setCodigoGerado] = useState(null)
 
   const handleSolicitar = async (e) => {
     e.preventDefault()
@@ -24,24 +23,15 @@ export default function EsqueceSenhaModal({ isOpen, onClose }) {
       setLoading(true)
       setError('')
 
-      // O código é gerado e validado no SERVIDOR (expira em 15 minutos).
-      // Também valida que o email está cadastrado.
+      // Só registra o PEDIDO — o admin confirma sua identidade e entrega
+      // o código manualmente (WhatsApp/telefone já cadastrado).
       const res = await axios.post('/api/veterinarios/esqueci-senha', { email })
       if (!res.data.sucesso) {
         setError(res.data.erro || 'Erro ao solicitar código')
         return
       }
 
-      const codigoServidor = res.data.data.codigo
-
-      // Entregar o código via WhatsApp
-      const mensagem = encodeURIComponent(
-        `Seu código de recuperação de senha no VetAssist é:\n\n${codigoServidor}\n\nNão compartilhe este código com ninguém.`
-      )
-      window.open(`https://wa.me/?text=${mensagem}`, '_blank')
-
-      setCodigoGerado(codigoServidor)
-      setStep('whatsapp-sent')
+      setStep('aguardando')
     } catch (err) {
       setError(err.response?.data?.erro || 'Erro ao solicitar código')
     } finally {
@@ -103,7 +93,6 @@ export default function EsqueceSenhaModal({ isOpen, onClose }) {
     setNovaSenha('')
     setConfirmarSenha('')
     setError('')
-    setCodigoGerado(null)
   }
 
   if (!isOpen) return null
@@ -113,7 +102,7 @@ export default function EsqueceSenhaModal({ isOpen, onClose }) {
       <div className="es-modal">
         {/* Header */}
         <div className="es-modal-header">
-          <h2>🔑 Recuperar Senha</h2>
+          <h2>Recuperar Senha</h2>
           <button className="es-btn-close" onClick={handleFechar}>✕</button>
         </div>
 
@@ -123,7 +112,7 @@ export default function EsqueceSenhaModal({ isOpen, onClose }) {
             {error && <div className="es-error">{error}</div>}
 
             <p className="es-description">
-              Digite seu email. Vamos enviar um código de recuperação via WhatsApp.
+              Digite seu email. O administrador vai confirmar sua identidade e te enviar um código pelo telefone cadastrado.
             </p>
 
             <input
@@ -149,19 +138,19 @@ export default function EsqueceSenhaModal({ isOpen, onClose }) {
                 disabled={loading}
                 className="es-btn-primary"
               >
-                {loading ? 'Enviando...' : '📱 Enviar Código'}
+                {loading ? 'Enviando...' : 'Solicitar Código'}
               </button>
             </div>
           </form>
         )}
 
-        {/* Step 2: WhatsApp Sent */}
-        {step === 'whatsapp-sent' && (
+        {/* Step 2: Aguardando o admin liberar o código */}
+        {step === 'aguardando' && (
           <div className="es-modal-body">
             <div className="es-success-box">
-              <p className="es-label">✅ Código Enviado!</p>
+              <p className="es-label">Pedido Enviado!</p>
               <p className="es-description">
-                Um código foi enviado para seu WhatsApp. Clique no botão abaixo quando receber a mensagem.
+                O administrador vai te enviar um código pelo telefone/WhatsApp cadastrado. Clique no botão abaixo quando receber.
               </p>
 
               <div className="es-buttons">
@@ -177,7 +166,7 @@ export default function EsqueceSenhaModal({ isOpen, onClose }) {
                   onClick={handleProsseguir}
                   className="es-btn-primary"
                 >
-                  ✓ Já Recebi o Código
+                  Já Recebi o Código
                 </button>
               </div>
             </div>
@@ -190,7 +179,7 @@ export default function EsqueceSenhaModal({ isOpen, onClose }) {
             {error && <div className="es-error">{error}</div>}
 
             <p className="es-description">
-              Digite o código recebido no WhatsApp e sua nova senha.
+              Digite o código que o administrador te enviou e sua nova senha.
             </p>
 
             <input
@@ -235,7 +224,7 @@ export default function EsqueceSenhaModal({ isOpen, onClose }) {
                 disabled={loading}
                 className="es-btn-primary"
               >
-                {loading ? 'Atualizando...' : '✓ Atualizar Senha'}
+                {loading ? 'Atualizando...' : 'Atualizar Senha'}
               </button>
             </div>
           </form>
@@ -245,7 +234,7 @@ export default function EsqueceSenhaModal({ isOpen, onClose }) {
         {step === 'sucesso' && (
           <div className="es-modal-body">
             <div className="es-success-box">
-              <p className="es-label">✅ Senha Atualizada!</p>
+              <p className="es-label">Senha Atualizada!</p>
               <p className="es-description">
                 Sua senha foi alterada com sucesso. Use a nova senha no próximo login.
               </p>

@@ -2,14 +2,6 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import './Lixeira.css'
 
-const ICONE_TIPO = {
-  cliente: '👤',
-  pet: '🐾',
-  agendamento: '📅',
-  historico: '📋',
-  despesa: '💵',
-}
-
 export default function Lixeira() {
   const [itens, setItens] = useState([])
   const [loading, setLoading] = useState(true)
@@ -58,7 +50,7 @@ export default function Lixeira() {
     <div className="lixeira-container">
       <div className="lixeira-header">
         <div className="lixeira-header-top">
-          <h2>🗑️ Lixeira</h2>
+          <h2>Lixeira</h2>
           <button
             className="btn-sair-lixeira"
             onClick={() => window.dispatchEvent(new CustomEvent('navegarPara', { detail: 'perfil' }))}
@@ -70,7 +62,7 @@ export default function Lixeira() {
       </div>
 
       {erro && <div className="error-message">{erro}</div>}
-      {sucesso && <div className="lixeira-sucesso">✓ {sucesso}</div>}
+      {sucesso && <div className="lixeira-sucesso">{sucesso}</div>}
 
       {itens.length === 0 ? (
         <p className="empty-message">Nenhum item na lixeira.</p>
@@ -81,7 +73,7 @@ export default function Lixeira() {
             return (
               <div key={chave} className="lixeira-item">
                 <div className="lixeira-item-info">
-                  <span className="lixeira-tipo-chip">{ICONE_TIPO[item.tipo] || '🗑️'} {item.tipoLabel}</span>
+                  <span className="lixeira-tipo-chip">{item.tipoLabel}</span>
                   <span className="lixeira-nome">{item.nome}</span>
                   <span className="lixeira-data">Excluído em {new Date(item.deletedAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
@@ -90,7 +82,7 @@ export default function Lixeira() {
                   onClick={() => handleRestaurar(item)}
                   disabled={restaurandoId === chave}
                 >
-                  {restaurandoId === chave ? 'Restaurando...' : '↩️ Restaurar'}
+                  {restaurandoId === chave ? 'Restaurando...' : 'Restaurar'}
                 </button>
               </div>
             )

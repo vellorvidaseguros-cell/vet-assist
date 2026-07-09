@@ -40,8 +40,8 @@
   transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   white-space: nowrap;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   color: #000;
 }
 
@@ -55,13 +55,13 @@
 }
 
 .fab-menu-icon {
-  font-size: 20px;
+  font-size: var(--font-size-2xl);
   flex-shrink: 0;
 }
 
 .fab-menu-label {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
 }
 
 /* BOTÃO FAB PRINCIPAL */
@@ -113,7 +113,7 @@
 }
 
 .fab-icon {
-  font-size: 30px;
+  font-size: var(--font-size-4xl);
   line-height: 1;
   display: flex;
   align-items: center;
@@ -162,17 +162,17 @@
   }
 
   .fab-icon {
-    font-size: 28px;
+    font-size: var(--font-size-4xl);
   }
 
   .fab-menu-item {
     padding: 10px 14px;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     border-radius: 12px;
   }
 
   .fab-menu-icon {
-    font-size: 18px;
+    font-size: var(--font-size-xl);
   }
 }
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { Mail, PawPrint, Check, X, Link2, User, Phone, Camera, Cake, Wallet, ArrowLeftRight, Pencil } from 'lucide-react'
 import { formatarData } from '../utils/dateFormatter'
 import { calcularIdade } from '../utils/idadeUtils'
 import { petFotoUrl } from '../utils/petFotoUrl'
@@ -338,14 +339,14 @@ export default function ClientesList() {
       {convites.length > 0 && (
         <div className="convites-recebidos-desktop">
           <div className="convites-recebidos-titulo">
-            📨 Convites recebidos
+            <Mail size={16} /> Convites recebidos
             <span className="convites-recebidos-badge">{convites.length}</span>
           </div>
           <div className="convites-recebidos-lista">
             {convites.map(conv => (
               <div key={conv.id} className="convite-recebido-item">
                 <div className="crd-info">
-                  <span className="crd-nome">🐾 {conv.Pet?.nome || 'Animal'} {conv.Pet?.especie ? `(${conv.Pet.especie})` : ''}</span>
+                  <span className="crd-nome"><PawPrint size={14} /> {conv.Pet?.nome || 'Animal'} {conv.Pet?.especie ? `(${conv.Pet.especie})` : ''}</span>
                   <span className="crd-origem">de {conv.veterinarioOrigem?.nome || 'veterinário'}</span>
                 </div>
                 <div className="crd-acoes">
@@ -354,14 +355,14 @@ export default function ClientesList() {
                     onClick={() => handleAceitarConvite(conv.id)}
                     disabled={processandoConvite === conv.id}
                   >
-                    {processandoConvite === conv.id ? '...' : '✓ Aceitar'}
+                    {processandoConvite === conv.id ? '...' : <><Check size={14} /> Aceitar</>}
                   </button>
                   <button
                     className="crd-btn crd-recusar"
                     onClick={() => handleRecusarConvite(conv.id)}
                     disabled={processandoConvite === conv.id}
                   >
-                    ✕ Recusar
+                    <X size={14} /> Recusar
                   </button>
                 </div>
               </div>
@@ -373,7 +374,7 @@ export default function ClientesList() {
       {/* Animais compartilhados comigo por outros veterinários */}
       {compartilhados.length > 0 && (
         <div className="compartilhados-comigo-desktop">
-          <div className="compartilhados-comigo-titulo">🔗 Compartilhados comigo</div>
+          <div className="compartilhados-comigo-titulo"><Link2 size={16} /> Compartilhados comigo</div>
           <div className="compartilhados-comigo-lista">
             {compartilhados.map(comp => (
               <div
@@ -381,7 +382,7 @@ export default function ClientesList() {
                 className="compartilhado-comigo-item-desktop"
                 onClick={() => comp.Pet && setAnimalCompartilhado({ ...comp.Pet, compartilhadoPor: comp.veterinarioOrigem?.nome })}
               >
-                <span className="ccd-nome">🐾 {comp.Pet?.nome || 'Animal'}</span>
+                <span className="ccd-nome"><PawPrint size={14} /> {comp.Pet?.nome || 'Animal'}</span>
                 <span className="ccd-especie">{comp.Pet?.especie || ''}</span>
                 <span className="ccd-origem">de {comp.veterinarioOrigem?.nome || 'veterinário'}</span>
                 <span className="ccd-seta">▶</span>
@@ -505,13 +506,13 @@ export default function ClientesList() {
               >
                 <div className="cliente-info">
                   <div className="cliente-col-nome">
-                    <span>👤 {cliente.nome}</span>
+                    <span><User size={14} /> {cliente.nome}</span>
                   </div>
                   <div className="cliente-col-telefone">
-                    <span>📞 {cliente.telefone}</span>
+                    <span><Phone size={14} /> {cliente.telefone}</span>
                   </div>
                   <div className="cliente-col-animais">
-                    <span>🐾 {cliente.Pets?.length || 0} animal(is)</span>
+                    <span><PawPrint size={14} /> {cliente.Pets?.length || 0} animal(is)</span>
                   </div>
                 </div>
                 <div className="expand-icon">
@@ -531,7 +532,7 @@ export default function ClientesList() {
 
                   <div className="animais-section">
                     <div className="animais-header">
-                      <h4>🐾 Animais</h4>
+                      <h4><PawPrint size={16} /> Animais</h4>
                       <button
                         className="btn-small"
                         onClick={() => {
@@ -552,7 +553,7 @@ export default function ClientesList() {
                             ) : editingAnimalId && animalForm.foto ? (
                               <img src={petFotoUrl(editingAnimalId)} alt="Foto do animal" />
                             ) : (
-                              <span className="foto-placeholder">🐾</span>
+                              <span className="foto-placeholder"><PawPrint size={22} /></span>
                             )}
                           </label>
                           <input
@@ -563,7 +564,7 @@ export default function ClientesList() {
                             style={{ display: 'none' }}
                           />
                           <label htmlFor="animal-foto-input" className="foto-btn">
-                            📷 {fotoPreview || (editingAnimalId && animalForm.foto) ? 'Trocar Foto' : 'Adicionar Foto'}
+                            <Camera size={16} /> {fotoPreview || (editingAnimalId && animalForm.foto) ? 'Trocar Foto' : 'Adicionar Foto'}
                           </label>
                         </div>
 
@@ -633,7 +634,7 @@ export default function ClientesList() {
                             />
                             {animalForm.dataNascimento && (
                               <span className="idade-calculada">
-                                🎂 {calcularIdade(animalForm.dataNascimento).texto}
+                                <Cake size={14} /> {calcularIdade(animalForm.dataNascimento).texto}
                               </span>
                             )}
                           </div>
@@ -669,14 +670,14 @@ export default function ClientesList() {
                             {pet.foto ? (
                               <img src={petFotoUrl(pet.id)} alt={pet.nome} className="animal-avatar" />
                             ) : (
-                              <span className="animal-avatar animal-avatar-placeholder">🐾</span>
+                              <span className="animal-avatar animal-avatar-placeholder"><PawPrint size={18} /></span>
                             )}
                             <div className="animal-info">
                               <div className="animal-card-title">
                                 <span><strong>{pet.nome}</strong> <span className="animal-especie">({pet.especie})</span></span>
                                 {(pet.dataNascimento || pet.idade) && (
                                   <span className="animal-idade">
-                                    🎂 {pet.dataNascimento ? calcularIdade(pet.dataNascimento).texto : `${pet.idade} ano${pet.idade !== 1 ? 's' : ''}`}
+                                    <Cake size={14} /> {pet.dataNascimento ? calcularIdade(pet.dataNascimento).texto : `${pet.idade} ano${pet.idade !== 1 ? 's' : ''}`}
                                   </span>
                                 )}
                                 <span className="animal-codigo">PET-{String(pet.id).padStart(6, '0')}</span>
@@ -693,20 +694,20 @@ export default function ClientesList() {
                                 onClick={() => setQuoteModal({ open: true, cliente, pet })}
                                 title="Gerar orçamento"
                               >
-                                💰 Orçamento
+                                <Wallet size={14} /> Orçamento
                               </button>
                               <button
                                 className="btn-transfer"
                                 onClick={() => setTransferModal({ open: true, pet })}
                                 title="Transferir para outro proprietário"
                               >
-                                🔄 Transferir
+                                <ArrowLeftRight size={14} /> Transferir
                               </button>
                               <button
                                 className="btn-edit"
                                 onClick={() => handleEditAnimal(pet)}
                               >
-                                ✏️ Editar
+                                <Pencil size={14} /> Editar
                               </button>
                               <button
                                 className="btn-danger"
@@ -728,7 +729,7 @@ export default function ClientesList() {
                       className="btn-edit"
                       onClick={() => handleEditCliente(cliente)}
                     >
-                      ✏️ Editar
+                      <Pencil size={14} /> Editar
                     </button>
                     <button
                       className="btn-danger"

@@ -32,15 +32,15 @@
 
 .tpm-header h2 {
   margin: 0;
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   color: #1a1a2e;
 }
 
 .tpm-close {
   background: none;
   border: none;
-  font-size: 1.2rem;
+  font-size: var(--font-size-2xl);
   cursor: pointer;
   color: #888;
   padding: 0.2rem 0.4rem;
@@ -65,19 +65,19 @@
 }
 
 .tpm-pet-nome {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
   color: #1a1a2e;
 }
 
 .tpm-pet-especie {
-  font-weight: 400;
+  font-weight: var(--font-weight-regular);
   color: #666;
 }
 
 .tpm-pet-codigo {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary);
   background: #eef0fb;
   padding: 0.2rem 0.5rem;
@@ -92,8 +92,8 @@
 }
 
 .tpm-group label {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #333;
 }
 
@@ -102,7 +102,7 @@
   padding: 0.6rem 0.7rem;
   border: 1.5px solid #ddd;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   background: white;
 }
 
@@ -118,7 +118,7 @@
   background: #ffebee;
   color: #d32f2f;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
 }
 
 .tpm-historico {
@@ -128,15 +128,15 @@
 
 .tpm-historico h3 {
   margin: 0 0 0.6rem;
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .tpm-historico-vazio {
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #999;
   margin: 0;
   font-style: italic;
@@ -157,13 +157,13 @@
   background: #f9f9fb;
   border-radius: 6px;
   padding: 0.5rem 0.65rem;
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
 }
 
 .tpm-historico-data {
-  font-size: 0.72rem;
+  font-size: var(--font-size-xs);
   color: #999;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .tpm-historico-texto {
@@ -171,7 +171,7 @@
 }
 
 .tpm-historico-motivo {
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   color: var(--color-primary);
   font-style: italic;
 }
@@ -191,8 +191,8 @@
   background: none;
   border: 1.5px solid #ccc;
   border-radius: 6px;
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #555;
   cursor: pointer;
 }
@@ -208,8 +208,8 @@
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 0.88rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 

@@ -138,7 +138,7 @@ export default function WhiteLabelModal({ isOpen, onClose, perfil }) {
       <div className="wl-modal">
         {/* Header */}
         <div className="wl-modal-header">
-          <h2>⚙️ Configurar Clínica</h2>
+          <h2>Configurar Clínica</h2>
           <button className="wl-btn-close" onClick={onClose}>✕</button>
         </div>
 
@@ -153,7 +153,7 @@ export default function WhiteLabelModal({ isOpen, onClose, perfil }) {
           <div className="wl-modal-body">
             {/* Logo */}
             <div className="wl-section">
-              <label className="wl-label">📸 Logomarca da Clínica</label>
+              <label className="wl-label">Logomarca da Clínica</label>
               <div className="wl-logo-area">
                 {whiteLabel.logomarcaUrl && (
                   <img src={whiteLabel.logomarcaUrl} alt="Logo" className="wl-logo-preview" />
@@ -269,7 +269,7 @@ export default function WhiteLabelModal({ isOpen, onClose, perfil }) {
           <div className="wl-modal-footer">
             <button className="wl-btn-cancel" onClick={onClose}>Cancelar</button>
             <button className="wl-btn-save" onClick={handleSave} disabled={saving}>
-              {saving ? 'Salvando...' : '💾 Salvar Clínica'}
+              {saving ? 'Salvando...' : 'Salvar Clínica'}
             </button>
           </div>
         )}

@@ -7,7 +7,9 @@ export const RECURSOS = [
   { chave: 'orcamentos', nome: 'Orçamentos',           descricao: 'Criação e envio de orçamentos' },
   { chave: 'agenda',    nome: 'Agenda e Histórico',   descricao: 'Agendamentos, atendimentos, histórico e fotos' },
   { chave: 'cobrancas', nome: 'Cobranças',            descricao: 'Faturamento, pagamentos e envio de cobranças' },
+  { chave: 'insumos',   nome: 'Estoque de Insumos',   descricao: 'Controle de estoque com baixa automática no orçamento' },
   { chave: 'despesas',  nome: 'Despesas e Veículo',   descricao: 'Controle de despesas e custos de veículo' },
+  { chave: 'compartilhamento', nome: 'Compartilhamento', descricao: 'Compartilhar o diário de um animal com outro veterinário' },
   { chave: 'extras',    nome: 'Extras',               descricao: 'Cursos, marketplace e comunidades' },
 ]
 
@@ -18,11 +20,11 @@ export const PLANOS = {
   },
   plus: {
     nome: 'Plus',
-    recursos: ['clientes', 'orcamentos', 'agenda', 'cobrancas'],
+    recursos: ['clientes', 'orcamentos', 'agenda', 'cobrancas', 'insumos'],
   },
   max: {
     nome: 'Max',
-    recursos: ['clientes', 'orcamentos', 'agenda', 'cobrancas', 'despesas', 'extras'],
+    recursos: ['clientes', 'orcamentos', 'agenda', 'cobrancas', 'insumos', 'despesas', 'compartilhamento', 'extras'],
   },
 }
 

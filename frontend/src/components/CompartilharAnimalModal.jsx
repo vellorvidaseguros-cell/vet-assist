@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { Trash2 } from 'lucide-react'
 import './CompartilharAnimalModal.css'
 
 export default function CompartilharAnimalModal({ isOpen, onClose, animais, onCompartilharSuccess }) {
@@ -108,7 +109,7 @@ export default function CompartilharAnimalModal({ isOpen, onClose, animais, onCo
       <div className="ca-modal">
         {/* Header */}
         <div className="ca-modal-header">
-          <h2>🔗 Compartilhar Animal</h2>
+          <h2>Compartilhar Animal</h2>
           <button className="ca-btn-close" onClick={onClose}>✕</button>
         </div>
 
@@ -137,7 +138,7 @@ export default function CompartilharAnimalModal({ isOpen, onClose, animais, onCo
                   }}
                   className="ca-btn-copy"
                 >
-                  📋 Copiar
+                  Copiar
                 </button>
               </div>
               <p className="ca-hint">Compartilhe este link via WhatsApp, email ou mensagem</p>
@@ -151,7 +152,7 @@ export default function CompartilharAnimalModal({ isOpen, onClose, animais, onCo
                 }}
                 className="ca-btn-whatsapp"
               >
-                💬 Enviar via WhatsApp
+                Enviar via WhatsApp
               </button>
               <button
                 onClick={() => {
@@ -266,7 +267,7 @@ export default function CompartilharAnimalModal({ isOpen, onClose, animais, onCo
                     <div key={comp.id} className="ca-share-item">
                       <div className="ca-share-info">
                         <span className="ca-share-animal">
-                          🐾 {comp.Pet?.nome || 'Animal removido'}
+                          {comp.Pet?.nome || 'Animal removido'}
                         </span>
                         <span className="ca-share-quem">
                           {comp.veterinarioConvidado
@@ -274,7 +275,7 @@ export default function CompartilharAnimalModal({ isOpen, onClose, animais, onCo
                             : comp.emailConvidado || 'Aguardando aceite'}
                         </span>
                         <span className={`ca-share-status ca-share-status-${comp.status}`}>
-                          {comp.status === 'aceito' ? '✅ Aceito' : comp.status === 'pendente' ? '⏳ Pendente' : comp.status}
+                          {comp.status === 'aceito' ? 'Aceito' : comp.status === 'pendente' ? '⏳ Pendente' : comp.status}
                         </span>
                       </div>
                       <button
@@ -284,7 +285,7 @@ export default function CompartilharAnimalModal({ isOpen, onClose, animais, onCo
                         className="ca-btn-revogar"
                         title="Remover acesso"
                       >
-                        {revogandoId === comp.id ? '...' : '🗑️'}
+                        {revogandoId === comp.id ? '...' : <Trash2 size={14} />}
                       </button>
                     </div>
                   ))}
@@ -302,7 +303,7 @@ export default function CompartilharAnimalModal({ isOpen, onClose, animais, onCo
                 disabled={loading}
                 className="ca-btn-submit"
               >
-                {loading ? 'Gerando...' : '✅ Gerar Convite'}
+                {loading ? 'Gerando...' : 'Gerar Convite'}
               </button>
             </div>
           </form>

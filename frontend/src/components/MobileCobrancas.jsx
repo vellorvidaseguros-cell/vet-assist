@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { MessageCircle, Mail } from 'lucide-react'
 import PagamentoModal from './PagamentoModal'
 import { fotoUrl } from '../utils/fotoUrl'
 import './MobileCobrancas.css'
@@ -94,7 +95,7 @@ export default function MobileCobrancas() {
       }
     }
     const fotosHTML = fotos.length > 0 ? `
-      <div class="section-title">📸 Fotos (${fotos.length})</div>
+      <div class="section-title">Fotos (${fotos.length})</div>
       <div class="photos-grid">
         ${fotos.map(foto => `
           <div class="photo-item">
@@ -211,7 +212,7 @@ export default function MobileCobrancas() {
   // Abre janela com o mesmo padrão de barra Fechar/Imprimir usado no Histórico
   const abrirJanelaCobranca = (htmlContent, printWindow) => {
     if (!printWindow) {
-      alert('⚠️ Permita pop-ups para visualizar a cobrança.')
+      alert('Permita pop-ups para visualizar a cobrança.')
       return
     }
 
@@ -234,7 +235,7 @@ export default function MobileCobrancas() {
           background: white; border: none; color: #0d6b3a;
           padding: 6px 14px; border-radius: 6px;
           font-size: 14px; cursor: pointer; font-weight: 700;
-        ">🖨️ Imprimir</button>
+        ">Imprimir</button>
       </div>
       <div style="height: 48px;" class="no-print"></div>
     `
@@ -261,7 +262,7 @@ export default function MobileCobrancas() {
       if (novaJanela) {
         abrirJanelaCobranca(html, novaJanela)
       } else {
-        alert('⚠️ Permita pop-ups para visualizar a cobrança.')
+        alert('Permita pop-ups para visualizar a cobrança.')
       }
     } catch (err) {
       setError('Erro ao abrir a cobrança')
@@ -304,9 +305,9 @@ export default function MobileCobrancas() {
 
 Segue cobrança referente ao atendimento veterinário:
 
-🐾 Pet: ${petNome}
-📋 Serviço: ${tipo}${dataConsulta ? `\n📅 Data: ${dataConsulta}` : ''}
-💰 Valor: R$ ${valor}
+Animal: ${petNome}
+Serviço: ${tipo}${dataConsulta ? `\nData: ${dataConsulta}` : ''}
+Valor: R$ ${valor}
 
 Por favor, entre em contato para confirmar o pagamento.
 
@@ -317,7 +318,7 @@ Obrigado!`
   const enviarWhatsApp = async (cobranca) => {
     const telefone = (cobranca.Cliente?.telefone || cobranca.HistoricoConsulta?.Cliente?.telefone || '').replace(/\D/g, '')
     if (!telefone) {
-      alert('⚠️ Cliente não possui telefone cadastrado')
+      alert('Cliente não possui telefone cadastrado')
       return
     }
     const numeroLimpo = telefone.startsWith('55') ? telefone : `55${telefone}`
@@ -355,7 +356,7 @@ Obrigado!`
   const enviarEmail = async (cobranca) => {
     const email = cobranca.Cliente?.email || cobranca.HistoricoConsulta?.Cliente?.email
     if (!email) {
-      alert('⚠️ Cliente não possui email cadastrado')
+      alert('Cliente não possui email cadastrado')
       return
     }
 
@@ -479,7 +480,7 @@ Obrigado!`
               className={`mes-seletor-opcao ${!mesSelecionado ? 'ativo' : ''}`}
               onClick={() => { setMesSelecionado(null); setShowMesSeletor(false) }}
             >
-              📋 Todos os meses
+              Todos os meses
             </button>
             {mesesDisponiveis.map(({ mes, ano, label }) => (
               <button
@@ -572,7 +573,7 @@ Obrigado!`
               <div key={cobranca.id} className="mobile-cobranca-item">
                 <div className="cobranca-header">
                   <div className="cobranca-cliente">
-                    👤 {cobranca.Cliente?.nome || 'Cliente'}
+                    {cobranca.Cliente?.nome || 'Cliente'}
                   </div>
                   <div className={`cobranca-status ${(cobranca.status || '').toLowerCase().replace(' ', '-')}`}>
                     {cobranca.status}
@@ -581,7 +582,7 @@ Obrigado!`
 
                 <div className="cobranca-info">
                   <div className="cobranca-pet">
-                    🐾 {cobranca.HistoricoConsulta?.Pet?.nome || cobranca.descricao || 'Pet'}
+                    {cobranca.HistoricoConsulta?.Pet?.nome || cobranca.descricao || 'Pet'}
                   </div>
                   <div className="cobranca-valor">
                     R$ {parseFloat(cobranca.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -600,10 +601,10 @@ Obrigado!`
                 {/* Datas */}
                 <div className="cobranca-datas">
                   {dataFormatada && (
-                    <span className="cobranca-data-item">📅 Consulta: {dataFormatada}</span>
+                    <span className="cobranca-data-item">Consulta: {dataFormatada}</span>
                   )}
                   {dataPagFormatada && (
-                    <span className="cobranca-data-item cobranca-data-pago">✅ Pago em: {dataPagFormatada}</span>
+                    <span className="cobranca-data-item cobranca-data-pago">Pago em: {dataPagFormatada}</span>
                   )}
                 </div>
 
@@ -614,7 +615,7 @@ Obrigado!`
                     onClick={() => abrirPDFHistorico(cobranca)}
                     title="Visualizar PDF do histórico"
                   >
-                    📋 PDF
+                    PDF
                   </button>
 
                   {(cobranca.status === 'Pendente' || cobranca.status === 'Parcialmente Pago') && (
@@ -624,13 +625,13 @@ Obrigado!`
                         onClick={() => setEnviarCobrancaFat(cobranca)}
                         title="Enviar cobrança"
                       >
-                        📤 Enviar
+                        Enviar
                       </button>
                       <button
                         className="cobranca-btn-pagar"
                         onClick={() => setPagamentoModalFat(cobranca)}
                       >
-                        💰 {cobranca.status === 'Pendente' ? 'Registrar' : 'Adicionar'}
+                        {cobranca.status === 'Pendente' ? 'Registrar' : 'Adicionar'}
                       </button>
                     </>
                   )}
@@ -657,7 +658,7 @@ Obrigado!`
         <div className="enviar-overlay" onClick={() => setEnviarCobrancaFat(null)}>
           <div className="enviar-modal" onClick={e => e.stopPropagation()}>
             <div className="enviar-header">
-              <h3>📤 Enviar Cobrança</h3>
+              <h3>Enviar Cobrança</h3>
               <p>Como você quer enviar a cobrança?</p>
             </div>
 
@@ -680,7 +681,7 @@ Obrigado!`
                 onClick={() => enviarWhatsApp(enviarCobrancaFat)}
                 disabled={enviando}
               >
-                <span className="enviar-opcao-icon">💬</span>
+                <span className="enviar-opcao-icon"><MessageCircle size={20} /></span>
                 <div className="enviar-opcao-texto">
                   <strong>{enviando ? 'Gerando PDF...' : 'WhatsApp'}</strong>
                   <small>{(enviarCobrancaFat.Cliente?.telefone || enviarCobrancaFat.HistoricoConsulta?.Cliente?.telefone) || 'Sem telefone'}</small>
@@ -692,7 +693,7 @@ Obrigado!`
                 onClick={() => enviarEmail(enviarCobrancaFat)}
                 disabled={enviando}
               >
-                <span className="enviar-opcao-icon">📧</span>
+                <span className="enviar-opcao-icon"><Mail size={20} /></span>
                 <div className="enviar-opcao-texto">
                   <strong>{enviando ? 'Gerando PDF...' : 'Email'}</strong>
                   <small>{(enviarCobrancaFat.Cliente?.email || enviarCobrancaFat.HistoricoConsulta?.Cliente?.email) || 'Sem email'}</small>

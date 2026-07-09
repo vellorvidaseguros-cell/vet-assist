@@ -65,8 +65,11 @@ export default function MobileSearch({ onSearch, onClose, autoFocus }) {
   }
 
   const handleResultadoClick = (resultado) => {
-    console.log('Selecionou:', resultado)
-    // Será implementado para navegar para detalhes
+    const clienteId = resultado.tipo === 'Cliente' ? resultado.dados.id : resultado.dados.clienteId
+    if (clienteId) {
+      sessionStorage.setItem('abrirClienteId', clienteId)
+      window.dispatchEvent(new CustomEvent('navegarPara', { detail: { tab: 'clientes' } }))
+    }
     onClose()
   }
 

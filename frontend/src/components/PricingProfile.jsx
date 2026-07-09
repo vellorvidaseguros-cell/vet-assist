@@ -78,7 +78,7 @@ export default function PricingProfile() {
   return (
     <div className="pricing-profile">
       <div className="pricing-header">
-        <h2>💰 Tabela de Preços</h2>
+        <h2>Tabela de Preços</h2>
         <p>Configure o valor padrão dos atendimentos. Use a coluna "Valor Customizado" para sobrescrever.</p>
       </div>
 
@@ -132,7 +132,7 @@ export default function PricingProfile() {
           onClick={handleSave}
           disabled={saving}
         >
-          {saving ? 'Salvando...' : '💾 Salvar Tabela de Preços'}
+          {saving ? 'Salvando...' : 'Salvar Tabela de Preços'}
         </button>
       </div>
 

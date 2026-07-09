@@ -20,7 +20,7 @@
 }
 
 .gastos-categoria-card .card-icon {
-  font-size: 1.6rem !important;
+  font-size: var(--font-size-3xl) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -39,11 +39,11 @@
 .gastos-categoria-card .card-label {
   margin: 0 !important;
   color: #888 !important;
-  font-size: 0.65rem !important;
+  font-size: var(--font-size-2xs) !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
   line-height: 1.2 !important;
-  font-weight: 600 !important;
+  font-weight: var(--font-weight-semibold) !important;
   text-align: center;
 }
 

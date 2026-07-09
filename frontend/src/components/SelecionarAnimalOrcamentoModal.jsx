@@ -42,7 +42,7 @@ export default function SelecionarAnimalOrcamentoModal({ onClose, onSelecionar }
     <div className="sao-overlay" onClick={onClose}>
       <div className="sao-modal" onClick={(e) => e.stopPropagation()}>
         <div className="sao-header">
-          <h2>💰 Novo Orçamento</h2>
+          <h2>Novo Orçamento</h2>
           <button className="sao-btn-close" onClick={onClose}>✕</button>
         </div>
 
@@ -53,7 +53,7 @@ export default function SelecionarAnimalOrcamentoModal({ onClose, onSelecionar }
             <div className="sao-busca">
               <input
                 type="text"
-                placeholder="🔍 Buscar cliente..."
+                placeholder="Buscar cliente..."
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
                 autoFocus
@@ -74,7 +74,7 @@ export default function SelecionarAnimalOrcamentoModal({ onClose, onSelecionar }
                     onClick={() => setClienteSelecionado(cliente)}
                     disabled={!cliente.Pets || cliente.Pets.length === 0}
                   >
-                    <span className="sao-item-nome">👤 {cliente.nome}</span>
+                    <span className="sao-item-nome">{cliente.nome}</span>
                     <span className="sao-item-info">
                       {cliente.Pets?.length ? `${cliente.Pets.length} animal(is)` : 'sem animais'}
                     </span>
@@ -99,7 +99,7 @@ export default function SelecionarAnimalOrcamentoModal({ onClose, onSelecionar }
                   className="sao-item"
                   onClick={() => handleEscolherAnimal(pet)}
                 >
-                  <span className="sao-item-nome">🐾 {pet.nome}</span>
+                  <span className="sao-item-nome">{pet.nome}</span>
                   <span className="sao-item-info">{pet.especie}{pet.raca ? ` • ${pet.raca}` : ''}</span>
                 </button>
               ))}

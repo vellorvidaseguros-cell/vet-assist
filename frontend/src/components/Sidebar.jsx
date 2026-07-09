@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { temRecurso, isAdmin } from '../utils/conta'
+import { LayoutDashboard, Users, Calendar, FileText, User, Wallet, GraduationCap, ShoppingCart, MessageCircle, Key } from 'lucide-react'
 import './Sidebar.css'
 
-export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
+export default function Sidebar({ activeTab, setActiveTab, onLogout, feedbacksNovos = 0 }) {
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -46,21 +47,21 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
       </button>
 
       <nav className={`sidebar-nav ${menuOpen ? 'open' : ''}`}>
-        <NavItem tab="dashboard" recurso="agenda">📊 Dashboard</NavItem>
-        <NavItem tab="clientes" recurso="clientes">👥 Clientes</NavItem>
-        <NavItem tab="agendamentos" recurso="agenda">📅 Agendamentos</NavItem>
-        <NavItem tab="historico" recurso="agenda">📋 Histórico</NavItem>
+        <NavItem tab="dashboard" recurso="agenda"><LayoutDashboard size={18} /> Dashboard</NavItem>
+        <NavItem tab="clientes" recurso="clientes"><Users size={18} /> Clientes</NavItem>
+        <NavItem tab="agendamentos" recurso="agenda"><Calendar size={18} /> Agendamentos</NavItem>
+        <NavItem tab="historico" recurso="agenda"><FileText size={18} /> Histórico</NavItem>
 
         <div className="sidebar-divider"></div>
 
-        <NavItem tab="perfil">👤 Perfil</NavItem>
-        <NavItem tab="financeiro" recurso="cobrancas">💰 Financeiro</NavItem>
+        <NavItem tab="perfil"><User size={18} /> Perfil</NavItem>
+        <NavItem tab="financeiro" recurso="cobrancas"><Wallet size={18} /> Financeiro</NavItem>
 
         {temRecurso('extras') && <div className="sidebar-divider"></div>}
 
-        <NavItem tab="cursos" recurso="extras">📚 Cursos</NavItem>
-        <NavItem tab="marketplace" recurso="extras">🛒 Marketplace</NavItem>
-        <NavItem tab="comunidades" recurso="extras">💬 Comunidades</NavItem>
+        <NavItem tab="cursos" recurso="extras"><GraduationCap size={18} /> Cursos</NavItem>
+        <NavItem tab="marketplace" recurso="extras"><ShoppingCart size={18} /> Marketplace</NavItem>
+        <NavItem tab="comunidades" recurso="extras"><MessageCircle size={18} /> Comunidades</NavItem>
 
         {isAdmin() && (
           <>
@@ -69,7 +70,14 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
               className={`nav-item ${activeTab === 'admin' ? 'active' : ''}`}
               onClick={() => handleNavClick('admin')}
             >
-              🔑 Administração
+              <Key size={18} /> Administração
+              {feedbacksNovos > 0 && (
+                <span style={{
+                  background: '#dc3545', color: '#fff', borderRadius: '999px',
+                  fontSize: '11px', fontWeight: 700, lineHeight: 1,
+                  padding: '2px 6px', marginLeft: '8px'
+                }}>{feedbacksNovos > 9 ? '9+' : feedbacksNovos}</span>
+              )}
             </button>
           </>
         )}

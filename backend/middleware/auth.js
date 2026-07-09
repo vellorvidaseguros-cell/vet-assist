@@ -78,10 +78,27 @@ export async function autenticar(req, res, next) {
       plano: conta.plano || 'basico',
       permissoes: permissoesEfetivas(conta),
     }
+
+    // Modo "Ver como" (suporte do admin): token especial gerado por
+    // gerarTokenVisualizacao, com escopo de LEITURA apenas — nunca escreve
+    // nada na conta do vet. Bloqueado abaixo para qualquer método != GET.
+    if (payload.somenteLeitura) {
+      req.somenteLeitura = true
+      req.visualizadoPorAdminId = payload.adminId
+    }
+
     return next()
   } catch (err) {
     return res.status(500).json({ sucesso: false, erro: 'Erro ao validar sessão' })
   }
+}
+
+// Bloqueia escrita quando a requisição vem de um token "Ver como" (somente leitura)
+export function bloquearEscritaSomenteLeitura(req, res, next) {
+  if (req.somenteLeitura && req.method !== 'GET') {
+    return res.status(403).json({ sucesso: false, erro: 'Modo de visualização (somente leitura) — não é possível alterar dados.' })
+  }
+  return next()
 }
 
 // Guarda de rotas exclusivas do administrador do app

@@ -68,17 +68,17 @@ export default function TransferirProprietarioModal({ pet, clientes, onClose, on
     <div className="tpm-overlay" onClick={handleOverlayClick}>
       <div className="tpm-modal">
         <div className="tpm-header">
-          <h2>🔄 Transferir Proprietário</h2>
+          <h2>Transferir Proprietário</h2>
           <button className="tpm-close" onClick={onClose}>✕</button>
         </div>
 
         <div className="tpm-body">
           <div className="tpm-pet-info">
-            <span className="tpm-pet-nome">🐾 {pet.nome} <span className="tpm-pet-especie">({pet.especie})</span></span>
+            <span className="tpm-pet-nome">{pet.nome} <span className="tpm-pet-especie">({pet.especie})</span></span>
             <span className="tpm-pet-codigo">{codigoAnimal}</span>
           </div>
 
-          {erro && <div className="tpm-error">⚠️ {erro}</div>}
+          {erro && <div className="tpm-error">{erro}</div>}
 
           <div className="tpm-group">
             <label>Novo Proprietário *</label>
@@ -101,7 +101,7 @@ export default function TransferirProprietarioModal({ pet, clientes, onClose, on
           </div>
 
           <div className="tpm-historico">
-            <h3>📜 Histórico de Proprietários</h3>
+            <h3>Histórico de Proprietários</h3>
             {carregandoHistorico ? (
               <p className="tpm-historico-vazio">Carregando...</p>
             ) : historico.length === 0 ? (
@@ -128,7 +128,7 @@ export default function TransferirProprietarioModal({ pet, clientes, onClose, on
         <div className="tpm-footer">
           <button className="tpm-btn-cancelar" onClick={onClose}>Cancelar</button>
           <button className="tpm-btn-confirmar" onClick={handleTransferir} disabled={salvando}>
-            {salvando ? 'Transferindo...' : '✓ Confirmar Transferência'}
+            {salvando ? 'Transferindo...' : 'Confirmar Transferência'}
           </button>
         </div>
       </div>

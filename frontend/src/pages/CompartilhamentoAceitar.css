@@ -29,14 +29,14 @@
 
 .ca-header h1 {
   margin: 0;
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
   margin-bottom: 0.5rem;
 }
 
 .ca-subtitle {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
   opacity: 0.9;
 }
 
@@ -55,24 +55,24 @@
 
 .ca-section h3 {
   margin: 0 0 0.5rem;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   color: #666;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .ca-value {
   margin: 0;
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
   color: #0d6b3a;
 }
 
 .ca-clinic,
 .ca-owner {
   margin: 0.25rem 0 0;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   color: #888;
 }
 
@@ -84,7 +84,7 @@
 
 .ca-permissions li {
   padding: 0.5rem 0;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   color: #333;
 }
 
@@ -102,7 +102,7 @@
 .ca-error-box p {
   margin: 0 0 1.5rem;
   color: #666;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
 }
 
 .ca-error-box button,
@@ -113,8 +113,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
 }
 
 .ca-error-box button:hover {
@@ -139,8 +139,8 @@
   color: #c33;
   padding: 1rem 1.5rem;
   margin: 0 0 1rem;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   border-radius: 6px;
 }
 
@@ -150,8 +150,8 @@
   color: #3c3;
   padding: 1rem 1.5rem;
   margin: 0 0 1rem;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   border-radius: 6px;
 }
 
@@ -163,8 +163,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
   transition: background 0.2s;
 }
 
@@ -175,8 +175,8 @@
 
 .ca-question {
   margin: 0 0 1.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
   color: #333;
 }
 
@@ -193,8 +193,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
   transition: background 0.2s;
 }
 
@@ -214,8 +214,8 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
   transition: all 0.2s;
 }
 
@@ -231,7 +231,7 @@
 
 .ca-form h3 {
   margin: 0 0 1rem;
-  font-size: 1.2rem;
+  font-size: var(--font-size-2xl);
   color: #333;
 }
 
@@ -239,7 +239,7 @@
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   font-family: inherit;
   box-sizing: border-box;
 }
@@ -259,7 +259,7 @@
 
 .ca-footer p {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #888;
 }
 
@@ -271,7 +271,7 @@
   border: 1px solid #ddd !important;
   margin-top: 0.75rem !important;
   margin-bottom: 1rem !important;
-  font-weight: 600 !important;
+  font-weight: var(--font-weight-semibold) !important;
   cursor: pointer !important;
   transition: all 0.2s !important;
   border-radius: 6px !important;

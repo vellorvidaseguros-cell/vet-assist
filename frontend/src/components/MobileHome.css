@@ -6,31 +6,7 @@
   padding-bottom: 100px; /* Espaço para bottom navigation */
 }
 
-.mobile-error {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #ff3b30;
-  color: white;
-  padding: 12px 16px;
-  padding-top: max(12px, env(safe-area-inset-top));
-  margin: 0;
-  font-size: 14px;
-  position: sticky;
-  top: 0;
-  z-index: 999;
-}
 
-.mobile-error button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-}
 
 .mobile-header {
   display: flex;
@@ -53,15 +29,15 @@
 
 .mobile-header h1 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
   color: #000;
 }
 
 .mobile-hora {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #8e8e93;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 /* WRAPPER do título e abas para ficar junto como bloco sticky */
@@ -81,8 +57,8 @@
 
 .mobile-title h2 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
   color: #000;
 }
 
@@ -102,8 +78,8 @@
   border: none;
   background: none;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   color: #8e8e93;
   border-bottom: 3px solid transparent;
   transition: all 0.3s ease;
@@ -111,12 +87,12 @@
 }
 
 .mobile-tab:hover {
-  color: #007aff;
+  color: var(--color-primary);
 }
 
 .mobile-tab.ativo {
-  color: #007aff;
-  border-bottom-color: #007aff;
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 /* BOTÃO DE FILTRO NA ABA */
@@ -139,22 +115,22 @@
 }
 
 .mobile-tab-filtro.has-filter {
-  color: #007aff !important;
+  color: var(--color-primary) !important;
 }
 
 .mobile-tab-filtro.ativo {
-  color: #007aff !important;
+  color: var(--color-primary) !important;
 }
 
 .filter-badge {
   position: absolute;
   top: 6px;
   right: 6px;
-  background-color: #ff3b30;
+  background-color: var(--color-danger);
   color: white;
   border-radius: 10px;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-bold);
   min-width: 16px;
   height: 16px;
   display: flex;
@@ -208,8 +184,8 @@
   padding: 8px 12px;
   border-bottom: 1px solid #f0f0f0;
   margin-bottom: 4px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-bold);
   color: #666;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -218,9 +194,9 @@
 .filter-clear-link {
   background: none;
   border: none;
-  color: #ff3b30;
-  font-size: 11px;
-  font-weight: 700;
+  color: var(--color-danger);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   padding: 4px 8px;
   text-transform: uppercase;
@@ -239,8 +215,8 @@
   background: none;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   color: #333;
   cursor: pointer;
   text-align: left;
@@ -258,15 +234,15 @@
 
 .filter-menu-item.ativo {
   background-color: #e8f0ff;
-  color: #007aff;
-  font-weight: 600;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 .filter-check {
   display: inline-block;
   width: 20px;
-  color: #007aff;
-  font-weight: 700;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
   margin-right: 8px;
 }
 
@@ -287,7 +263,7 @@
   padding: 40px 20px;
   color: #8e8e93;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .mobile-empty-state p {
@@ -305,8 +281,8 @@
 
 .mobile-pendencias h3 {
   margin: 0;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: #8e8e93;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -319,7 +295,7 @@
   gap: 4px;
   padding: 10px 12px;
   border-top: 1px solid #f0f0f0;
-  border-left: 4px solid #ffcc00;
+  border-left: 4px solid var(--color-warning);
 }
 
 .pendencia-item:last-child {
@@ -334,9 +310,9 @@
 }
 
 .pendencia-label {
-  font-size: 11px;
+  font-size: var(--font-size-2xs);
   color: #8e8e93;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   white-space: nowrap;
@@ -344,8 +320,8 @@
 }
 
 .pendencia-valor {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   color: #000;
 }
 
@@ -354,11 +330,11 @@
   width: auto !important;
   padding: 0 12px !important;
   border-radius: 8px !important;
-  border: 2px solid #007aff !important;
+  border: 2px solid var(--color-primary) !important;
   background-color: transparent !important;
-  color: #007aff !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
+  color: var(--color-primary) !important;
+  font-size: var(--font-size-2xs) !important;
+  font-weight: var(--font-weight-bold) !important;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   cursor: pointer;
@@ -372,7 +348,7 @@
 }
 
 .pendencia-link:hover {
-  background-color: #f0f5ff !important;
+  background-color: var(--color-primary-bg) !important;
 }
 
 /* SEÇÃO DE BUSCA */
@@ -386,8 +362,8 @@
 
 .mobile-search-section h3 {
   margin: 0 0 12px 0;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   color: #8e8e93;
 }
 
@@ -397,7 +373,7 @@
   border: 1px solid #e5e5ea;
   border-radius: 8px;
   background-color: #f5f5f5;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #8e8e93;
   cursor: pointer;
   text-align: left;
@@ -417,7 +393,7 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  font-size: 16px;
+  font-size: var(--font-size-lg);
   color: #8e8e93;
 }
 
@@ -434,14 +410,14 @@
   background-color: #ffffff;
   border: 1px solid #e5e5ea;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .mobile-empty-search {
   padding: 40px 20px;
   text-align: center;
   color: #8e8e93;
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 /* RESPONSIVIDADE */
@@ -468,11 +444,11 @@
   }
 
   .mobile-header h1 {
-    font-size: 18px;
+    font-size: var(--font-size-xl);
   }
 
   .mobile-hora {
-    font-size: 12px;
+    font-size: var(--font-size-xs);
   }
 
   .mobile-title {
@@ -480,11 +456,11 @@
   }
 
   .mobile-title h2 {
-    font-size: 14px;
+    font-size: var(--font-size-base);
   }
 
   .mobile-tab {
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     padding: 10px 0;
   }
 
@@ -507,11 +483,11 @@
   }
 
   .pendencia-link {
-    font-size: 11px;
+    font-size: var(--font-size-2xs);
   }
 
   .mobile-search-input {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     padding: 10px 12px;
   }
 }

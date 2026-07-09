@@ -238,20 +238,6 @@ export default function MobileHome() {
           onClose={() => setSearchAtivo(false)}
           autoFocus
         />
-
-        {searchResultados.length > 0 ? (
-          <div className="mobile-search-resultados">
-            {searchResultados.map(resultado => (
-              <div key={resultado.id} className="search-resultado-item">
-                <span>{resultado.nome || resultado.descricao}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="mobile-empty-search">
-            Nenhum resultado encontrado
-          </div>
-        )}
       </div>
     )
   }
@@ -304,7 +290,7 @@ export default function MobileHome() {
       {/* Título da seção + Abas (bloco sticky) */}
       <div className="mobile-title-tabs-wrapper">
         <div className="mobile-title">
-          <h2>📅 HOJE - {formatarDataCompleta(hoje)}</h2>
+          <h2>HOJE - {formatarDataCompleta(hoje)}</h2>
         </div>
 
         {/* Abas */}
@@ -368,35 +354,35 @@ export default function MobileHome() {
               onClick={() => toggleStatusFilter('Pendente')}
             >
               <span className="filter-check">{statusFilter.includes('Pendente') ? '✓' : ''}</span>
-              ⏳ Pendente
+              Pendente
             </button>
             <button
               className={`filter-menu-item ${statusFilter.includes('Confirmado') ? 'ativo' : ''}`}
               onClick={() => toggleStatusFilter('Confirmado')}
             >
               <span className="filter-check">{statusFilter.includes('Confirmado') ? '✓' : ''}</span>
-              ✓ Confirmado
+              Confirmado
             </button>
             <button
               className={`filter-menu-item ${statusFilter.includes('Concluído') ? 'ativo' : ''}`}
               onClick={() => toggleStatusFilter('Concluído')}
             >
               <span className="filter-check">{statusFilter.includes('Concluído') ? '✓' : ''}</span>
-              ✅ Concluído
+              Concluído
             </button>
             <button
               className={`filter-menu-item ${statusFilter.includes('Cancelado') ? 'ativo' : ''}`}
               onClick={() => toggleStatusFilter('Cancelado')}
             >
               <span className="filter-check">{statusFilter.includes('Cancelado') ? '✓' : ''}</span>
-              ✗ Cancelado
+              Cancelado
             </button>
             <button
               className={`filter-menu-item ${statusFilter.includes('Reagendado') ? 'ativo' : ''}`}
               onClick={() => toggleStatusFilter('Reagendado')}
             >
               <span className="filter-check">{statusFilter.includes('Reagendado') ? '✓' : ''}</span>
-              📅 Reagendado
+              Reagendado
             </button>
           </div>
         </>
@@ -426,11 +412,11 @@ export default function MobileHome() {
 
       {/* Seção de Pendências */}
       <div className="mobile-pendencias">
-        <h3>⚠️ PENDÊNCIAS</h3>
+        <h3>PENDÊNCIAS</h3>
 
         <div className="pendencia-item">
           <div className="pendencia-top">
-            <span className="pendencia-label">💰 Em cobranças</span>
+            <span className="pendencia-label">Em cobranças</span>
             <button className="pendencia-link" onClick={handleVerTodasCobancas}>
               Ver todas
             </button>
@@ -444,7 +430,7 @@ export default function MobileHome() {
 
       {/* Busca Rápida */}
       <div className="mobile-search-section">
-        <h3>🔍 BUSCAR</h3>
+        <h3>BUSCAR</h3>
         <button
           className="mobile-search-input"
           onClick={() => setSearchAtivo(true)}

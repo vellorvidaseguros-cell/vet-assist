@@ -30,9 +30,9 @@
 }
 
 .form-group label {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #333;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
 }
 
 .form-group input[type="text"],
@@ -44,7 +44,7 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   resize: vertical;
   transition: border-color 0.3s;
   text-transform: uppercase;
@@ -71,7 +71,7 @@
 
 .form-group textarea {
   min-height: 100px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }
 
 .btn-save {
@@ -84,7 +84,7 @@
   border-radius: 4px;
   background-color: #4caf50;
   color: white;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all 0.3s;
 }

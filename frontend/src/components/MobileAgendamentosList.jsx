@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { X, Plus, Pencil, PawPrint, User, Briefcase, FileText, Wallet, Camera, Trash2 } from 'lucide-react'
 import PhotoUploadModal from './PhotoUploadModal'
 import ConfirmModal from './ConfirmModal'
 import StatusMenu from './StatusMenu'
@@ -256,7 +257,7 @@ export default function MobileAgendamentosList() {
             }
           }}
         >
-          {showForm ? '✕' : '+'} {showForm ? 'Cancelar' : 'Novo'}
+          {showForm ? <X size={16} /> : <Plus size={16} />} {showForm ? 'Cancelar' : 'Novo'}
         </button>
       </div>
 
@@ -390,7 +391,7 @@ export default function MobileAgendamentosList() {
           </div>
 
           <button type="submit" className="mobile-btn-submit">
-            {editingAgendamentoId ? '✏️ Atualizar' : '➕ Criar'}
+            {editingAgendamentoId ? <><Pencil size={16} /> Atualizar</> : <><Plus size={16} /> Criar</>}
           </button>
         </form>
       )}
@@ -429,25 +430,25 @@ export default function MobileAgendamentosList() {
 
               <div className="agendamento-card-body">
                 <div className="agendamento-info-row">
-                  <span className="label">👤 Cliente:</span>
+                  <span className="label"><User size={14} /> Cliente:</span>
                   <span className="value">{agend.Cliente?.nome}</span>
                 </div>
                 <div className="agendamento-info-row">
-                  <span className="label">🐾 Animal:</span>
+                  <span className="label"><PawPrint size={14} /> Animal:</span>
                   <span className="value">{agend.Pet?.nome}</span>
                 </div>
                 <div className="agendamento-info-row">
-                  <span className="label">💼 Tipo:</span>
+                  <span className="label"><Briefcase size={14} /> Tipo:</span>
                   <span className="value">{agend.tipoAtendimento}</span>
                 </div>
                 {agend.descricao && (
                   <div className="agendamento-info-row">
-                    <span className="label">📝 Descrição:</span>
+                    <span className="label"><FileText size={14} /> Descrição:</span>
                     <span className="value">{agend.descricao}</span>
                   </div>
                 )}
                 <div className="agendamento-info-row">
-                  <span className="label">💰 Valor:</span>
+                  <span className="label"><Wallet size={14} /> Valor:</span>
                   <span className="value">
                     R$ {parseFloat(agend.valor).toLocaleString('pt-BR', {
                       minimumFractionDigits: 2
@@ -467,21 +468,21 @@ export default function MobileAgendamentosList() {
                   onClick={() => handlePhotoButtonClick(agend.id)}
                   title="Adicionar fotos"
                 >
-                  📸
+                  <Camera size={16} />
                 </button>
                 <button
                   className="btn-action btn-edit"
                   onClick={() => handleEdit(agend)}
                   title="Editar"
                 >
-                  ✏️
+                  <Pencil size={16} />
                 </button>
                 <button
                   className="btn-action btn-delete"
                   onClick={() => handleDelete(agend.id)}
                   title="Deletar"
                 >
-                  🗑️
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>

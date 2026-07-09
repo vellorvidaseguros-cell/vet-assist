@@ -22,9 +22,9 @@
 
 .sidebar-header h2 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: var(--font-size-2xl);
   color: #fff;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0.5px;
 }
 
@@ -52,8 +52,8 @@
   color: rgba(255, 255, 255, 0.85);
   text-align: left;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   transition: background-color 0.2s, color 0.2s;
   border-left: 3px solid transparent;
   gap: 0.5rem;
@@ -69,7 +69,7 @@
   background-color: rgba(255, 255, 255, 0.12);
   color: #fff;
   border-left: 3px solid var(--color-primary-light);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .sidebar-divider {
@@ -93,8 +93,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   transition: background-color 0.2s;
 }
 
@@ -131,7 +131,7 @@
   }
 
   .sidebar-header h2 {
-    font-size: 1.1rem;
+    font-size: var(--font-size-xl);
   }
 
   /* Hamburger visível no mobile */
@@ -198,7 +198,7 @@
 
   .nav-item {
     padding: 1rem 1.5rem;
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
     border-left: 3px solid transparent;
   }
 

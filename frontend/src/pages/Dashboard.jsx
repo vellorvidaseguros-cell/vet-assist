@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
+import { Calendar, Users, Wallet, Key, User, Lock } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import DashboardHome from '../components/DashboardHome'
 import ClientesList from '../components/ClientesList'
@@ -15,7 +17,9 @@ import MobileClientesList from '../components/MobileClientesList'
 import MobileCobrancas from '../components/MobileCobrancas'
 import MobileAgendamentosList from '../components/MobileAgendamentosList'
 import LembretesListener from '../components/LembretesListener'
+import FeedbackWidget from '../components/FeedbackWidget'
 import AdminPanel from '../components/AdminPanel'
+import ModoVisualizacaoBanner from '../components/ModoVisualizacaoBanner'
 import { temRecurso, isAdmin, atualizarConta } from '../utils/conta'
 import './Dashboard.css'
 
@@ -30,6 +34,24 @@ export default function Dashboard({ onLogout }) {
   })
   const [refreshKey, setRefreshKey] = useState(0)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const [feedbacksNovos, setFeedbacksNovos] = useState(0)
+  const [solicitacoesSenhaNovas, setSolicitacoesSenhaNovas] = useState(0)
+
+  const atualizarContagemFeedback = () => {
+    if (!isAdmin()) return
+    axios.get('/api/feedback').then(res => {
+      if (res.data.sucesso) {
+        setFeedbacksNovos((res.data.data || []).filter(f => f.status === 'novo').length)
+      }
+    }).catch(() => {})
+    axios.get('/api/admin/solicitacoes-senha').then(res => {
+      if (res.data.sucesso) {
+        setSolicitacoesSenhaNovas((res.data.data || []).length)
+      }
+    }).catch(() => {})
+  }
+
+  const totalNotificacoesAdmin = feedbacksNovos + solicitacoesSenhaNovas
 
   useEffect(() => {
     const handleResize = () => {
@@ -42,6 +64,10 @@ export default function Dashboard({ onLogout }) {
   useEffect(() => {
     // Sincroniza permissões com o servidor (mudança de plano vale sem novo login)
     atualizarConta().then(() => setRefreshKey(prev => prev + 1))
+  }, [])
+
+  useEffect(() => {
+    atualizarContagemFeedback()
   }, [])
 
   useEffect(() => {
@@ -81,12 +107,25 @@ export default function Dashboard({ onLogout }) {
     setActiveTab(tab)
     // Lembra a aba para sobreviver a recargas do PWA (iOS descarta a página em background)
     try { localStorage.setItem('activeTab', tab) } catch (e) { /* ignora quota */ }
+    // Ao sair da aba Admin, reconta os "novos" (o admin pode ter marcado como lido/resolvido)
+    if (activeTab === 'admin' && tab !== 'admin') atualizarContagemFeedback()
   }
+
+  const emModoVisualizacao = !!localStorage.getItem('admin_token_backup')
 
   const renderContent = () => {
     return (
       <>
-        <LembretesListener />
+        <ModoVisualizacaoBanner />
+        {!emModoVisualizacao && (
+          <>
+            <LembretesListener
+              onNovoFeedback={() => setFeedbacksNovos(n => n + 1)}
+              onNovaSolicitacaoSenha={() => setSolicitacoesSenhaNovas(n => n + 1)}
+            />
+            <FeedbackWidget />
+          </>
+        )}
         {isMobile ? renderMobileContent() : renderDesktopContent()}
       </>
     )
@@ -115,7 +154,7 @@ export default function Dashboard({ onLogout }) {
 
   const renderBloqueado = () => (
     <div style={{ padding: '40px 20px', textAlign: 'center', color: '#8e8e93' }}>
-      <p style={{ fontSize: '32px', margin: '0 0 8px' }}>🔒</p>
+      <p style={{ fontSize: '32px', margin: '0 0 8px', display: 'flex', justifyContent: 'center' }}><Lock size={32} /></p>
       <p><strong>Recurso não incluído no seu plano.</strong></p>
       <p>Fale com o administrador para fazer upgrade.</p>
     </div>
@@ -213,7 +252,7 @@ export default function Dashboard({ onLogout }) {
               onClick={() => handleTabChange('dashboard')}
               title="Agenda"
             >
-              <span className="nav-icon">📅</span>
+              <span className="nav-icon"><Calendar size={20} /></span>
               <span className="nav-label">Agenda</span>
             </button>
           )}
@@ -223,7 +262,7 @@ export default function Dashboard({ onLogout }) {
               onClick={() => handleTabChange('clientes')}
               title="Clientes"
             >
-              <span className="nav-icon">👥</span>
+              <span className="nav-icon"><Users size={20} /></span>
               <span className="nav-label">Clientes</span>
             </button>
           )}
@@ -233,7 +272,7 @@ export default function Dashboard({ onLogout }) {
               onClick={() => handleTabChange('financeiro')}
               title="Cobranças"
             >
-              <span className="nav-icon">💰</span>
+              <span className="nav-icon"><Wallet size={20} /></span>
               <span className="nav-label">Cobranças</span>
             </button>
           )}
@@ -243,7 +282,17 @@ export default function Dashboard({ onLogout }) {
               onClick={() => handleTabChange('admin')}
               title="Administração"
             >
-              <span className="nav-icon">🔑</span>
+              <span className="nav-icon" style={{ position: 'relative' }}>
+                <Key size={20} />
+                {totalNotificacoesAdmin > 0 && (
+                  <span style={{
+                    position: 'absolute', top: '-6px', right: '-10px',
+                    background: '#dc3545', color: '#fff', borderRadius: '999px',
+                    fontSize: '10px', fontWeight: 700, lineHeight: 1,
+                    padding: '2px 5px', minWidth: '16px', textAlign: 'center'
+                  }}>{totalNotificacoesAdmin > 9 ? "9+" : totalNotificacoesAdmin}</span>
+                )}
+              </span>
               <span className="nav-label">Admin</span>
             </button>
           )}
@@ -252,7 +301,7 @@ export default function Dashboard({ onLogout }) {
             onClick={() => handleTabChange('perfil')}
             title="Perfil"
           >
-            <span className="nav-icon">👤</span>
+            <span className="nav-icon"><User size={20} /></span>
             <span className="nav-label">Perfil</span>
           </button>
         </nav>
@@ -263,7 +312,7 @@ export default function Dashboard({ onLogout }) {
   // Layout Desktop
   return (
     <div className="dashboard">
-      <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} onLogout={onLogout} />
+      <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} onLogout={onLogout} feedbacksNovos={totalNotificacoesAdmin} />
       <div className="dashboard-content">
         {activeTab !== 'dashboard' && (
           <header className="dashboard-header">

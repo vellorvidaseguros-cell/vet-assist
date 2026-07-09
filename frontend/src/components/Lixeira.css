@@ -21,7 +21,7 @@
 
 .lixeira-header h2 {
   margin: 0 0 0.25rem;
-  font-size: 1.15rem;
+  font-size: var(--font-size-xl);
   color: #1a1a2e;
 }
 
@@ -36,8 +36,8 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   white-space: nowrap;
   transition: all 0.2s;
 }
@@ -49,7 +49,7 @@
 
 .lixeira-subtitulo {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #666;
 }
 
@@ -58,7 +58,7 @@
   background: #e8f5e9;
   color: #2e7d32;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   margin-bottom: 0.75rem;
 }
 
@@ -92,40 +92,44 @@
 .lixeira-tipo-chip {
   background: #eef0fb;
   color: #4a4a6a;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   padding: 0.2rem 0.6rem;
   border-radius: 20px;
   white-space: nowrap;
 }
 
 .lixeira-nome {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #1a1a2e;
 }
 
 .lixeira-data {
-  font-size: 0.78rem;
+  font-size: var(--font-size-xs);
   color: #888;
   white-space: nowrap;
 }
 
 .btn-restaurar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 0.5rem 1rem;
-  background-color: #4caf50;
+  background-color: var(--color-success);
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   white-space: nowrap;
   transition: background-color 0.2s;
 }
 
 .btn-restaurar:hover:not(:disabled) {
-  background-color: #388e3c;
+  background-color: var(--color-primary-dark);
 }
 
 .btn-restaurar:disabled {

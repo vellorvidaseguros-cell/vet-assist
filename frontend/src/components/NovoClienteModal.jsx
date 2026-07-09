@@ -127,16 +127,16 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
       <div className="ncm-modal">
         {/* HEADER */}
         <div className="ncm-header">
-          <h2>👤 Novo Cliente</h2>
+          <h2>Novo Cliente</h2>
         </div>
 
         {/* BODY */}
         <div className="ncm-body">
-          {erro && <div className="ncm-error">⚠️ {erro}</div>}
+          {erro && <div className="ncm-error">{erro}</div>}
 
           {/* DADOS DO CLIENTE */}
           <div className="ncm-section">
-            <h3 className="ncm-section-title">📋 Dados do Cliente</h3>
+            <h3 className="ncm-section-title">Dados do Cliente</h3>
 
             <div className="ncm-row">
               <div className="ncm-group">
@@ -224,7 +224,7 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
 
           {/* ANIMAIS */}
           <div className="ncm-section">
-            <h3 className="ncm-section-title">🐾 Animais</h3>
+            <h3 className="ncm-section-title">Animais</h3>
 
             {/* Lista de animais já adicionados */}
             {animais.length > 0 && (
@@ -240,7 +240,7 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
                       <div className="ncm-animal-card-title">
                         <span>{animal.nome} <span className="ncm-animal-especie">({animal.especie})</span></span>
                         {animal.dataNascimento && (
-                          <span className="ncm-animal-idade">🎂 {calcularIdade(animal.dataNascimento).texto}</span>
+                          <span className="ncm-animal-idade">{calcularIdade(animal.dataNascimento).texto}</span>
                         )}
                       </div>
                       <div className="ncm-animal-chips">
@@ -268,7 +268,7 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
             {/* Formulário inline de animal */}
             {showAnimalForm ? (
               <div className="ncm-animal-form">
-                <p className="ncm-animal-form-title">➕ Adicionar Animal</p>
+                <p className="ncm-animal-form-title">Adicionar Animal</p>
 
                 <div className="ncm-foto-picker">
                   <label htmlFor="ncm-foto-input" className="ncm-foto-preview">
@@ -286,7 +286,7 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
                     style={{ display: 'none' }}
                   />
                   <label htmlFor="ncm-foto-input" className="ncm-foto-btn">
-                    📷 {animalForm.fotoPreview ? 'Trocar Foto' : 'Adicionar Foto'}
+                    {animalForm.fotoPreview ? 'Trocar Foto' : 'Adicionar Foto'}
                   </label>
                 </div>
 
@@ -306,7 +306,7 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
                     <input
                       type="text"
                       name="especie"
-                      placeholder="Cão, Gato..."
+                      placeholder="Cão, Gato, Cavalo, Bovino..."
                       value={animalForm.especie}
                       onChange={handleAnimalChange}
                     />
@@ -355,7 +355,7 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
                     />
                     {animalForm.dataNascimento && (
                       <span className="ncm-idade-calculada">
-                        🎂 {calcularIdade(animalForm.dataNascimento).texto}
+                        {calcularIdade(animalForm.dataNascimento).texto}
                       </span>
                     )}
                   </div>
@@ -386,7 +386,7 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
 
                 <div className="ncm-animal-form-actions">
                   <button type="button" className="ncm-btn-confirm-animal" onClick={adicionarAnimal}>
-                    ✓ Confirmar Animal
+                    Confirmar Animal
                   </button>
                   <button
                     type="button"
@@ -419,7 +419,7 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
             onClick={handleSalvar}
             disabled={salvando}
           >
-            {salvando ? 'Salvando...' : '✓ Salvar Cliente'}
+            {salvando ? 'Salvando...' : 'Salvar Cliente'}
           </button>
         </div>
       </div>

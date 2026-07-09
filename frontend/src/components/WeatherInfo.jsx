@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Sun, CloudSun, CloudFog, CloudRain, Snowflake, CloudDrizzle, CloudSnow, CloudLightning } from 'lucide-react'
 import './WeatherInfo.css'
 
 export default function WeatherInfo() {
@@ -112,23 +113,23 @@ export default function WeatherInfo() {
     }
   }
 
-  // Converter código do tempo em emoji
-  const getWeatherEmoji = (codigo) => {
-    if (codigo === 0) return '☀️'
-    if (codigo <= 3) return '⛅'
-    if (codigo <= 48) return '🌫️'
-    if (codigo <= 67) return '🌧️'
-    if (codigo <= 77) return '❄️'
-    if (codigo <= 82) return '🌦️'
-    if (codigo <= 86) return '🌨️'
-    if (codigo <= 99) return '⛈️'
-    return '🌤️'
+  // Converter código do tempo em ícone
+  const getWeatherIcon = (codigo) => {
+    if (codigo === 0) return Sun
+    if (codigo <= 3) return CloudSun
+    if (codigo <= 48) return CloudFog
+    if (codigo <= 67) return CloudRain
+    if (codigo <= 77) return Snowflake
+    if (codigo <= 82) return CloudDrizzle
+    if (codigo <= 86) return CloudSnow
+    if (codigo <= 99) return CloudLightning
+    return CloudSun
   }
 
   if (loading) {
     return (
       <div className="weather-info weather-loading">
-        <span className="weather-emoji">🌤️</span>
+        <CloudSun size={18} className="weather-icon" />
       </div>
     )
   }
@@ -136,14 +137,16 @@ export default function WeatherInfo() {
   if (!weather) {
     return (
       <div className="weather-info">
-        <span className="weather-emoji">🌤️</span>
+        <CloudSun size={18} className="weather-icon" />
       </div>
     )
   }
 
+  const WeatherIcon = getWeatherIcon(weather.codigo)
+
   return (
     <div className="weather-info">
-      <span className="weather-emoji">{getWeatherEmoji(weather.codigo)}</span>
+      <WeatherIcon size={18} className="weather-icon" />
       <span className="weather-temp">{weather.temperatura}°</span>
       {cidade && <span className="weather-cidade">{cidade}</span>}
     </div>

@@ -142,7 +142,7 @@ export default function DiagnosisModal({ agendamentoId, historicoId, onClose, on
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content diagnosis-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>📋 Diagnóstico e Observações</h3>
+          <h3>Diagnóstico e Observações</h3>
           <button className="btn-close" onClick={onClose}>✕</button>
         </div>
 
@@ -150,7 +150,7 @@ export default function DiagnosisModal({ agendamentoId, historicoId, onClose, on
 
         <div className="diagnosis-form">
           <div className="form-group">
-            <label>📌 Tipo de Atendimento</label>
+            <label>Tipo de Atendimento</label>
             <input
               type="text"
               name="tipoAtendimento"
@@ -161,7 +161,7 @@ export default function DiagnosisModal({ agendamentoId, historicoId, onClose, on
           </div>
 
           <div className="form-group">
-            <label>🔍 Diagnóstico *</label>
+            <label>Diagnóstico *</label>
             <textarea
               name="diagnostico"
               value={formData.diagnostico}
@@ -172,7 +172,7 @@ export default function DiagnosisModal({ agendamentoId, historicoId, onClose, on
           </div>
 
           <div className="form-group">
-            <label>📝 Observações e Anotações</label>
+            <label>Observações e Anotações</label>
             <textarea
               name="observacoes"
               value={formData.observacoes}
@@ -183,7 +183,7 @@ export default function DiagnosisModal({ agendamentoId, historicoId, onClose, on
           </div>
 
           <div className="form-group">
-            <label>💊 Medicamentos Prescritos</label>
+            <label>Medicamentos Prescritos</label>
             <textarea
               name="medicamentos"
               value={formData.medicamentos}
@@ -194,7 +194,7 @@ export default function DiagnosisModal({ agendamentoId, historicoId, onClose, on
           </div>
 
           <div className="form-group">
-            <label>⚕️ Procedimentos Realizados</label>
+            <label>Procedimentos Realizados</label>
             <textarea
               name="procedimentos"
               value={formData.procedimentos}
@@ -205,7 +205,7 @@ export default function DiagnosisModal({ agendamentoId, historicoId, onClose, on
           </div>
 
           <div className="form-group">
-            <label>💰 Valor (R$)</label>
+            <label>Valor (R$)</label>
             <input
               type="text"
               name="valor"
@@ -217,7 +217,7 @@ export default function DiagnosisModal({ agendamentoId, historicoId, onClose, on
           </div>
 
           <div className="form-group">
-            <label>📅 Próximo Retorno</label>
+            <label>Próximo Retorno</label>
             <input
               type="date"
               name="proximoRetorno"

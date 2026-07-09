@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { Check, X } from 'lucide-react'
 import './MobileClientesList.css'
 import NovoClienteModal from './NovoClienteModal'
 import MobileClienteDetalhes from './MobileClienteDetalhes'
@@ -21,6 +22,13 @@ export default function MobileClientesList() {
     fetchClientes()
     fetchCompartilhados()
     fetchConvites()
+
+    // Abre automaticamente o cliente pendente vindo da busca (MobileSearch)
+    const pendente = sessionStorage.getItem('abrirClienteId')
+    if (pendente) {
+      setSelectedClienteId(pendente)
+      sessionStorage.removeItem('abrirClienteId')
+    }
   }, [])
 
   const fetchConvites = async () => {
@@ -129,7 +137,7 @@ export default function MobileClientesList() {
 
       {/* Header */}
       <div className="mobile-clientes-header">
-        <h2>👤 Clientes</h2>
+        <h2>Clientes</h2>
         <button className="mobile-btn-novo-cliente" onClick={() => setShowNovoClienteModal(true)}>
           + Novo
         </button>
@@ -139,13 +147,13 @@ export default function MobileClientesList() {
       {convites.length > 0 && (
         <div className="mobile-convites">
           <div className="mobile-convites-header">
-            📨 Convites recebidos
+            Convites recebidos
             <span className="mobile-convites-badge">{convites.length}</span>
           </div>
           {convites.map(conv => (
             <div key={conv.id} className="mobile-convite-item">
               <div className="mobile-convite-info">
-                <span className="mconv-nome">🐾 {conv.Pet?.nome || 'Animal'} {conv.Pet?.especie ? `(${conv.Pet.especie})` : ''}</span>
+                <span className="mconv-nome">{conv.Pet?.nome || 'Animal'} {conv.Pet?.especie ? `(${conv.Pet.especie})` : ''}</span>
                 <span className="mconv-origem">de {conv.veterinarioOrigem?.nome || 'veterinário'}</span>
               </div>
               <div className="mobile-convite-acoes">
@@ -154,14 +162,14 @@ export default function MobileClientesList() {
                   onClick={() => handleAceitarConvite(conv.id)}
                   disabled={processandoConvite === conv.id}
                 >
-                  {processandoConvite === conv.id ? '...' : '✓ Aceitar'}
+                  {processandoConvite === conv.id ? '...' : <><Check size={14} /> Aceitar</>}
                 </button>
                 <button
                   className="mconv-btn mconv-recusar"
                   onClick={() => handleRecusarConvite(conv.id)}
                   disabled={processandoConvite === conv.id}
                 >
-                  ✕
+                  <X size={14} />
                 </button>
               </div>
             </div>
@@ -173,7 +181,7 @@ export default function MobileClientesList() {
       {compartilhados.length > 0 && (
         <div className="mobile-compartilhados">
           <div className="mobile-compartilhados-header">
-            🔗 Compartilhados comigo
+            Compartilhados comigo
           </div>
           {compartilhados.map(comp => (
             <div
@@ -181,7 +189,7 @@ export default function MobileClientesList() {
               className="mobile-compartilhado-item"
               onClick={() => comp.Pet && setAnimalCompartilhado({ ...comp.Pet, compartilhadoPor: comp.veterinarioOrigem?.nome })}
             >
-              <span className="mci-nome">🐾 {comp.Pet?.nome || 'Animal'}</span>
+              <span className="mci-nome">{comp.Pet?.nome || 'Animal'}</span>
               <span className="mci-especie">{comp.Pet?.especie || ''}</span>
               <span className="mci-origem">de {comp.veterinarioOrigem?.nome || 'veterinário'}</span>
             </div>
@@ -194,7 +202,7 @@ export default function MobileClientesList() {
         <input
           type="text"
           className="mobile-busca-input"
-          placeholder="🔍  Buscar cliente..."
+          placeholder="Buscar cliente..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -219,7 +227,7 @@ export default function MobileClientesList() {
               className="mobile-cliente-row-item"
               onClick={() => handleClienteClick(cliente.id)}
             >
-              <span className="mcri-nome">👤 {cliente.nome}</span>
+              <span className="mcri-nome">{cliente.nome}</span>
               <span className="mcri-tel">{cliente.telefone || '—'}</span>
               <span className="mcri-count">{cliente.Pets?.length || 0}</span>
             </div>

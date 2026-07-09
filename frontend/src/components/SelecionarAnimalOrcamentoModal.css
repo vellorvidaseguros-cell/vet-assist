@@ -35,15 +35,15 @@
 
 .sao-header h2 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: var(--font-size-lg);
   color: #333;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .sao-btn-close {
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   cursor: pointer;
   color: #666;
   width: 30px;
@@ -65,7 +65,7 @@
   color: #c33;
   padding: 0.65rem 0.9rem;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
 }
 
 .sao-busca {
@@ -78,7 +78,7 @@
   padding: 0.7rem 0.9rem;
   border: 1px solid #ddd;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   box-sizing: border-box;
 }
 
@@ -100,21 +100,21 @@
   background: none;
   border: none;
   color: #0d6b3a;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   cursor: pointer;
   padding: 0;
 }
 
 .sao-cliente-nome {
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #888;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .sao-subtitulo {
   margin: 0.5rem 1.25rem 0.25rem;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #666;
   flex-shrink: 0;
 }
@@ -153,13 +153,13 @@
 }
 
 .sao-item-nome {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #333;
-  font-size: 0.92rem;
+  font-size: var(--font-size-md);
 }
 
 .sao-item-info {
-  font-size: 0.8rem;
+  font-size: var(--font-size-sm);
   color: #888;
   white-space: nowrap;
 }
@@ -168,5 +168,5 @@
   text-align: center;
   color: #999;
   padding: 2rem 1rem;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }

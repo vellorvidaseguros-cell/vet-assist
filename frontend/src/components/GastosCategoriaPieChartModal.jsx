@@ -177,7 +177,7 @@ export default function GastosCategoriaPieChartModal({ porCategoria, totalGastos
                     className="btn-fechar"
                     onClick={() => setCategoriaSelecionada(null)}
                   >
-                    ✕ Fechar
+                    Fechar
                   </button>
                 </div>
               ) : (

@@ -11,7 +11,7 @@
 .busca-veiculo h4 {
   margin: 0 0 1rem 0;
   color: var(--color-primary);
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
 }
 
 .busca-form {
@@ -30,15 +30,15 @@
 
 .busca-veiculo .form-group label {
   color: var(--color-text);
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
 }
 
 .busca-veiculo input {
   padding: 0.75rem;
   border: 1px solid var(--color-gray-medium);
   border-radius: var(--radius-sm);
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   background-color: white;
   transition: border-color 0.3s;
   text-transform: uppercase;
@@ -62,8 +62,8 @@
   color: white;
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
   white-space: nowrap;
@@ -92,7 +92,7 @@
 .searching {
   text-align: center;
   color: var(--color-warning);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   margin: 0.5rem 0;
 }
 
@@ -100,7 +100,7 @@
   padding: 0.75rem;
   border-radius: var(--radius-sm);
   margin: 0.5rem 0;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   text-align: center;
 }
 
@@ -115,7 +115,7 @@
 }
 
 .info-text {
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: var(--color-gray-dark);
   margin-top: 0.5rem;
   font-style: italic;
@@ -128,7 +128,7 @@
   }
 
   .busca-veiculo h4 {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     margin-bottom: 8px;
   }
 
@@ -139,16 +139,16 @@
 
   .busca-veiculo input {
     padding: 8px 10px;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 
   .btn-buscar {
     padding: 10px 12px;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     width: 100%;
   }
 
   .info-text {
-    font-size: 12px;
+    font-size: var(--font-size-xs);
   }
 }

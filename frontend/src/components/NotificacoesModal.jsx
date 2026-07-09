@@ -69,7 +69,7 @@ export default function NotificacoesModal({ veterinarioId, onClose, onSaved }) {
     <div className="modal-overlay notif-overlay" onClick={onClose}>
       <div className="modal-content notif-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>🔔 Notificações</h3>
+          <h3>Notificações</h3>
           <button className="btn-close" onClick={onClose} type="button">×</button>
         </div>
 
@@ -96,7 +96,7 @@ export default function NotificacoesModal({ veterinarioId, onClose, onSaved }) {
                 ))}
               </div>
               {prefs.antecedenciasAgendamento.length === 0 && (
-                <p className="notif-aviso">⚠️ Sem nenhuma antecedência marcada, você não recebe lembrete de agendamento.</p>
+                <p className="notif-aviso">Sem nenhuma antecedência marcada, você não recebe lembrete de agendamento.</p>
               )}
             </section>
 
@@ -111,7 +111,7 @@ export default function NotificacoesModal({ veterinarioId, onClose, onSaved }) {
             <div className="notif-acoes">
               <button type="button" className="notif-btn-cancelar" onClick={onClose}>Cancelar</button>
               <button type="button" className="notif-btn-salvar" onClick={salvar} disabled={salvando}>
-                {salvando ? 'Salvando...' : '✓ Salvar'}
+                {salvando ? 'Salvando...' : 'Salvar'}
               </button>
             </div>
           </div>

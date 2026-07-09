@@ -39,15 +39,15 @@
 
 .wl-modal-header h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   color: #333;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .wl-btn-close {
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   cursor: pointer;
   color: #666;
   padding: 0;
@@ -58,7 +58,7 @@
   justify-content: center;
   border-radius: 6px;
   transition: all 0.2s;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .wl-btn-close:hover {
@@ -94,16 +94,16 @@
 .wl-flex1 { flex: 1; }
 
 .wl-label {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #444;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
 }
 
 .wl-input {
   padding: 0.65rem 0.75rem;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   font-family: inherit;
   transition: border-color 0.2s;
   width: 100%;
@@ -145,13 +145,13 @@
 }
 
 .wl-file-input {
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   cursor: pointer;
 }
 
 .wl-hint {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   color: #888;
   font-style: italic;
 }
@@ -162,7 +162,7 @@
   background-color: #ffebee;
   color: #d32f2f;
   border-left: 4px solid #d32f2f;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   flex-shrink: 0;
 }
 
@@ -171,7 +171,7 @@
   background-color: #e8f5e9;
   color: #2e7d32;
   border-left: 4px solid #2e7d32;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   flex-shrink: 0;
 }
 
@@ -191,9 +191,9 @@
   color: #333;
   border: none;
   border-radius: 6px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   transition: background-color 0.2s;
 }
 
@@ -208,9 +208,9 @@
   color: white;
   border: none;
   border-radius: 6px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   transition: background-color 0.2s;
 }
 
@@ -252,7 +252,7 @@
   }
 
   .wl-input {
-    font-size: 16px; /* Previne zoom iOS */
+    font-size: var(--font-size-lg); /* Previne zoom iOS */
     padding: 0.6rem 0.7rem;
   }
 }
@@ -268,6 +268,6 @@
   }
 
   .wl-modal-header h2 {
-    font-size: 1rem;
+    font-size: var(--font-size-lg);
   }
 }

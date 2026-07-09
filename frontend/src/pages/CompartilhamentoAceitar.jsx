@@ -46,7 +46,7 @@ export default function CompartilhamentoAceitar() {
       })
 
       if (res.data.sucesso) {
-        setSuccess('✅ Conta criada! Você será redirecionado.')
+        setSuccess('Conta criada! Você será redirecionado.')
         setTimeout(() => {
           navigate('/login')
         }, 1500)
@@ -65,7 +65,7 @@ export default function CompartilhamentoAceitar() {
       const res = await axios.post(`/api/compartilhamento/${token}/aceitar`, {})
 
       if (res.data.sucesso) {
-        setSuccess('✅ Compartilhamento aceito! Você já pode acessar este animal.')
+        setSuccess('Compartilhamento aceito! Você já pode acessar este animal.')
         setTimeout(() => {
           window.location.href = '/'
         }, 1000)
@@ -92,7 +92,7 @@ export default function CompartilhamentoAceitar() {
       <div className="ca-page">
         <div className="ca-container">
           <div className="ca-error-box">
-            <h2>❌ Convite Inválido</h2>
+            <h2>Convite Inválido</h2>
             <p>{error}</p>
             <button onClick={() => navigate('/')}>Voltar para Home</button>
           </div>
@@ -107,20 +107,20 @@ export default function CompartilhamentoAceitar() {
         <div className="ca-card">
           {/* Header */}
           <div className="ca-header">
-            <h1>🔗 Compartilhamento de Animal</h1>
+            <h1>Compartilhamento de Animal</h1>
             <p className="ca-subtitle">Você foi convidado a acompanhar o tratamento de um animal</p>
           </div>
 
           {/* Proposta */}
           <div className="ca-proposta">
             <div className="ca-section">
-              <h3>🏥 Veterinário</h3>
+              <h3>Veterinário</h3>
               <p className="ca-value">{proposta.vetOrigem?.nome}</p>
               <p className="ca-clinic">{proposta.vetOrigem?.nomeClinica || 'Clínica'}</p>
             </div>
 
             <div className="ca-section">
-              <h3>🐕 Animal</h3>
+              <h3>Animal</h3>
               <p className="ca-value">
                 {proposta.animal?.nome} ({proposta.animal?.especie})
               </p>
@@ -130,10 +130,10 @@ export default function CompartilhamentoAceitar() {
             </div>
 
             <div className="ca-section">
-              <h3>📋 Permissões</h3>
+              <h3>Permissões</h3>
               <ul className="ca-permissions">
-                {proposta.permissoes?.includes('ver') && <li>✅ Ver históricos</li>}
-                {proposta.permissoes?.includes('editar') && <li>✅ Editar históricos</li>}
+                {proposta.permissoes?.includes('ver') && <li>Ver históricos</li>}
+                {proposta.permissoes?.includes('editar') && <li>Editar históricos</li>}
               </ul>
             </div>
           </div>
@@ -170,13 +170,13 @@ export default function CompartilhamentoAceitar() {
                     disabled={aceitando}
                     className="ca-btn-primary"
                   >
-                    ✅ Sim, Aceitar
+                    Sim, Aceitar
                   </button>
                   <button
                     onClick={() => setStep('criar-conta')}
                     className="ca-btn-secondary"
                   >
-                    ❌ Não, Criar Conta
+                    Não, Criar Conta
                   </button>
                 </div>
               </>
@@ -191,7 +191,7 @@ export default function CompartilhamentoAceitar() {
                     disabled={aceitando}
                     className="ca-btn-primary"
                   >
-                    {aceitando ? 'Aceitando...' : '✅ Aceitar'}
+                    {aceitando ? 'Aceitando...' : 'Aceitar'}
                   </button>
                 </div>
               </>
@@ -241,7 +241,7 @@ export default function CompartilhamentoAceitar() {
                   onClick={() => setEsqueceSenhaOpen(true)}
                   className="ca-btn-forgot"
                 >
-                  🔑 Esqueci a Senha
+                  Esqueci a Senha
                 </button>
                 <div className="ca-buttons">
                   <button

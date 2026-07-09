@@ -243,7 +243,10 @@ export const criarHistorico = async (req, res) => {
       medicamentos: medicamentos || '',
       observacoes: observacoes || '',
       proximoRetorno: proximoRetorno || null,
-      veterinario: veterinario || 'Sistema',
+      // Autor de verdade: sempre quem está autenticado no momento — nunca o que
+      // vier do body (evita spoofing e deixa claro, num diário compartilhado
+      // entre vets, quem realmente registrou cada atendimento).
+      veterinario: req.veterinario.nome,
       valor: valor || 0,
       statusPagamento: statusPagamento || 'Pendente'
     }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { Wallet, CircleCheck, Clock, TrendingUp, Calendar, FileText, Camera, Trash2, PawPrint, User } from 'lucide-react'
 import PhotoUploadModal from './PhotoUploadModal'
 import StatusMenu from './StatusMenu'
 import DiagnosisModal from './DiagnosisModal'
@@ -185,7 +186,7 @@ export default function DashboardHome() {
       {/* Cards de Resumo Financeiro */}
       <div className="resumo-cards">
         <div className="card financial">
-          <div className="card-icon">💰</div>
+          <div className="card-icon"><Wallet size={26} /></div>
           <div className="card-content">
             <p className="card-label">Faturamento do Mês</p>
             <p className="card-value">R$ {resumo?.faturamentoMes?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}</p>
@@ -193,7 +194,7 @@ export default function DashboardHome() {
         </div>
 
         <div className="card success">
-          <div className="card-icon">✅</div>
+          <div className="card-icon"><CircleCheck size={26} /></div>
           <div className="card-content">
             <p className="card-label">Atendidos Hoje</p>
             <p className="card-value">{resumo?.atendidosHoje || 0}</p>
@@ -201,7 +202,7 @@ export default function DashboardHome() {
         </div>
 
         <div className="card warning">
-          <div className="card-icon">⏳</div>
+          <div className="card-icon"><Clock size={26} /></div>
           <div className="card-content">
             <p className="card-label">À Receber</p>
             <p className="card-value">R$ {resumo?.aReceber?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}</p>
@@ -210,7 +211,7 @@ export default function DashboardHome() {
         </div>
 
         <div className="card info">
-          <div className="card-icon">📈</div>
+          <div className="card-icon"><TrendingUp size={26} /></div>
           <div className="card-content">
             <p className="card-label">Faturado Hoje</p>
             <p className="card-value">R$ {resumo?.totalFechadoHoje?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}</p>
@@ -220,7 +221,7 @@ export default function DashboardHome() {
 
       {/* Próximos Agendamentos */}
       <div className="agenda-section">
-        <h2>📅 Agenda do Dia</h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Calendar size={20} /> Agenda do Dia</h2>
 
         {agendamentos.length === 0 ? (
           <div className="empty-message">
@@ -243,35 +244,35 @@ export default function DashboardHome() {
                       onClick={() => handleDiagnosisButtonClick(agendamento.id)}
                       title="Diagnóstico e Observações"
                     >
-                      📋
+                      <FileText size={16} />
                     </button>
                     <button
                       className="btn-photo"
                       onClick={() => handlePhotoButtonClick(agendamento.id)}
                       title="Adicionar fotos"
                     >
-                      📸
+                      <Camera size={16} />
                     </button>
                     <button
                       className="btn-delete"
                       onClick={() => handleDeleteAgendamento(agendamento.id)}
                       title="Deletar agendamento"
                     >
-                      🗑️
+                      <Trash2 size={16} />
                     </button>
                   </div>
                   <div className="col-data">
                     <span className="date">{dataFormatada}</span>
                     <span className="time">{agendamento.hora}</span>
                   </div>
-                  <div className="col-pet">
-                    🐾 <strong>{agendamento.Pet?.nome}</strong>
+                  <div className="col-pet" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <PawPrint size={16} /> <strong>{agendamento.Pet?.nome}</strong>
                   </div>
                   <div className="col-tipo">
                     <span className="attendance-type">{agendamento.tipoAtendimento}</span>
                   </div>
-                  <div className="col-cliente">
-                    👤 {agendamento.Cliente?.nome}
+                  <div className="col-cliente" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <User size={16} /> {agendamento.Cliente?.nome}
                   </div>
                 </div>
               )

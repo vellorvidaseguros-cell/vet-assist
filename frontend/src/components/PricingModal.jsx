@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { Pencil, Trash2 } from 'lucide-react'
 import ConfirmModal from './ConfirmModal'
 import PromptModal from './PromptModal'
 import './PricingModal.css'
@@ -257,7 +258,7 @@ export default function PricingModal({ isOpen, onClose }) {
       <div className="pricing-modal">
         {/* Header */}
         <div className="modal-header">
-          <h2>💰 Tabela de Preços</h2>
+          <h2>Tabela de Preços</h2>
           <button className="btn-close" onClick={onClose}>✕</button>
         </div>
 
@@ -276,11 +277,11 @@ export default function PricingModal({ isOpen, onClose }) {
             <div className="modal-body">
               {horaTecnica > 0 ? (
                 <p className="pricing-dica">
-                  💡 Informe a <strong>duração</strong> (⏱️) de cada serviço para ver o <strong>preço mínimo</strong> que cobre seu custo (hora técnica: R$ {formatBR(horaTecnica)}).
+                  Informe a <strong>duração</strong> (⏱️) de cada serviço para ver o <strong>preço mínimo</strong> que cobre seu custo (hora técnica: R$ {formatBR(horaTecnica)}).
                 </p>
               ) : (
                 <p className="pricing-dica pricing-dica-neutra">
-                  💡 Configure sua <strong>Hora Técnica</strong> no card "Precificação" do Perfil para ver o preço mínimo recomendado de cada serviço.
+                  Configure sua <strong>Hora Técnica</strong> no card "Precificação" do Perfil para ver o preço mínimo recomendado de cada serviço.
                 </p>
               )}
               <div className="services-list">
@@ -314,14 +315,14 @@ export default function PricingModal({ isOpen, onClose }) {
                           onClick={() => handleEditService(service.id)}
                           title="Editar serviço"
                         >
-                          ✏️
+                          <Pencil size={14} />
                         </button>
                         <button
                           className="btn-action btn-delete"
                           onClick={() => handleRemoveService(service.id)}
                           title="Remover serviço"
                         >
-                          🗑️
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
@@ -346,7 +347,7 @@ export default function PricingModal({ isOpen, onClose }) {
                         </label>
                         {minimo != null && (
                           <span className={`service-minimo ${abaixoDoCusto ? 'alerta' : 'ok'}`}>
-                            {abaixoDoCusto ? '⚠️ abaixo do custo' : '✅ acima do mínimo'}: R$ {formatBR(minimo)}
+                            {abaixoDoCusto ? 'abaixo do custo' : 'acima do mínimo'}: R$ {formatBR(minimo)}
                           </span>
                         )}
                       </div>
@@ -388,7 +389,7 @@ export default function PricingModal({ isOpen, onClose }) {
                       className="btn-confirm"
                       onClick={handleAddService}
                     >
-                      ✓ Adicionar
+                      Adicionar
                     </button>
                     <button
                       className="btn-cancel"
@@ -427,7 +428,7 @@ export default function PricingModal({ isOpen, onClose }) {
                 onClick={handleSave}
                 disabled={saving}
               >
-                {saving ? 'Salvando...' : '💾 Salvar Tabela'}
+                {saving ? 'Salvando...' : 'Salvar Tabela'}
               </button>
             </div>
           </>

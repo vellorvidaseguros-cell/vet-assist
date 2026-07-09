@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { Trash2 } from 'lucide-react'
 import './QuoteModal.css'
 
 export default function QuoteModal({ cliente, pet, onClose }) {
@@ -481,7 +482,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
             background: white; border: none; color: #1a5f2e;
             padding: 6px 14px; border-radius: 6px;
             font-size: 14px; cursor: pointer; font-weight: 700;
-          ">🖨️ Imprimir</button>
+          ">Imprimir</button>
         </div>
         <div style="height: 48px;" class="no-print"></div>
       `
@@ -686,7 +687,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
       <div className="quote-modal">
         {/* Header */}
         <div className="quote-header">
-          <h2>💰 Novo Orçamento</h2>
+          <h2>Novo Orçamento</h2>
         </div>
 
         {/* Body */}
@@ -810,7 +811,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
               configurados no Perfil; aqui o vet só edita os dados do caso. */}
           <div className="quote-section quote-visita-section">
             <div className="section-header">
-              <h3>🚗 Custo de Visita Externa</h3>
+              <h3>Custo de Visita Externa</h3>
               {!mostrarVisita && (
                 <button
                   type="button"
@@ -825,7 +826,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
             {mostrarVisita && (
               (horaTecnica <= 0 && custoKmVeiculo <= 0) ? (
                 <p className="quote-visita-aviso">
-                  ⚠️ Configure sua <strong>Hora Técnica</strong> e/ou o <strong>veículo</strong> no Perfil (card Precificação) para calcular o custo de deslocamento.
+                  Configure sua <strong>Hora Técnica</strong> e/ou o <strong>veículo</strong> no Perfil (card Precificação) para calcular o custo de deslocamento.
                 </p>
               ) : (
                 <>
@@ -884,7 +885,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                       onClick={handleAdicionarVisita}
                       disabled={visitaSubtotal <= 0}
                     >
-                      ✓ Adicionar
+                      Adicionar
                     </button>
                   </div>
                 </>
@@ -894,7 +895,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
             {/* Itens de visita já adicionados (linha fixa; no PDF aparece como "Outros") */}
             {itensVisita.map(item => (
               <div key={item.id} className="quote-item-fixo">
-                <span className="qif-nome">🚗 Visita externa</span>
+                <span className="qif-nome">Visita externa</span>
                 <span className="qif-valor">{formatarValor(item.valor)}</span>
                 <button
                   type="button"
@@ -902,7 +903,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                   onClick={() => removerItemVisita(item.id)}
                   title="Remover"
                 >
-                  🗑️
+                  <Trash2 size={16} />
                 </button>
               </div>
             ))}
@@ -911,7 +912,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
           {/* Insumos do Estoque — ao adicionar, abate a quantidade do estoque automaticamente */}
           <div className="quote-section quote-visita-section">
             <div className="section-header">
-              <h3>📦 Insumos do Estoque</h3>
+              <h3>Insumos do Estoque</h3>
               {!mostrarInsumo && (
                 <button
                   type="button"
@@ -964,7 +965,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                         </div>
                         {insumoEstoqueInsuficiente && (
                           <p className="quote-visita-aviso" style={{ marginTop: '0.5rem' }}>
-                            ⚠️ Estoque atual ({parseFloat(insumoSelecionado.quantidadeEstoque)} {insumoSelecionado.unidade}) é menor que a quantidade solicitada.
+                            Estoque atual ({parseFloat(insumoSelecionado.quantidadeEstoque)} {insumoSelecionado.unidade}) é menor que a quantidade solicitada.
                           </p>
                         )}
                       </div>
@@ -972,7 +973,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                   </>
                 ) : (
                   <p className="quote-visita-aviso">
-                    ⚠️ Nenhum insumo cadastrado. Use o campo abaixo para material avulso, ou cadastre em <strong>Perfil → Estoque de Insumos</strong>.
+                    Nenhum insumo cadastrado. Use o campo abaixo para material avulso, ou cadastre em <strong>Perfil → Estoque de Insumos</strong>.
                   </p>
                 )}
 
@@ -1004,7 +1005,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                     onClick={handleAdicionarInsumo}
                     disabled={(!insumoSelecionado || insumoQtdNum <= 0) && materiaisAvulsosNum <= 0}
                   >
-                    ✓ Adicionar
+                    Adicionar
                   </button>
                 </div>
               </>
@@ -1013,7 +1014,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
             {/* Insumos/materiais já adicionados (linha fixa abaixo do botão) */}
             {itensInsumo.map(item => (
               <div key={item.id} className="quote-item-fixo">
-                <span className="qif-nome">📦 {item.descricao}</span>
+                <span className="qif-nome">{item.descricao}</span>
                 <span className="qif-valor">{formatarValor(item.valor)}</span>
                 <button
                   type="button"
@@ -1021,7 +1022,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                   onClick={() => removerItemInsumo(item)}
                   title="Remover"
                 >
-                  🗑️
+                  <Trash2 size={16} />
                 </button>
               </div>
             ))}
@@ -1072,7 +1073,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
               </div>
             </div>
             <p className="quote-orcamento-aviso">
-              💡 Este é um orçamento estimado. Os valores podem variar de acordo com os materiais e serviços que se mostrarem necessários durante o tratamento.
+              Este é um orçamento estimado. Os valores podem variar de acordo com os materiais e serviços que se mostrarem necessários durante o tratamento.
             </p>
           </div>
         </div>
@@ -1086,7 +1087,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
               onClick={gerarPDF}
               disabled={documentoVazio}
             >
-              📄 PDF
+              PDF
             </button>
             <button
               type="button"
@@ -1094,7 +1095,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
               onClick={() => setMostrarCompartilhamento(true)}
               disabled={documentoVazio}
             >
-              📧 Email/WhatsApp
+              Email/WhatsApp
             </button>
             <button
               type="button"
@@ -1102,7 +1103,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
               onClick={salvarOrcamento}
               disabled={documentoVazio || salvandoDoc}
             >
-              {salvandoDoc ? '⏳...' : docSalvo ? '✅ Salvo!' : '💾 Salvar'}
+              {salvandoDoc ? '⏳...' : docSalvo ? 'Salvo!' : 'Salvar'}
             </button>
           </div>
           <button type="button" className="btn-cancelar" onClick={onClose}>
@@ -1140,7 +1141,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                 onClick={compartilharPorEmail}
                 disabled={enviando}
               >
-                {enviando ? '⏳ Gerando PDF...' : '✉️ Enviar por Email'}
+                {enviando ? '⏳ Gerando PDF...' : 'Enviar por Email'}
               </button>
               <button
                 type="button"
@@ -1148,7 +1149,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
                 onClick={compartilharPorWhatsapp}
                 disabled={enviando}
               >
-                {enviando ? '⏳ Gerando PDF...' : '💬 Enviar por WhatsApp'}
+                {enviando ? '⏳ Gerando PDF...' : 'Enviar por WhatsApp'}
               </button>
             </div>
           </div>

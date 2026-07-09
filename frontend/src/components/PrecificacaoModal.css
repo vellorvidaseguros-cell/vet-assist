@@ -35,15 +35,15 @@
 
 .pr-modal-header h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   color: #333;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .pr-btn-close {
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   cursor: pointer;
   color: #666;
   width: 30px;
@@ -73,8 +73,8 @@
   border: none;
   border-bottom: 3px solid transparent;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   color: #888;
   transition: all 0.2s;
 }
@@ -93,7 +93,7 @@
 
 .pr-description {
   margin: 0 0 1.25rem;
-  font-size: 0.88rem;
+  font-size: var(--font-size-base);
   color: #666;
   line-height: 1.5;
 }
@@ -105,8 +105,8 @@
   padding: 0.75rem 1rem;
   margin: 0 0 1rem;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
 }
 
 .pr-success-box {
@@ -119,8 +119,8 @@
   color: #2e7d32;
   padding: 0.75rem 1rem;
   border-radius: 6px 6px 0 0;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
 }
 
 .pr-btn-dismiss {
@@ -131,8 +131,8 @@
   border: none;
   border-radius: 0 0 6px 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
 }
 
 .pr-aviso {
@@ -141,7 +141,7 @@
   color: #8a6d0b;
   padding: 1rem;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   line-height: 1.5;
 }
 
@@ -153,10 +153,10 @@
 
 .pr-field label {
   display: block;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #333;
   margin-bottom: 0.35rem;
-  font-size: 0.88rem;
+  font-size: var(--font-size-base);
 }
 
 .pr-field input {
@@ -164,7 +164,7 @@
   padding: 0.65rem 0.75rem;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   font-family: inherit;
   box-sizing: border-box;
   transition: border-color 0.2s;
@@ -179,7 +179,7 @@
 .pr-field small {
   display: block;
   margin-top: 0.3rem;
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   color: #999;
   line-height: 1.4;
 }
@@ -203,7 +203,7 @@
   align-items: center;
   gap: 1rem;
   padding: 0.35rem 0;
-  font-size: 0.88rem;
+  font-size: var(--font-size-base);
   color: #555;
 }
 
@@ -220,18 +220,18 @@
   margin-top: 0.5rem;
   padding-top: 0.65rem;
   border-top: 2px solid #0d6b3a;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   color: #0d6b3a;
 }
 
 .pr-resultado-destaque strong {
-  font-size: 1.25rem;
+  font-size: var(--font-size-2xl);
 }
 
 .pr-hint {
   margin: 0.5rem 0 0;
-  font-size: 0.78rem;
+  font-size: var(--font-size-xs);
   color: #b8860b;
 }
 
@@ -243,8 +243,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
   transition: background 0.2s;
 }
 

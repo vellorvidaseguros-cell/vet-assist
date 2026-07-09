@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { Trash2 } from 'lucide-react'
 import PhotoUploadModal from './PhotoUploadModal'
 import './AnimalHistoryModal.css'
 
@@ -329,7 +330,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
         {/* Header */}
         <div className="modal-header">
           <div className="detalhes-titulo">
-            <h3>📋 {petName}</h3>
+            <h3>{petName}</h3>
             <span className="detalhes-data">{historicos.length} atendimento(s)</span>
           </div>
           <button className="btn-close" onClick={onClose} type="button">×</button>
@@ -337,7 +338,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
 
         {compartilhadoPor && (
           <div className="detalhes-compartilhado-bar">
-            🔗 Compartilhado por <strong>{compartilhadoPor}</strong>
+            Compartilhado por <strong>{compartilhadoPor}</strong>
           </div>
         )}
 
@@ -357,7 +358,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                 onClick={handleAbrirPdfCompleto}
                 disabled={gerandoPdf === 'completo'}
               >
-                {gerandoPdf === 'completo' ? '⏳ Gerando...' : '📄 Ver Histórico Completo em PDF'}
+                {gerandoPdf === 'completo' ? '⏳ Gerando...' : 'Ver Histórico Completo em PDF'}
               </button>
             </div>
           )}
@@ -427,13 +428,13 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                         checked={atendimentoExterno}
                         onChange={(e) => setAtendimentoExterno(e.target.checked)}
                       />
-                      <span>🚗 Atendimento Externo (visita domiciliar)</span>
+                      <span>Atendimento Externo (visita domiciliar)</span>
                     </label>
 
                     {atendimentoExterno && (
                       (horaTecnica <= 0 && custoKmVeiculo <= 0) ? (
                         <p className="na-aviso">
-                          ⚠️ Configure sua <strong>Hora Técnica</strong> e/ou o <strong>veículo</strong> no Perfil (card Precificação) para calcular o custo de deslocamento.
+                          Configure sua <strong>Hora Técnica</strong> e/ou o <strong>veículo</strong> no Perfil (card Precificação) para calcular o custo de deslocamento.
                         </p>
                       ) : (
                         <>
@@ -475,7 +476,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                         checked={mostrarInsumo}
                         onChange={(e) => setMostrarInsumo(e.target.checked)}
                       />
-                      <span>📦 Insumos Usados</span>
+                      <span>Insumos Usados</span>
                     </label>
 
                     {mostrarInsumo && (
@@ -483,7 +484,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                     )}
                     {mostrarInsumo && (
                       insumosDisponiveis.length === 0 ? (
-                        <p className="na-aviso">⚠️ Nenhum insumo cadastrado. Configure em <strong>Perfil → Estoque de Insumos</strong>.</p>
+                        <p className="na-aviso">Nenhum insumo cadastrado. Configure em <strong>Perfil → Estoque de Insumos</strong>.</p>
                       ) : (
                         <>
                           <div className="na-row">
@@ -516,7 +517,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                               onClick={handleAdicionarInsumo}
                               disabled={!insumoSelecionado || insumoQtdNum <= 0}
                             >
-                              ✓ Adicionar Insumo
+                              Adicionar Insumo
                             </button>
                           </div>
                         </>
@@ -525,9 +526,9 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
 
                     {itensInsumo.map(item => (
                       <div key={item.id} className="na-item-fixo">
-                        <span>📦 {item.descricao}</span>
+                        <span>{item.descricao}</span>
                         <strong>R$ {parseFloat(item.valor).toFixed(2)}</strong>
-                        <button type="button" onClick={() => removerItemInsumo(item)} title="Remover">🗑️</button>
+                        <button type="button" onClick={() => removerItemInsumo(item)} title="Remover"><Trash2 size={14} /></button>
                       </div>
                     ))}
                   </div>
@@ -535,7 +536,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                   {/* Fotos do atendimento */}
                   <div className="na-toggle-section">
                     <div className="na-fotos-header">
-                      <span>📸 Fotos do atendimento</span>
+                      <span>Fotos do atendimento</span>
                       <label className="na-btn-add-foto">
                         + Adicionar
                         <input
@@ -575,7 +576,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                     >
                       {salvandoAtendimento
                         ? (fotosSelecionadas.length > 0 ? 'Salvando e enviando fotos...' : 'Salvando...')
-                        : '✓ Registrar'}
+                        : 'Registrar'}
                     </button>
                   </div>
                 </div>
@@ -605,7 +606,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                     >
                       <div className="historico-header">
                         <div className="historico-date">
-                          📅 {formatarData(hist.data)}
+                          {formatarData(hist.data)}
                         </div>
                         {hist.valor && (
                           <div className="historico-valor">
@@ -663,7 +664,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                           {/* Fotos do atendimento */}
                           {hist.Anexos && hist.Anexos.length > 0 && (
                             <div className="historico-field">
-                              <span className="historico-label">📸 Fotos ({hist.Anexos.length}):</span>
+                              <span className="historico-label">Fotos ({hist.Anexos.length}):</span>
                               <div className="historico-fotos-grid">
                                 {hist.Anexos.map(anexo => (
                                   <img
@@ -686,7 +687,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
 
                           {hist.veterinario && (
                             <div className="historico-footer">
-                              👨‍⚕️ {hist.veterinario}
+                              {hist.veterinario}
                             </div>
                           )}
 
@@ -697,7 +698,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                               onClick={(e) => { e.stopPropagation(); handleAbrirPdfAtendimento(hist.id) }}
                               disabled={gerandoPdf === `atendimento-${hist.id}`}
                             >
-                              {gerandoPdf === `atendimento-${hist.id}` ? '⏳ Gerando...' : '📄 PDF deste atendimento'}
+                              {gerandoPdf === `atendimento-${hist.id}` ? '⏳ Gerando...' : 'PDF deste atendimento'}
                             </button>
                             {podeEditar && (
                               <button
@@ -705,7 +706,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
                                 className="historico-add-foto"
                                 onClick={(e) => { e.stopPropagation(); setHistoricoParaFoto(hist.id) }}
                               >
-                                📸 Adicionar fotos
+                                Adicionar fotos
                               </button>
                             )}
                           </div>

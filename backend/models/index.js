@@ -11,5 +11,7 @@ import TransferenciaProprietario from './TransferenciaProprietario.js';
 import Compartilhamento from './Compartilhamento.js';
 import Insumo from './Insumo.js';
 import DocumentoEmitido from './DocumentoEmitido.js';
+import Feedback from './Feedback.js';
+import SolicitacaoSenha from './SolicitacaoSenha.js';
 
-export { Veterinario, Cliente, Pet, Agendamento, HistoricoConsulta, Anexo, Faturamento, Veiculo, Despesa, TransferenciaProprietario, Compartilhamento, Insumo, DocumentoEmitido };
+export { Veterinario, Cliente, Pet, Agendamento, HistoricoConsulta, Anexo, Faturamento, Veiculo, Despesa, TransferenciaProprietario, Compartilhamento, Insumo, DocumentoEmitido, Feedback, SolicitacaoSenha };

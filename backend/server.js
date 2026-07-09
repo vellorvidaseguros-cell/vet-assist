@@ -10,7 +10,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { Veterinario, Cliente, Pet, Agendamento, HistoricoConsulta, Anexo, Faturamento, Veiculo, Despesa, Compartilhamento } from './models/index.js';
 import { initLembretesJob, startCleanup } from './jobs/lembretesJob.js';
-import { autenticar, exigirRecurso } from './middleware/auth.js';
+import { autenticar, exigirRecurso, bloquearEscritaSomenteLeitura } from './middleware/auth.js';
 
 // Rotas
 import veterinariosRoutes from './routes/veterinarios.js';
@@ -30,6 +30,7 @@ import orcamentoRoutes from './routes/orcamento.js';
 import compartilhamentoRoutes from './routes/compartilhamento.js';
 import insumosRoutes from './routes/insumos.js';
 import documentosRoutes from './routes/documentos.js';
+import feedbackRoutes from './routes/feedback.js';
 
 dotenv.config();
 
@@ -183,6 +184,7 @@ async function iniciarServidor() {
     // Autenticação JWT obrigatória em todas as rotas /api
     // (exceções públicas definidas em middleware/auth.js: login, status, backend-info)
     app.use('/api', autenticar);
+    app.use('/api', bloquearEscritaSomenteLeitura);
 
     // Rotas da API — cada grupo é liberado conforme o plano da conta
     // (config/planos.js define os recursos; admin tem acesso a tudo)
@@ -251,8 +253,9 @@ async function iniciarServidor() {
     app.use('/api/lixeira', lixeiraRoutes);
     app.use('/api/orcamento', exigirRecurso('clientes'), orcamentoRoutes);
     app.use('/api/compartilhamento', compartilhamentoRoutes);
-    app.use('/api/insumos', exigirRecurso('clientes'), insumosRoutes);
+    app.use('/api/insumos', exigirRecurso('insumos'), insumosRoutes);
     app.use('/api/documentos', exigirRecurso('clientes'), documentosRoutes);
+    app.use('/api/feedback', feedbackRoutes);
 
     // Endpoint para o frontend descobrir a porta do backend (Socket.IO direto)
     app.get('/api/backend-info', (req, res) => {

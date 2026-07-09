@@ -105,7 +105,7 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
       <div className="ncm-overlay" onClick={handleOverlayClick}>
         <div className="ncm-modal">
           <div className="ncm-header">
-            <h2>💰 Nova Cobrança</h2>
+            <h2>Nova Cobrança</h2>
             <button className="ncm-close" onClick={onClose} title="Fechar">×</button>
           </div>
           <div className="ncm-body">
@@ -122,17 +122,17 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
       <div className="ncm-modal">
         {/* HEADER */}
         <div className="ncm-header">
-          <h2>💰 Nova Cobrança</h2>
+          <h2>Nova Cobrança</h2>
           <button className="ncm-close" onClick={onClose} title="Fechar">×</button>
         </div>
 
         {/* BODY */}
         <div className="ncm-body">
-          {erro && <div className="ncm-error">⚠️ {erro}</div>}
+          {erro && <div className="ncm-error">{erro}</div>}
 
           {/* CONSULTA */}
           <div className="ncm-section">
-            <h3 className="ncm-section-title">📋 Consulta</h3>
+            <h3 className="ncm-section-title">Consulta</h3>
 
             <div className="ncm-row single">
               <div className="ncm-group">
@@ -159,7 +159,7 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
 
           {/* VALOR E DESCRIÇÃO */}
           <div className="ncm-section">
-            <h3 className="ncm-section-title">💵 Detalhes</h3>
+            <h3 className="ncm-section-title">Detalhes</h3>
 
             <div className="ncm-row single">
               <div className="ncm-group">
@@ -192,7 +192,7 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
 
           {/* STATUS E DATA */}
           <div className="ncm-section">
-            <h3 className="ncm-section-title">📊 Status</h3>
+            <h3 className="ncm-section-title">Status</h3>
 
             <div className="ncm-row single">
               <div className="ncm-group">
@@ -236,7 +236,7 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
             onClick={handleSalvar}
             disabled={salvando}
           >
-            {salvando ? 'Salvando...' : '✓ Criar Cobrança'}
+            {salvando ? 'Salvando...' : 'Criar Cobrança'}
           </button>
         </div>
       </div>

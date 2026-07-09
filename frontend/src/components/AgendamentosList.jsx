@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { Pencil, Plus, PawPrint, User, Camera, Trash2 } from 'lucide-react'
 import PhotoUploadModal from './PhotoUploadModal'
 import ConfirmModal from './ConfirmModal'
 import StatusMenu from './StatusMenu'
@@ -301,7 +302,7 @@ export default function AgendamentosList() {
               </select>
             </div>
             <div className="form-group">
-              <label>Pet *</label>
+              <label>Animal *</label>
               <select
                 name="petId"
                 value={formData.petId}
@@ -309,7 +310,7 @@ export default function AgendamentosList() {
                 required
                 disabled={!selectedCliente}
               >
-                <option value="">Selecione um pet</option>
+                <option value="">Selecione um animal</option>
                 {petsPorCliente.map(pet => (
                   <option key={pet.id} value={pet.id}>
                     {pet.nome} ({pet.especie})
@@ -404,7 +405,7 @@ export default function AgendamentosList() {
           </div>
 
           <button type="submit" className="btn-primary">
-            {editingAgendamentoId ? '✏️ Atualizar Agendamento' : '➕ Criar Agendamento'}
+            {editingAgendamentoId ? <><Pencil size={16} /> Atualizar Agendamento</> : <><Plus size={16} /> Criar Agendamento</>}
           </button>
         </form>
       )}
@@ -436,8 +437,8 @@ export default function AgendamentosList() {
                   <td>{formatarData(agend.data)}</td>
                   <td>{agend.hora}</td>
                   <td>{agend.tipoAtendimento}</td>
-                  <td>🐾 {agend.Pet?.nome}</td>
-                  <td>👤 {agend.Cliente?.nome}</td>
+                  <td><PawPrint size={14} /> {agend.Pet?.nome}</td>
+                  <td><User size={14} /> {agend.Cliente?.nome}</td>
                   <td className="table-actions">
                     <StatusMenu
                       currentStatus={agend.status}
@@ -449,21 +450,21 @@ export default function AgendamentosList() {
                       onClick={() => handlePhotoButtonClick(agend.id)}
                       title="Adicionar fotos"
                     >
-                      📸
+                      <Camera size={16} />
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       title="Editar"
                       onClick={() => handleEdit(agend)}
                     >
-                      ✏️
+                      <Pencil size={16} />
                     </button>
                     <button
                       className="btn-icon btn-delete"
                       title="Deletar"
                       onClick={() => handleDelete(agend.id)}
                     >
-                      🗑️
+                      <Trash2 size={16} />
                     </button>
                   </td>
                 </tr>

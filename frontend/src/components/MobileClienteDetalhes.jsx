@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { User, Phone, MapPin, Pencil, PawPrint, X, Plus, Camera, Cake, Check, FileText, Wallet } from 'lucide-react'
 import './MobileClienteDetalhes.css'
 import AnimalHistoryModal from './AnimalHistoryModal'
 import QuoteModal from './QuoteModal'
@@ -227,7 +228,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
         {/* Header — sem botão × */}
         <div className="modal-header">
           <div className="detalhes-titulo">
-            <h3>👤 {isEditing ? clienteEdit.nome || cliente.nome : cliente.nome}</h3>
+            <h3>{isEditing ? clienteEdit.nome || cliente.nome : cliente.nome}</h3>
             <span className="detalhes-data">{cliente.Pets?.length || 0} animal(is)</span>
           </div>
         </div>
@@ -245,7 +246,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
           {!isEditing && (
             <>
               <div className="detalhes-section info-section">
-                <h4>📞 Contato</h4>
+                <h4>Contato</h4>
                 {cliente.telefone && <p className="detalhes-text"><strong>Telefone:</strong> {cliente.telefone}</p>}
                 {cliente.email && <p className="detalhes-text"><strong>Email:</strong> {cliente.email}</p>}
                 {cliente.cpf && <p className="detalhes-text"><strong>CPF:</strong> {cliente.cpf}</p>}
@@ -253,7 +254,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
 
               {(cliente.endereco || cliente.cidade || cliente.estado) && (
                 <div className="detalhes-section info-section">
-                  <h4>📍 Endereço</h4>
+                  <h4>Endereço</h4>
                   {cliente.endereco && <p className="detalhes-text"><strong>Rua:</strong> {cliente.endereco}</p>}
                   {(cliente.cidade || cliente.estado) && (
                     <p className="detalhes-text"><strong>Localidade:</strong> {cliente.cidade}{cliente.cidade && cliente.estado ? ', ' : ''}{cliente.estado}</p>
@@ -266,7 +267,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
           {/* ── MODO EDIÇÃO CLIENTE ── */}
           {isEditing && (
             <div className="detalhes-section info-section">
-              <h4>✏️ Editar Dados</h4>
+              <h4>Editar Dados</h4>
               <div style={gridStyle}>
                 <input style={inputStyle} placeholder="Nome *" value={clienteEdit.nome} onChange={e => setClienteEdit(p => ({ ...p, nome: e.target.value }))} />
                 <input style={inputStyle} placeholder="Telefone" value={clienteEdit.telefone} onChange={e => setClienteEdit(p => ({ ...p, telefone: e.target.value }))} />
@@ -286,13 +287,13 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
           {/* ── ANIMAIS ── */}
           <div className="detalhes-section fotos-section">
             <div className="animais-header">
-              <h4>🐾 Animais</h4>
+              <h4>Animais</h4>
               <button
                 type="button"
                 className="animais-btn-adicionar"
                 onClick={() => { setShowNovoAnimal(!showNovoAnimal); setError(''); resetFoto() }}
               >
-                {showNovoAnimal ? '✕ Cancelar' : '+ Adicionar'}
+                {showNovoAnimal ? <><X size={14} /> Cancelar</> : <><Plus size={14} /> Adicionar</>}
               </button>
             </div>
 
@@ -307,14 +308,15 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                   }}>
                     {fotoPreview
                       ? <img src={fotoPreview} alt="Foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : <span style={{ fontSize: '22px' }}>🐾</span>}
+                      : <PawPrint size={22} />}
                   </label>
                   <input id="mobile-foto-novo" type="file" accept="image/*" onChange={handleFotoChange} style={{ display: 'none' }} />
                   <label htmlFor="mobile-foto-novo" style={{
                     padding: '8px 12px', border: '1.5px solid #0d6b3a', borderRadius: '6px',
-                    color: '#0d6b3a', fontSize: '12px', fontWeight: 600, cursor: 'pointer'
+                    color: '#0d6b3a', fontSize: '12px', fontWeight: 600, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: '6px'
                   }}>
-                    📷 {fotoPreview ? 'Trocar Foto' : 'Adicionar Foto'}
+                    <Camera size={14} /> {fotoPreview ? 'Trocar Foto' : 'Adicionar Foto'}
                   </label>
                 </div>
                 <div style={gridStyle}>
@@ -332,8 +334,8 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                   <input style={inputStyle} name="microchip" placeholder="Microchip" value={novoAnimal.microchip} onChange={e => setNovoAnimal(p => ({ ...p, microchip: e.target.value }))} />
                 </div>
                 <div style={{ marginBottom: '8px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#666', fontWeight: 600, marginBottom: '4px' }}>
-                    🎂 Data de Nascimento
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#666', fontWeight: 600, marginBottom: '4px' }}>
+                    <Cake size={14} /> Data de Nascimento
                   </label>
                   <input
                     style={{
@@ -358,7 +360,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                   )}
                 </div>
                 <button type="button" className="novo-animal-btn-save" onClick={handleAdicionarAnimal} disabled={salvandoAnimal}>
-                  {salvandoAnimal ? 'Salvando...' : '✓ Adicionar Animal'}
+                  {salvandoAnimal ? 'Salvando...' : 'Adicionar Animal'}
                 </button>
               </div>
             )}
@@ -380,7 +382,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                         ) : pet.foto ? (
                           <img src={petFotoUrl(pet.id)} alt="Foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
-                          <span style={{ fontSize: '22px' }}>🐾</span>
+                          <PawPrint size={22} />
                         )}
                       </label>
                       <input id={`mobile-foto-edit-${pet.id}`} type="file" accept="image/*" onChange={handleFotoChange} style={{ display: 'none' }} />
@@ -388,7 +390,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                         padding: '8px 12px', border: '1.5px solid #0d6b3a', borderRadius: '6px',
                         color: '#0d6b3a', fontSize: '12px', fontWeight: 600, cursor: 'pointer'
                       }}>
-                        📷 {fotoPreview || pet.foto ? 'Trocar Foto' : 'Adicionar Foto'}
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><Camera size={14} /> {fotoPreview || pet.foto ? 'Trocar Foto' : 'Adicionar Foto'}</span>
                       </label>
                     </div>
                     <div style={gridStyle}>
@@ -406,8 +408,8 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                       <input style={inputStyle} placeholder="Microchip" value={petEdit.microchip} onChange={e => setPetEdit(p => ({ ...p, microchip: e.target.value }))} />
                     </div>
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', fontSize: '12px', color: '#666', fontWeight: 600, marginBottom: '4px' }}>
-                        🎂 Data de Nascimento
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#666', fontWeight: 600, marginBottom: '4px' }}>
+                        <Cake size={14} /> Data de Nascimento
                       </label>
                       <input
                         style={{
@@ -435,7 +437,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                         Cancelar
                       </button>
                       <button type="button" className="pet-form-btn-save" onClick={handleSalvarPet} disabled={salvandoAnimal}>
-                        {salvandoAnimal ? 'Salvando...' : '✓ Salvar'}
+                        {salvandoAnimal ? 'Salvando...' : 'Salvar'}
                       </button>
                     </div>
                   </div>
@@ -451,7 +453,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                           style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
                         />
                       ) : (
-                        <div className="pet-icon">🐾</div>
+                        <div className="pet-icon"><PawPrint size={20} /></div>
                       )}
                       <div className="pet-info-card">
                         <p className="pet-name">{pet.nome}</p>
@@ -460,7 +462,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                         </p>
                         {(pet.dataNascimento || pet.idade) && (
                           <p className="pet-details" style={{ color: '#0d6b3a', fontWeight: 600 }}>
-                            🎂 {pet.dataNascimento
+                            {pet.dataNascimento
                               ? calcularIdade(pet.dataNascimento).texto
                               : `${pet.idade} ano${pet.idade !== 1 ? 's' : ''}`}
                           </p>
@@ -469,13 +471,13 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                     </div>
                     <div style={{ display: 'flex', gap: '6px', width: '100%', flexWrap: 'wrap' }}>
                       <button type="button" className="pet-edit-btn pet-btn-responsive" onClick={() => handleEditarPet(pet)}>
-                        ✏️ Editar
+                        Editar
                       </button>
                       <button type="button" className="pet-history-btn pet-btn-responsive" onClick={() => handleAbrirHistorico(pet)}>
-                        📋 Histórico
+                        Histórico
                       </button>
                       <button type="button" className="pet-quote-btn pet-btn-responsive" onClick={() => handleAbrirOrcamento(pet)}>
-                        💰 Orçamento
+                        Orçamento
                       </button>
                     </div>
                   </div>
@@ -497,7 +499,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                 Cancelar
               </button>
               <button type="button" className="btn-registrar" onClick={handleSalvarCliente} disabled={salvando}>
-                {salvando ? 'Salvando...' : '✓ Salvar'}
+                {salvando ? 'Salvando...' : 'Salvar'}
               </button>
             </>
           ) : (
@@ -506,7 +508,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
                 Voltar
               </button>
               <button type="button" className="btn-registrar" onClick={handleEditarCliente}>
-                ✏️ Editar
+                Editar
               </button>
             </>
           )}

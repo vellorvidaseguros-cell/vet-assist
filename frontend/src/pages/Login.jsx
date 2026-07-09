@@ -69,7 +69,7 @@ export default function Login({ onLogin }) {
             className="forgot-password-btn"
             onClick={() => setEsqueceSenhaOpen(true)}
           >
-            🔑 Esqueci a Senha
+            Esqueci a Senha
           </button>
         </form>
       </div>

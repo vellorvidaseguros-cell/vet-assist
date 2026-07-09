@@ -72,8 +72,8 @@
 
 .ncm-header h2 {
   margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   color: #1a1a2e;
 }
 
@@ -98,8 +98,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.88rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -126,8 +126,8 @@
 }
 
 .ncm-group label {
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #333;
 }
 
@@ -136,7 +136,7 @@
   padding: 0.65rem 0.75rem;
   border: 1.5px solid #ddd;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   background: white;
   transition: border-color 0.2s;
   width: 100%;
@@ -151,8 +151,8 @@
 }
 
 .ncm-idade-calculada {
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary);
   margin-top: 0.1rem;
 }
@@ -190,7 +190,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: var(--font-size-2xl);
 }
 
 .ncm-foto-picker {
@@ -220,7 +220,7 @@
 }
 
 .ncm-foto-placeholder {
-  font-size: 1.5rem;
+  font-size: var(--font-size-3xl);
 }
 
 .ncm-foto-btn {
@@ -229,8 +229,8 @@
   border: 1.5px solid var(--color-primary);
   border-radius: 6px;
   color: var(--color-primary);
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -252,19 +252,19 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #1a1a2e;
 }
 
 .ncm-animal-especie {
-  font-weight: 400;
+  font-weight: var(--font-weight-regular);
   color: #666;
 }
 
 .ncm-animal-idade {
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary);
   white-space: nowrap;
 }
@@ -278,8 +278,8 @@
 .ncm-chip {
   background: #eef0fb;
   color: #4a4a6a;
-  font-size: 0.78rem;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
   padding: 0.15rem 0.55rem;
   border-radius: 20px;
   white-space: nowrap;
@@ -295,7 +295,7 @@
 .ncm-animal-remove {
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   cursor: pointer;
   color: #d32f2f;
   padding: 0.2rem;
@@ -321,8 +321,8 @@
 }
 
 .ncm-animal-form-title {
-  font-size: 0.88rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: #555;
   margin: 0;
 }
@@ -333,8 +333,8 @@
   border: 1.5px dashed var(--color-primary);
   border-radius: 6px;
   color: var(--color-primary);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
@@ -355,8 +355,8 @@
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -370,8 +370,8 @@
   background: none;
   border: 1.5px solid #ccc;
   border-radius: 6px;
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #666;
   cursor: pointer;
   transition: all 0.2s;
@@ -398,8 +398,8 @@
   background: none;
   border: 1.5px solid #ccc;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #555;
   cursor: pointer;
   transition: all 0.2s;
@@ -416,8 +416,8 @@
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -436,7 +436,7 @@
   background: #ffebee;
   color: #d32f2f;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }
 
 /* ===== RESPONSIVO ===== */
@@ -473,7 +473,7 @@
   }
 
   .ncm-header h2 {
-    font-size: 1rem;
+    font-size: var(--font-size-lg);
   }
 
   .ncm-body {
@@ -490,7 +490,7 @@
   }
 
   .ncm-section-title {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     padding-bottom: 0.5rem;
   }
 
@@ -500,13 +500,13 @@
   }
 
   .ncm-group label {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .ncm-group input,
   .ncm-group select {
     padding: 0.6rem 0.65rem;
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
   }
 
   .ncm-animal-card {
@@ -515,11 +515,11 @@
   }
 
   .ncm-animal-card-title {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .ncm-chip {
-    font-size: 0.74rem;
+    font-size: var(--font-size-xs);
   }
 
   .ncm-animal-form {
@@ -529,13 +529,13 @@
 
   .ncm-add-animal-btn {
     padding: 0.5rem 0.85rem;
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .ncm-btn-confirm-animal,
   .ncm-btn-cancel-animal {
     padding: 0.45rem 0.85rem;
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
   }
 
   .ncm-footer {
@@ -552,7 +552,7 @@
   .ncm-btn-salvar,
   .ncm-btn-cancelar {
     padding: 0.85rem 1rem;
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
     min-height: 48px;
     width: 100%;
     text-align: center;
@@ -573,7 +573,7 @@
   }
 
   .ncm-header h2 {
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
   }
 
   .ncm-body {
@@ -583,12 +583,12 @@
   }
 
   .ncm-section-title {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     padding-bottom: 0.4rem;
   }
 
   .ncm-group label {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .ncm-group input,
@@ -598,12 +598,12 @@
   }
 
   .ncm-animal-card-title {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
   }
 
   .ncm-add-animal-btn {
     padding: 0.45rem 0.75rem;
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
   }
 
   .ncm-footer {
@@ -613,12 +613,12 @@
   .ncm-btn-salvar,
   .ncm-btn-cancelar {
     padding: 0.85rem 1rem;
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
     min-height: 44px;
   }
 
   .ncm-error {
     padding: 0.65rem 0.85rem;
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 }

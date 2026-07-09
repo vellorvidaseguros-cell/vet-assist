@@ -169,7 +169,7 @@ export default function ExportarDadosModal({ isOpen, onClose }) {
 
       const nomeArquivo = `${resultado.nome}_${dataInicio}_a_${dataFim}.csv`
       baixarCSV(gerarCSV(resultado.linhas), nomeArquivo)
-      setSucesso(`✅ ${resultado.qtd} registro(s) exportado(s) com sucesso!`)
+      setSucesso(`${resultado.qtd} registro(s) exportado(s) com sucesso!`)
     } catch (err) {
       setError(err.response?.data?.erro || err.message || 'Erro ao exportar dados')
     } finally {
@@ -183,7 +183,7 @@ export default function ExportarDadosModal({ isOpen, onClose }) {
     <div className="ed-modal-overlay">
       <div className="ed-modal">
         <div className="ed-modal-header">
-          <h2>📊 Exportar Dados</h2>
+          <h2>Exportar Dados</h2>
           <button className="ed-btn-close" onClick={onClose}>✕</button>
         </div>
 
@@ -233,7 +233,7 @@ export default function ExportarDadosModal({ isOpen, onClose }) {
                   onChange={() => setTipo('cobrancas')}
                 />
                 <div>
-                  <strong>💰 Cobranças</strong>
+                  <strong>Cobranças</strong>
                   <span>Todas as cobranças do período com status e pagamentos</span>
                 </div>
               </label>
@@ -247,7 +247,7 @@ export default function ExportarDadosModal({ isOpen, onClose }) {
                   onChange={() => setTipo('atendimentos')}
                 />
                 <div>
-                  <strong>📋 Atendimentos</strong>
+                  <strong>Atendimentos</strong>
                   <span>Consultas realizadas no período com diagnóstico e procedimentos</span>
                 </div>
               </label>
@@ -261,7 +261,7 @@ export default function ExportarDadosModal({ isOpen, onClose }) {
                   onChange={() => setTipo('faturamento')}
                 />
                 <div>
-                  <strong>📈 Faturamento Completo</strong>
+                  <strong>Faturamento Completo</strong>
                   <span>Todos os atendimentos faturados + resumo (total, recebido, pendente)</span>
                 </div>
               </label>
@@ -279,7 +279,7 @@ export default function ExportarDadosModal({ isOpen, onClose }) {
             disabled={exportando}
             className="ed-btn-exportar"
           >
-            {exportando ? 'Exportando...' : '⬇️ Exportar Planilha'}
+            {exportando ? 'Exportando...' : 'Exportar Planilha'}
           </button>
         </div>
       </div>

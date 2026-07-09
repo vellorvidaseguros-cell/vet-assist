@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { FolderOpen } from 'lucide-react'
 import { API_BASE_URL } from '../utils/apiConfig'
 import './PhotoUploadModal.css'
 
@@ -25,7 +26,7 @@ export default function PhotoUploadModal({ historicoId, agendamentoId, onClose, 
     } catch (err) {
       console.error('API não está acessível:', err.message)
       setApiStatus('offline')
-      setError(`⚠️ Backend não está acessível. Verifique se o servidor está rodando em ${API_BASE_URL}`)
+      setError(`Backend não está acessível. Verifique se o servidor está rodando em ${API_BASE_URL}`)
     }
   }
 
@@ -169,7 +170,7 @@ export default function PhotoUploadModal({ historicoId, agendamentoId, onClose, 
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>📸 Enviar Fotos</h3>
+          <h3>Enviar Fotos</h3>
           <button className="btn-close" onClick={onClose}>✕</button>
         </div>
 
@@ -177,7 +178,7 @@ export default function PhotoUploadModal({ historicoId, agendamentoId, onClose, 
 
         {apiStatus === 'offline' && (
           <div className="error-message">
-            🔴 <strong>Servidor Backend desligado!</strong><br/>
+            <strong>Servidor Backend desligado!</strong><br/>
             Certifique-se de que o backend está rodando em outro terminal com: <code>npm start</code>
           </div>
         )}
@@ -196,7 +197,7 @@ export default function PhotoUploadModal({ historicoId, agendamentoId, onClose, 
             style={{ display: 'none' }}
           />
           <label htmlFor="file-input" className="drop-zone-label">
-            <div className="drop-zone-icon">📁</div>
+            <div className="drop-zone-icon"><FolderOpen size={32} /></div>
             <div>Arraste e solte imagens aqui ou clique para selecionar</div>
             <small>Formatos aceitos: JPEG, PNG, GIF</small>
           </label>

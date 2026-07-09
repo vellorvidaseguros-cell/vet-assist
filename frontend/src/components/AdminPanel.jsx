@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { ChevronDown } from 'lucide-react'
+import FeedbackAdminList from './FeedbackAdminList'
+import SolicitacoesSenhaList from './SolicitacoesSenhaList'
 import './AdminPanel.css'
 
 const FORM_VAZIO = { nome: '', email: '', senha: '', telefone: '', plano: 'basico' }
 
 export default function AdminPanel() {
+  const [aba, setAba] = useState('contas') // 'contas' | 'feedback' | 'senhas'
   const [contas, setContas] = useState([])
   const [catalogo, setCatalogo] = useState({ recursos: [], planos: {} })
   const [loading, setLoading] = useState(true)
@@ -15,6 +19,11 @@ export default function AdminPanel() {
   const [salvando, setSalvando] = useState(false)
   const [editandoId, setEditandoId] = useState(null)
   const [permissoesEdit, setPermissoesEdit] = useState([])
+  const [contasExpandidas, setContasExpandidas] = useState({})
+
+  const toggleConta = (id) => {
+    setContasExpandidas(prev => ({ ...prev, [id]: !prev[id] }))
+  }
 
   useEffect(() => {
     carregar()
@@ -96,7 +105,7 @@ export default function AdminPanel() {
   // Exclusão é permanente e apaga todos os dados do assinante (clientes, animais,
   // agendamentos, histórico, cobranças...). Confirmação dupla para evitar clique acidental.
   const excluirConta = async (conta) => {
-    if (!window.confirm(`⚠️ EXCLUIR PERMANENTEMENTE a conta de ${conta.nome}?\n\nTodos os clientes, animais, agendamentos e histórico dessa conta serão apagados para sempre. Esta ação NÃO pode ser desfeita.`)) return
+    if (!window.confirm(`EXCLUIR PERMANENTEMENTE a conta de ${conta.nome}?\n\nTodos os clientes, animais, agendamentos e histórico dessa conta serão apagados para sempre. Esta ação NÃO pode ser desfeita.`)) return
     const digitado = window.prompt(`Para confirmar, digite o nome da conta exatamente: ${conta.nome}`)
     if (digitado !== conta.nome) {
       if (digitado !== null) setErro('Nome digitado não confere. Exclusão cancelada.')
@@ -111,6 +120,23 @@ export default function AdminPanel() {
       }
     } catch (err) {
       setErro(err.response?.data?.erro || 'Erro ao excluir conta')
+    }
+  }
+
+  // Entra em modo "Ver como" (somente leitura) — abre o app como esse vet
+  // veria, sem poder editar nada. Guarda o token de admin à parte pra voltar.
+  const verComo = async (conta) => {
+    if (!window.confirm(`Entrar no modo de visualização (somente leitura) da conta de ${conta.nome}?`)) return
+    try {
+      const res = await axios.post(`/api/admin/contas/${conta.id}/ver-como`)
+      if (res.data.sucesso) {
+        localStorage.setItem('admin_token_backup', localStorage.getItem('token'))
+        localStorage.setItem('admin_conta_backup', localStorage.getItem('conta'))
+        localStorage.setItem('token', res.data.data.token)
+        window.location.reload()
+      }
+    } catch (err) {
+      setErro(err.response?.data?.erro || 'Erro ao entrar em modo de visualização')
     }
   }
 
@@ -136,8 +162,26 @@ export default function AdminPanel() {
 
   return (
     <div className="admin-panel">
+      <div className="admin-abas">
+        <button className={`admin-aba-btn ${aba === 'contas' ? 'ativa' : ''}`} onClick={() => setAba('contas')}>
+          Contas e Assinaturas
+        </button>
+        <button className={`admin-aba-btn ${aba === 'feedback' ? 'ativa' : ''}`} onClick={() => setAba('feedback')}>
+          Dúvidas e Sugestões
+        </button>
+        <button className={`admin-aba-btn ${aba === 'senhas' ? 'ativa' : ''}`} onClick={() => setAba('senhas')}>
+          Redefinição de Senha
+        </button>
+      </div>
+
+      {aba === 'feedback' ? (
+        <FeedbackAdminList />
+      ) : aba === 'senhas' ? (
+        <SolicitacoesSenhaList />
+      ) : (
+      <>
       <div className="admin-header-row">
-        <h2>🔑 Contas e Assinaturas</h2>
+        <h2>Contas e Assinaturas</h2>
         <button className="admin-btn-nova" onClick={() => setShowNovaConta(!showNovaConta)}>
           {showNovaConta ? '✕ Cancelar' : '+ Nova Conta'}
         </button>
@@ -193,7 +237,10 @@ export default function AdminPanel() {
       <div className="admin-contas-list">
         {contas.map(conta => (
           <div key={conta.id} className={`admin-conta-card ${!conta.ativo ? 'suspensa' : ''}`}>
-            <div className="admin-conta-topo">
+            <div
+              className="admin-conta-topo admin-conta-topo-clicavel"
+              onClick={() => conta.role !== 'admin' && toggleConta(conta.id)}
+            >
               <div className="admin-conta-info">
                 <strong>{conta.nome}</strong>
                 {conta.role === 'admin' && <span className="admin-badge-admin">ADMIN</span>}
@@ -204,9 +251,12 @@ export default function AdminPanel() {
                   {' • '}desde {new Date(conta.createdAt).toLocaleDateString('pt-BR')}
                 </div>
               </div>
+              {conta.role !== 'admin' && (
+                <ChevronDown size={18} className={`admin-conta-chevron ${contasExpandidas[conta.id] ? 'aberto' : ''}`} />
+              )}
             </div>
 
-            {conta.role !== 'admin' && (
+            {conta.role !== 'admin' && contasExpandidas[conta.id] && (
               <>
                 <div className="admin-conta-plano">
                   <label>Plano:</label>
@@ -216,7 +266,7 @@ export default function AdminPanel() {
                     ))}
                   </select>
                   <button className="admin-btn-permissoes" onClick={() => editandoId === conta.id ? setEditandoId(null) : abrirPermissoes(conta)}>
-                    {editandoId === conta.id ? 'Fechar' : '⚙️ Permissões'}
+                    {editandoId === conta.id ? 'Fechar' : 'Permissões'}
                   </button>
                 </div>
 
@@ -267,14 +317,17 @@ export default function AdminPanel() {
                     className={conta.ativo ? 'admin-btn-suspender' : 'admin-btn-reativar'}
                     onClick={() => alternarSuspensao(conta)}
                   >
-                    {conta.ativo ? '⏸ Suspender' : '▶ Reativar'}
+                    {conta.ativo ? 'Suspender' : 'Reativar'}
                   </button>
                   <button className="admin-btn-senha" onClick={() => resetarSenha(conta)}>
-                    🔑 Redefinir Senha
+                    Redefinir Senha
+                  </button>
+                  <button className="admin-btn-ver-como" onClick={() => verComo(conta)}>
+                    Ver como
                   </button>
                   {conta.role !== 'admin' && (
                     <button className="admin-btn-excluir" onClick={() => excluirConta(conta)}>
-                      🗑️ Excluir Conta
+                      Excluir Conta
                     </button>
                   )}
                 </div>
@@ -283,6 +336,8 @@ export default function AdminPanel() {
           </div>
         ))}
       </div>
+      </>
+      )}
     </div>
   )
 }

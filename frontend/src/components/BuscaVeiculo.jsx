@@ -96,10 +96,10 @@ export default function BuscaVeiculo({ onDataReceived, isEditing }) {
       setPlaca('')
 
       if (consumoEncontrado) {
-        setMessage(`✅ Dados preenchidos! ${selectedMarca} ${modelo} (${ano})`)
+        setMessage(`Dados preenchidos! ${selectedMarca} ${modelo} (${ano})`)
         setTimeout(() => setMessage(''), 4000)
       } else {
-        setMessage(`✅ ${selectedMarca} ${modelo} (${ano}) preenchido. ℹ️ Informe o Consumo Médio (KM/L) manualmente no campo abaixo.`)
+        setMessage(`${selectedMarca} ${modelo} (${ano}) preenchido. ℹ️ Informe o Consumo Médio (KM/L) manualmente no campo abaixo.`)
         setTimeout(() => setMessage(''), 6000)
       }
     } catch (err) {
@@ -114,7 +114,7 @@ export default function BuscaVeiculo({ onDataReceived, isEditing }) {
 
   return (
     <div className="busca-veiculo">
-      <h4>🔍 Buscar Dados do Veículo na FIPE</h4>
+      <h4>Buscar Dados do Veículo na FIPE</h4>
 
       {step === 1 ? (
         <div className="busca-form">
@@ -142,7 +142,7 @@ export default function BuscaVeiculo({ onDataReceived, isEditing }) {
               disabled={loading || !placa.trim()}
               onClick={handleBuscarPlaca}
             >
-              {loading ? '⏳ Próximo...' : '➜ Próximo'}
+              {loading ? '⏳ Próximo...' : 'Próximo'}
             </button>
           </div>
         </div>

@@ -42,12 +42,12 @@ export default function PagamentoModal({ faturamento, onClose, onSuccess, isNest
     const valor = isGratuito ? 0 : parseFloat(valorPagamento)
 
     if (!isGratuito && (!valorPagamento || valor <= 0)) {
-      setErro('⚠️ Insira um valor válido ou selecione uma opção gratuita')
+      setErro('Insira um valor válido ou selecione uma opção gratuita')
       return
     }
 
     if (!isGratuito && !semValorDefinido && valor > valorFaltante) {
-      setErro(`⚠️ Valor não pode ser maior que R$ ${valorFaltante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (valor devido)`)
+      setErro(`Valor não pode ser maior que R$ ${valorFaltante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (valor devido)`)
       return
     }
 

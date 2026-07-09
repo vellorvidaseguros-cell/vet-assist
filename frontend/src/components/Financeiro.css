@@ -49,7 +49,7 @@
 .card.resultado.negativo { border-left-color: var(--color-danger) !important; }
 
 .card-icon {
-  font-size: 1.8rem !important;
+  font-size: var(--font-size-4xl) !important;
   min-width: 36px !important;
   text-align: center !important;
   display: flex !important;
@@ -70,17 +70,17 @@
 .card-label {
   margin: 0 !important;
   color: #888 !important;
-  font-size: 0.75rem !important;
+  font-size: var(--font-size-xs) !important;
   text-transform: uppercase !important;
   letter-spacing: 0.6px !important;
   line-height: 1.3 !important;
-  font-weight: 600 !important;
+  font-weight: var(--font-weight-semibold) !important;
 }
 
 .card-value {
   margin: 0 !important;
-  font-size: 1.4rem !important;
-  font-weight: 700 !important;
+  font-size: var(--font-size-3xl) !important;
+  font-weight: var(--font-weight-bold) !important;
   color: #1a1a2e !important;
   line-height: 1.2 !important;
 }
@@ -106,8 +106,8 @@
 .lucratividade-header h2 {
   margin: 0 0 1.25rem;
   color: #1a1a2e;
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
 }
 
 .lucratividade-fluxo {
@@ -130,33 +130,33 @@
 }
 
 .luc-label {
-  font-size: 0.78rem;
+  font-size: var(--font-size-xs);
   color: #888;
   text-transform: uppercase;
   letter-spacing: 0.4px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .luc-valor {
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
 }
 
 .luc-valor.positivo { color: #2e7d32; }
 .luc-valor.negativo { color: #c62828; }
 
 .luc-aviso {
-  font-size: 0.7rem;
+  font-size: var(--font-size-2xs);
   color: #b8860b;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .luc-op {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
   color: #999;
   padding: 0 0.25rem;
 }
@@ -172,7 +172,7 @@
 }
 
 .luc-valor-grande {
-  font-size: 1.4rem;
+  font-size: var(--font-size-3xl);
   font-weight: 800;
   color: var(--color-primary);
 }
@@ -191,12 +191,12 @@
 
 .lucratividade-meta p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   color: #444;
   line-height: 1.5;
 }
 
-.meta-ok { color: #2e7d32 !important; font-weight: 600; }
+.meta-ok { color: #2e7d32 !important; font-weight: var(--font-weight-semibold); }
 .meta-faltando { color: #444; }
 
 .lucratividade-meta-neutra {
@@ -236,8 +236,8 @@
 .faturamentos-section h2 {
   margin: 0 !important;
   color: #1a1a2e !important;
-  font-size: 1.05rem !important;
-  font-weight: 700 !important;
+  font-size: var(--font-size-lg) !important;
+  font-weight: var(--font-weight-bold) !important;
 }
 
 /* ===== BOTÕES ===== */
@@ -248,8 +248,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.88rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   transition: background-color 0.2s;
   white-space: nowrap;
 }
@@ -280,8 +280,8 @@
 
 .form-group label {
   color: var(--color-text);
-  font-weight: 600;
-  font-size: 0.88rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
 }
 
 .form-group input,
@@ -289,7 +289,7 @@
   padding: 0.65rem 0.75rem;
   border: 1.5px solid var(--color-gray-medium);
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   transition: border-color 0.2s;
   background: white;
 }
@@ -359,8 +359,8 @@
   margin: 0 !important;
   padding: 0 !important;
   color: #1a1a2e !important;
-  font-size: 0.9rem !important;
-  font-weight: 500 !important;
+  font-size: var(--font-size-base) !important;
+  font-weight: var(--font-weight-medium) !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
@@ -369,7 +369,7 @@
 .faturamento-cliente {
   margin: 0.25rem 0;
   color: var(--color-gray-dark);
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }
 
 .despesa-valor {
@@ -408,8 +408,8 @@
 
 .despesa-valor .valor,
 .faturamento-valor .valor {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   color: #1a1a2e;
   white-space: nowrap;
 }
@@ -418,11 +418,11 @@
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
 }
 
-.parcial-info .recebido { color: #2e7d32; font-weight: 600; }
-.parcial-info .faltante { color: #e65100; font-weight: 600; }
+.parcial-info .recebido { color: #2e7d32; font-weight: var(--font-weight-semibold); }
+.parcial-info .faltante { color: #e65100; font-weight: var(--font-weight-semibold); }
 
 .data-pagamento {
   display: flex;
@@ -431,26 +431,26 @@
   margin-top: 0.5rem;
   padding-top: 0.5rem;
   border-top: 1px solid #e0e0e0;
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
 }
 
 .data-pagamento .data-label {
   color: #999;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
 }
 
 .data-pagamento .data-value {
   color: var(--color-primary);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .btn-delete,
 .btn-historico {
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   cursor: pointer;
   padding: 0.2rem;
   border-radius: 4px;
@@ -471,8 +471,8 @@
 .status {
   padding: 0.3rem 0.75rem;
   border-radius: 20px;
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   white-space: nowrap;
@@ -496,8 +496,8 @@
   border: 1.5px solid #ddd;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.88rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   transition: all 0.2s;
   white-space: nowrap;
 }
@@ -517,8 +517,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.8rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   transition: all 0.2s;
@@ -537,27 +537,10 @@
   text-align: center;
   color: var(--color-gray-dark);
   padding: 2.5rem;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
 }
 
-.error-message {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.85rem 1.25rem;
-  background-color: #ffebee;
-  color: var(--color-danger);
-  border-radius: 8px;
-  margin-bottom: 1.25rem;
-}
 
-.error-message button {
-  background: none;
-  border: none;
-  color: var(--color-danger);
-  font-size: 1.4rem;
-  cursor: pointer;
-}
 
 .loading {
   text-align: center;
@@ -594,11 +577,11 @@
   .form-row { grid-template-columns: 1fr !important; }
 
   .card-label {
-    font-size: 0.7rem !important;
+    font-size: var(--font-size-2xs) !important;
   }
 
   .card-value {
-    font-size: 1.1rem !important;
+    font-size: var(--font-size-xl) !important;
   }
 
   .despesa-form,
@@ -626,15 +609,15 @@
   }
 
   .card-icon {
-    font-size: 1.5rem !important;
+    font-size: var(--font-size-3xl) !important;
   }
 
   .card-label {
-    font-size: 0.65rem !important;
+    font-size: var(--font-size-2xs) !important;
   }
 
   .card-value {
-    font-size: 0.95rem !important;
+    font-size: var(--font-size-md) !important;
   }
 
   .despesa-form,
@@ -649,12 +632,12 @@
   .faturamentos-header h2,
   .section-header h2,
   .faturamentos-section h2 {
-    font-size: 0.95rem !important;
+    font-size: var(--font-size-md) !important;
   }
 
   .btn-primary {
     padding: 0.5rem 0.8rem;
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
   }
 
   .form-row {
@@ -663,16 +646,16 @@
   }
 
   .form-group label {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .empty-message {
     padding: 1.5rem 1rem;
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .error-message {
     padding: 0.75rem 1rem;
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
   }
 }

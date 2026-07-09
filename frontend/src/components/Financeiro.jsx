@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Wallet, Clock, TrendingDown, TrendingUp, Trash2, ClipboardList } from 'lucide-react'
 import axios from 'axios'
 import { formatarData } from '../utils/dateFormatter'
 import PagamentoModal from './PagamentoModal'
@@ -237,7 +238,7 @@ export default function Financeiro() {
       {/* Cards de Resumo */}
       <div className="cards-resumo">
         <div className="card receita">
-          <div className="card-icon">💰</div>
+          <div className="card-icon"><Wallet size={22} /></div>
           <div className="card-content">
             <p className="card-label">Recebido</p>
             <p className="card-value">R$ {totalRecebido.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
@@ -245,7 +246,7 @@ export default function Financeiro() {
         </div>
 
         <div className="card pendente">
-          <div className="card-icon">⏳</div>
+          <div className="card-icon"><Clock size={22} /></div>
           <div className="card-content">
             <p className="card-label">A Receber</p>
             <p className="card-value">R$ {totalAReceber.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
@@ -253,7 +254,7 @@ export default function Financeiro() {
         </div>
 
         <div className="card despesa">
-          <div className="card-icon">📉</div>
+          <div className="card-icon"><TrendingDown size={22} /></div>
           <div className="card-content">
             <p className="card-label">Gastos</p>
             <p className="card-value">R$ {totalGastos.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
@@ -261,7 +262,7 @@ export default function Financeiro() {
         </div>
 
         <div className={`card resultado ${resultadoLiquido >= 0 ? 'positivo' : 'negativo'}`}>
-          <div className="card-icon">{resultadoLiquido >= 0 ? '📈' : '📉'}</div>
+          <div className="card-icon">{resultadoLiquido >= 0 ? <TrendingUp size={22} /> : <TrendingDown size={22} />}</div>
           <div className="card-content">
             <p className="card-label">Resultado Líquido</p>
             <p className="card-value">R$ {resultadoLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
@@ -280,7 +281,7 @@ export default function Financeiro() {
       {/* ===== Lucratividade do Mês (automático) ===== */}
       <div className="lucratividade-section">
         <div className="lucratividade-header">
-          <h2>📊 Lucratividade — {nomeMes}/{anoAtual}</h2>
+          <h2>Lucratividade — {nomeMes}/{anoAtual}</h2>
         </div>
 
         <div className="lucratividade-fluxo">
@@ -313,11 +314,11 @@ export default function Financeiro() {
           <div className="lucratividade-meta">
             {lucroReal >= metaProLabore ? (
               <p className="meta-ok">
-                🎉 Você já atingiu sua meta de pró-labore (R$ {fmt(metaProLabore)}) este mês!
+                Você já atingiu sua meta de pró-labore (R$ {fmt(metaProLabore)}) este mês!
               </p>
             ) : (
               <p className="meta-faltando">
-                🎯 Faltam <strong>R$ {fmt(metaProLabore - lucroReal)}</strong> para atingir sua meta de pró-labore de R$ {fmt(metaProLabore)} este mês.
+                Faltam <strong>R$ {fmt(metaProLabore - lucroReal)}</strong> para atingir sua meta de pró-labore de R$ {fmt(metaProLabore)} este mês.
                 {horaTecnica > 0 && (
                   <> Isso equivale a ~<strong>{Math.ceil((metaProLabore - lucroReal) / horaTecnica)}h</strong> de atendimento.</>
                 )}
@@ -327,7 +328,7 @@ export default function Financeiro() {
         ) : (
           <div className="lucratividade-meta lucratividade-meta-neutra">
             <p>
-              💡 Configure sua <strong>Precificação</strong> no Perfil para comparar seu lucro com a meta de quanto você quer ganhar por mês.
+              Configure sua <strong>Precificação</strong> no Perfil para comparar seu lucro com a meta de quanto você quer ganhar por mês.
             </p>
           </div>
         )}
@@ -336,7 +337,7 @@ export default function Financeiro() {
       {/* Seção de Despesas */}
       <div className="despesas-section">
         <div className="despesas-header">
-          <h2>💸 Despesas</h2>
+          <h2>Despesas</h2>
           <button
             className="btn-primary"
             onClick={() => setShowNovaDepesa(true)}
@@ -353,13 +354,13 @@ export default function Financeiro() {
               <div key={despesa.id} className="despesa-item">
                 <div className="despesa-info">
                   <div className="despesa-col-categoria">
-                    <span>💰 {despesa.categoriaDespesa}</span>
+                    <span>{despesa.categoriaDespesa}</span>
                   </div>
                   <div className="despesa-col-descricao">
-                    <span>📝 {despesa.descricao}</span>
+                    <span>{despesa.descricao}</span>
                   </div>
                   <div className="despesa-col-data">
-                    <span>📅 {formatarData(despesa.data)}</span>
+                    <span>{formatarData(despesa.data)}</span>
                   </div>
                 </div>
                 <div className="despesa-valor">
@@ -369,7 +370,7 @@ export default function Financeiro() {
                     onClick={() => handleDeleteDespesa(despesa.id)}
                     title="Deletar despesa"
                   >
-                    🗑️
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
@@ -381,7 +382,7 @@ export default function Financeiro() {
       {/* Seção de Faturamentos */}
       <div className="faturamentos-section">
         <div className="faturamentos-header">
-          <h2>📊 Faturamentos</h2>
+          <h2>Faturamentos</h2>
         </div>
 
         <div className="filtro-status">
@@ -406,19 +407,19 @@ export default function Financeiro() {
                 <div key={fat.id} className="faturamento-item">
                   <div className="faturamento-info">
                     <div className="faturamento-col-cliente">
-                      <span>👤 {fat.Cliente?.nome}</span>
+                      <span>{fat.Cliente?.nome}</span>
                     </div>
                     <div className="faturamento-col-data">
-                      <span>📅 {fat.HistoricoConsulta?.data
+                      <span>{fat.HistoricoConsulta?.data
                         ? formatarData(fat.HistoricoConsulta.data)
                         : formatarData(fat.dataEmissao || fat.createdAt)}
                       </span>
                     </div>
                     <div className="faturamento-col-tipo">
-                      <span>🏥 {fat.descricao}</span>
+                      <span>{fat.descricao}</span>
                     </div>
                     <div className="faturamento-col-animal">
-                      <span>🐾 {fat.HistoricoConsulta?.Pet?.nome || 'N/A'}</span>
+                      <span>{fat.HistoricoConsulta?.Pet?.nome || 'N/A'}</span>
                     </div>
                   </div>
                   <div className="faturamento-valor-acoes">
@@ -439,7 +440,7 @@ export default function Financeiro() {
                         onClick={() => handleAbrirHistoricoModal(fat)}
                         title="Ver histórico de pagamentos"
                       >
-                        📋
+                        <ClipboardList size={16} />
                       </button>
                     {fat.status === 'Pago' ? (
                       <button
@@ -447,7 +448,7 @@ export default function Financeiro() {
                         onClick={() => handleChangeStatusFaturamento(fat.id, 'Pendente')}
                         title="Marcar como pendente"
                       >
-                        ✅ PAGO
+                        PAGO
                       </button>
                     ) : fat.status === 'Parcialmente Pago' ? (
                       <button
@@ -455,7 +456,7 @@ export default function Financeiro() {
                         onClick={() => handleAbrirHistoricoModal(fat)}
                         title="Ver histórico de pagamentos"
                       >
-                        📊 PARCIAL
+                        PARCIAL
                       </button>
                     ) : (
                       <button

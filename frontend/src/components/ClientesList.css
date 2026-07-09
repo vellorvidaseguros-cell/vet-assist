@@ -22,8 +22,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.88rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   transition: background-color 0.2s;
 }
 
@@ -36,8 +36,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   transition: background-color 0.2s;
 }
 
@@ -45,36 +45,19 @@
 
 .btn-danger {
   padding: 0.5rem 1rem;
-  background-color: #d32f2f;
+  background-color: var(--color-danger);
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   transition: background-color 0.2s;
 }
 
-.btn-danger:hover { background-color: #b71c1c; }
+.btn-danger:hover { background-color: #7a2222; }
 
-.error-message {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.85rem 1.5rem;
-  background-color: #ffebee;
-  color: #d32f2f;
-  border-bottom: 1px solid #ef5350;
-}
 
-.error-message button {
-  background: none;
-  border: none;
-  color: #d32f2f;
-  font-size: 1.4rem;
-  cursor: pointer;
-  margin-left: 1rem;
-}
 
 .clientes-list {
   padding: 1rem 1.25rem;
@@ -85,7 +68,7 @@
   text-align: center;
   color: #999;
   padding: 2.5rem;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
 }
 
 /* ===== ACORDEÃO DE CLIENTE ===== */
@@ -169,8 +152,8 @@
   margin: 0;
   padding: 0;
   color: #1a1a2e;
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -180,7 +163,7 @@
 
 .expand-icon {
   color: var(--color-primary);
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
   margin-left: auto;
   transition: transform 0.3s;
   flex-shrink: 0;
@@ -202,16 +185,16 @@
 .cliente-details-section h4 {
   margin: 0 0 0.85rem 0;
   color: var(--color-primary);
-  font-size: 0.88rem;
+  font-size: var(--font-size-base);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .cliente-details-section p {
   margin: 0.4rem 0;
   color: #555;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
 }
 
 .animais-section { margin-bottom: 1.5rem; }
@@ -226,10 +209,10 @@
 .animais-header h4 {
   margin: 0;
   color: var(--color-primary);
-  font-size: 0.88rem;
+  font-size: var(--font-size-base);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .animal-form {
@@ -255,8 +238,8 @@
 
 .form-group label {
   color: #333;
-  font-weight: 600;
-  font-size: 0.88rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
 }
 
 .form-group input,
@@ -264,7 +247,7 @@
   padding: 0.65rem 0.75rem;
   border: 1.5px solid #ddd;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   transition: border-color 0.2s;
   background: white;
 }
@@ -315,7 +298,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: var(--font-size-2xl);
 }
 
 .foto-picker {
@@ -346,7 +329,7 @@
 }
 
 .foto-placeholder {
-  font-size: 1.5rem;
+  font-size: var(--font-size-3xl);
 }
 
 .foto-btn {
@@ -355,8 +338,8 @@
   border: 1.5px solid var(--color-primary);
   border-radius: 6px;
   color: var(--color-primary);
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -379,24 +362,25 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   color: #1a1a2e;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }
 
 .animal-especie {
-  font-weight: 400;
+  font-weight: var(--font-weight-regular);
   color: #666;
+  text-transform: capitalize;
 }
 
 .animal-idade {
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary);
   white-space: nowrap;
 }
 
 .animal-codigo {
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: #999;
   background: #eee;
   padding: 0.1rem 0.5rem;
@@ -413,8 +397,8 @@
 .animal-chips .chip {
   background: #eef0fb;
   color: #4a4a6a;
-  font-size: 0.76rem;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
   padding: 0.15rem 0.55rem;
   border-radius: 20px;
   white-space: nowrap;
@@ -429,37 +413,52 @@
 
 .btn-transfer {
   padding: 0.5rem 1rem;
+  background-color: transparent;
+  color: var(--color-gray-dark);
+  border: 1px solid var(--color-gray-medium);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.btn-transfer:hover { background-color: var(--color-gray-light); }
+
+.btn-quote {
+  padding: 0.5rem 1rem;
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   white-space: nowrap;
   transition: background-color 0.2s;
 }
 
-.btn-transfer:hover { background-color: var(--color-primary-dark); }
+.btn-quote:hover { background-color: var(--color-primary-dark); }
 
-.btn-quote {
+.btn-edit {
   padding: 0.5rem 1rem;
-  background-color: #0d6b3a;
-  color: white;
-  border: none;
+  background-color: transparent;
+  color: var(--color-gray-dark);
+  border: 1px solid var(--color-gray-medium);
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   white-space: nowrap;
   transition: background-color 0.2s;
 }
 
-.btn-quote:hover { background-color: #0a5530; }
+.btn-edit:hover { background-color: var(--color-gray-light); }
 
 .idade-calculada {
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary);
   margin-top: 0.2rem;
   display: inline-block;
@@ -470,7 +469,7 @@
   color: #999;
   padding: 1rem;
   font-style: italic;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }
 
 .cliente-actions {
@@ -489,13 +488,13 @@
   text-align: center;
   padding: 2.5rem;
   color: #666;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
 }
 
 /* Animais compartilhados comigo (desktop) */
 .compartilhados-comigo-desktop {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  border: 1px solid #bbf7d0;
+  background: var(--color-primary-bg);
+  border: 1px solid var(--color-gray-medium);
   border-radius: 10px;
   margin-bottom: 1.25rem;
   overflow: hidden;
@@ -503,10 +502,10 @@
 
 .compartilhados-comigo-titulo {
   padding: 0.7rem 1rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #0d6b3a;
-  border-bottom: 1px solid #bbf7d0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-gray-medium);
   background: rgba(255, 255, 255, 0.5);
 }
 
@@ -522,7 +521,7 @@
   padding: 0.75rem 1rem;
   cursor: pointer;
   transition: background 0.2s;
-  border-bottom: 1px solid rgba(187, 247, 208, 0.5);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .compartilhado-comigo-item-desktop:last-child {
@@ -534,26 +533,26 @@
 }
 
 .ccd-nome {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
   color: #333;
   flex: 1;
 }
 
 .ccd-especie {
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #666;
 }
 
 .ccd-origem {
-  font-size: 0.8rem;
+  font-size: var(--font-size-sm);
   color: #0d6b3a;
   font-style: italic;
 }
 
 .ccd-seta {
   color: #0d6b3a;
-  font-size: 0.8rem;
+  font-size: var(--font-size-sm);
 }
 
 /* Convites de compartilhamento recebidos (pendentes de aceite) */
@@ -567,8 +566,8 @@
 
 .convites-recebidos-titulo {
   padding: 0.7rem 1rem;
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: #92400e;
   border-bottom: 1px solid #fde68a;
   background: rgba(255, 255, 255, 0.5);
@@ -580,8 +579,8 @@
 .convites-recebidos-badge {
   background: #d97706;
   color: #fff;
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
@@ -617,13 +616,13 @@
 }
 
 .crd-nome {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
   color: #333;
 }
 
 .crd-origem {
-  font-size: 0.8rem;
+  font-size: var(--font-size-sm);
   color: #92400e;
   font-style: italic;
 }
@@ -638,8 +637,8 @@
   width: auto !important;
   margin: 0 !important;
   padding: 0.45rem 0.85rem;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   border: none;
   border-radius: 7px;
   cursor: pointer;

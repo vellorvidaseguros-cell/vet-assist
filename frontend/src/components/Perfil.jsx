@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ChevronDown } from 'lucide-react'
 import axios from 'axios'
 import BuscaVeiculo from './BuscaVeiculo'
 import PricingModal from './PricingModal'
@@ -37,6 +38,11 @@ export default function Perfil() {
   const [salvandoCobranca, setSalvandoCobranca] = useState(false)
   const [meusPets, setMeusPets] = useState([])
   const [compartilhamentosFeitos, setCompartilhamentosFeitos] = useState([])
+  const [expandedSections, setExpandedSections] = useState({})
+
+  const toggleSection = (chave) => {
+    setExpandedSections(prev => ({ ...prev, [chave]: !prev[chave] }))
+  }
 
   const veterinarioId = 1 // Será obtido do localStorage ou token
 
@@ -256,14 +262,18 @@ export default function Perfil() {
       <div className="perfil-content">
         {/* Seção de Dados Pessoais */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>👤 Dados Pessoais</h2>
-            {!editMode && (
-              <button className="btn-edit" onClick={() => setEditMode(true)}>
-                ✏️ Editar
-              </button>
-            )}
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('dadosPessoais')}>
+            <h2>Dados Pessoais</h2>
+            <ChevronDown size={18} className={`card-chevron ${(expandedSections.dadosPessoais || editMode) ? 'aberto' : ''}`} />
           </div>
+
+          {(expandedSections.dadosPessoais || editMode) && (
+          <div className="card-content">
+          {!editMode && (
+            <button className="btn-edit" onClick={(e) => { e.stopPropagation(); setEditMode(true) }}>
+              Editar
+            </button>
+          )}
 
           {editMode ? (
             <form className="perfil-form" onSubmit={handleSavePerfil}>
@@ -435,18 +445,24 @@ export default function Perfil() {
               </div>
             </div>
           )}
+          </div>
+          )}
         </div>
 
         {/* Seção de Veículo */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>🚗 Informações do Veículo</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('veiculo')}>
+            <h2>Informações do Veículo</h2>
+            <ChevronDown size={18} className={`card-chevron ${(expandedSections.veiculo || veiculoMode) ? 'aberto' : ''}`} />
+          </div>
+
+          {(expandedSections.veiculo || veiculoMode) && (
+          <div className="card-content">
             {!veiculoMode && (
-              <button className="btn-edit" onClick={() => setVeiculoMode(true)}>
-                ✏️ {veiculo ? 'Editar' : 'Adicionar'}
+              <button className="btn-edit" onClick={(e) => { e.stopPropagation(); setVeiculoMode(true) }}>
+                {veiculo ? 'Editar' : 'Adicionar'}
               </button>
             )}
-          </div>
 
           {veiculoMode ? (
             <form className="perfil-form" onSubmit={handleSaveVeiculo}>
@@ -507,7 +523,7 @@ export default function Perfil() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>KM rodados por mês a trabalho ⭐</label>
+                  <label>KM rodados por mês a trabalho</label>
                   <input
                     type="number"
                     placeholder="Ex: 1500"
@@ -621,15 +637,15 @@ export default function Perfil() {
               {custoKm && custoKm.configuracaoPendente && (
                 <div className="custo-km-card" style={{ background: '#fff8e6', borderLeft: '4px solid #b8860b' }}>
                   <p style={{ margin: 0, fontSize: '0.9rem', color: '#8a6d0b' }}>
-                    ⚠️ <strong>Informe os "KM rodados por mês a trabalho"</strong> para calcular o custo real por km.
-                    Clique em ✏️ Editar e preencha o campo ⭐.
+                    <strong>Informe os "KM rodados por mês a trabalho"</strong> para calcular o custo real por km.
+                    Clique em Editar e preencha o campo.
                   </p>
                 </div>
               )}
 
               {custoKm && !custoKm.configuracaoPendente && (
                 <div className="custo-km-card">
-                  <h3>💰 Análise de Custos</h3>
+                  <h3>Análise de Custos</h3>
                   <div className="custo-row">
                     <div className="custo-item">
                       <span className="label">Custo/KM:</span>
@@ -659,12 +675,15 @@ export default function Perfil() {
           ) : (
             <p className="empty-message">Nenhum veículo cadastrado</p>
           )}
+          </div>
+          )}
         </div>
 
         {/* Seção de Precificação (Hora Técnica) */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>💡 Precificação</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('precificacao')}>
+            <h2>Precificação</h2>
+            <ChevronDown size={18} className={`card-chevron ${expandedSections.precificacao ? 'aberto' : ''}`} />
           </div>
           <div className="card-content">
             <p className="card-description">
@@ -673,104 +692,124 @@ export default function Perfil() {
                 <> <strong style={{ color: '#0d6b3a' }}>Sua hora técnica: R$ {Number(perfil.precificacao.horaTecnica).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></>
               )}
             </p>
+            {expandedSections.precificacao && (
             <button
               className="btn-manage-pricing"
               onClick={() => setPrecificacaoModalOpen(true)}
             >
-              💡 Calcular Hora Técnica e Visitas
+              Calcular Hora Técnica e Visitas
             </button>
+            )}
           </div>
         </div>
 
         {/* Seção de Tabela de Preços */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>💰 Tabela de Preços</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('tabelaPrecos')}>
+            <h2>Tabela de Preços</h2>
+            <ChevronDown size={18} className={`card-chevron ${expandedSections.tabelaPrecos ? 'aberto' : ''}`} />
           </div>
           <div className="card-content">
             <p className="card-description">Gerencie os valores dos seus serviços e produtos de forma centralizada.</p>
+            {expandedSections.tabelaPrecos && (
             <button
               className="btn-manage-pricing"
               onClick={() => setPricingModalOpen(true)}
             >
-              ⚙️ Gerenciar Tabela de Preços
+              Gerenciar Tabela de Preços
             </button>
+            )}
           </div>
         </div>
 
         {/* Seção de Documentos Emitidos */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>📁 Documentos Emitidos</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('documentos')}>
+            <h2>Documentos Emitidos</h2>
+            <ChevronDown size={18} className={`card-chevron ${expandedSections.documentos ? 'aberto' : ''}`} />
           </div>
           <div className="card-content">
             <p className="card-description">Consulte os orçamentos e cobranças que você salvou, com a data de emissão, e gere o PDF novamente quando precisar.</p>
+            {expandedSections.documentos && (
             <button
               className="btn-manage-pricing"
               onClick={() => setDocumentosModalOpen(true)}
             >
-              📁 Ver Documentos Emitidos
+              Ver Documentos Emitidos
             </button>
+            )}
           </div>
         </div>
 
         {/* Seção de Estoque de Insumos */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>📦 Estoque de Insumos</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('estoque')}>
+            <h2>Estoque de Insumos</h2>
+            <ChevronDown size={18} className={`card-chevron ${expandedSections.estoque ? 'aberto' : ''}`} />
           </div>
           <div className="card-content">
             <p className="card-description">Cadastre seringas, medicamentos e materiais de consumo. Ao usar no orçamento, o estoque é abatido automaticamente.</p>
+            {expandedSections.estoque && (
             <button
               className="btn-manage-pricing"
               onClick={() => setEstoqueModalOpen(true)}
             >
-              📦 Gerenciar Estoque
+              Gerenciar Estoque
             </button>
+            )}
           </div>
         </div>
 
         {/* Seção de Notificações */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>🔔 Notificações</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('notificacoes')}>
+            <h2>Notificações</h2>
+            <ChevronDown size={18} className={`card-chevron ${expandedSections.notificacoes ? 'aberto' : ''}`} />
           </div>
           <div className="card-content">
             <p className="card-description">Escolha com quanto tempo de antecedência quer ser avisado dos agendamentos e o aviso de cobranças a vencer.</p>
+            {expandedSections.notificacoes && (
             <button
               className="btn-manage-pricing"
               onClick={() => setNotificacoesModalOpen(true)}
             >
-              🔔 Configurar Notificações
+              Configurar Notificações
             </button>
+            )}
           </div>
         </div>
 
         {/* Seção de White Label */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>⚙️ Configurar Clínica</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('clinica')}>
+            <h2>Configurar Clínica</h2>
+            <ChevronDown size={18} className={`card-chevron ${expandedSections.clinica ? 'aberto' : ''}`} />
           </div>
           <div className="card-content">
             <p className="card-description">Personalize o nome, logomarca e informações da sua clínica para documentos e relatórios.</p>
+            {expandedSections.clinica && (
             <button
               className="btn-manage-pricing"
               onClick={() => setWhiteLabelModalOpen(true)}
             >
-              🏥 Configurar Identidade da Clínica
+              Configurar Identidade da Clínica
             </button>
+            )}
           </div>
         </div>
 
         {/* Dados de Cobrança (Pix/Bancários) */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>💳 Dados de Cobrança</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('cobranca')}>
+            <h2>Dados de Cobrança</h2>
+            <ChevronDown size={18} className={`card-chevron ${expandedSections.cobranca ? 'aberto' : ''}`} />
           </div>
           <div className="card-content">
             <p className="card-description">
               Adicione aqui suas informações de Pix ou dados bancários. Elas aparecem somente no rodapé da cobrança enviada ao cliente, junto com o valor.
             </p>
+            {expandedSections.cobranca && (
+            <>
             <textarea
               value={dadosCobranca}
               onChange={(e) => setDadosCobranca(e.target.value)}
@@ -793,38 +832,43 @@ export default function Perfil() {
               onClick={handleSalvarDadosCobranca}
               disabled={salvandoCobranca}
             >
-              {salvandoCobranca ? 'Salvando...' : '💾 Salvar Dados de Cobrança'}
+              {salvandoCobranca ? 'Salvando...' : 'Salvar Dados de Cobrança'}
             </button>
+            </>
+            )}
           </div>
         </div>
 
         {/* Compartilhamento de Animais */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>🔗 Compartilhar Animais</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('compartilhar')}>
+            <h2>Compartilhar Animais</h2>
+            <ChevronDown size={18} className={`card-chevron ${expandedSections.compartilhar ? 'aberto' : ''}`} />
           </div>
           <div className="card-content">
             <p className="card-description">Compartilhe animais com outros veterinários (reabilitação, cirurgias) ou com proprietários para acompanhar o tratamento.</p>
+            {expandedSections.compartilhar && (
             <button
               className="btn-manage-pricing"
               onClick={() => setCompartilharModalOpen(true)}
             >
-              🔗 Compartilhar Animal
+              Compartilhar Animal
             </button>
+            )}
 
-            {compartilhamentosFeitos.length > 0 && (
+            {expandedSections.compartilhar && compartilhamentosFeitos.length > 0 && (
               <div className="compartilhados-lista">
                 <div className="compartilhados-lista-titulo">Animais que você compartilhou</div>
                 {compartilhamentosFeitos.map(comp => (
                   <div key={comp.id} className="compartilhado-feito-item">
                     <div className="compartilhado-feito-info">
-                      <span className="cfi-animal">🐾 {comp.Pet?.nome || 'Animal removido'}{comp.Pet?.especie ? ` (${comp.Pet.especie})` : ''}</span>
+                      <span className="cfi-animal">{comp.Pet?.nome || 'Animal removido'}{comp.Pet?.especie ? ` (${comp.Pet.especie})` : ''}</span>
                       <span className="cfi-quem">
                         com {comp.veterinarioConvidado?.nome || comp.emailConvidado || 'convidado'}
                       </span>
                     </div>
                     <span className={`cfi-status cfi-status-${comp.status}`}>
-                      {comp.status === 'aceito' ? '✅ Aceito' : comp.status === 'pendente' ? '⏳ Pendente' : comp.status}
+                      {comp.status === 'aceito' ? 'Aceito' : comp.status === 'pendente' ? 'Pendente' : comp.status}
                     </span>
                     <button
                       type="button"
@@ -832,7 +876,7 @@ export default function Perfil() {
                       onClick={() => handleRevogarCompartilhamento(comp)}
                       title="Revogar acesso"
                     >
-                      🗑️
+                      Revogar
                     </button>
                   </div>
                 ))}
@@ -843,49 +887,58 @@ export default function Perfil() {
 
         {/* Exportar Dados */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>📊 Exportar Dados</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('exportar')}>
+            <h2>Exportar Dados</h2>
+            <ChevronDown size={18} className={`card-chevron ${expandedSections.exportar ? 'aberto' : ''}`} />
           </div>
           <div className="card-content">
             <p className="card-description">Exporte cobranças, atendimentos ou faturamento em planilha (Excel/Google Sheets) por período.</p>
+            {expandedSections.exportar && (
             <button
               className="btn-manage-pricing"
               onClick={() => setExportarModalOpen(true)}
             >
-              📊 Exportar Planilha
+              Exportar Planilha
             </button>
+            )}
           </div>
         </div>
 
         {/* Alterar Senha */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>🔐 Segurança</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('seguranca')}>
+            <h2>Segurança</h2>
+            <ChevronDown size={18} className={`card-chevron ${expandedSections.seguranca ? 'aberto' : ''}`} />
           </div>
           <div className="card-content">
             <p className="card-description">Altere sua senha ou recupere-a via WhatsApp se esquecer.</p>
+            {expandedSections.seguranca && (
             <button
               className="btn-manage-pricing"
               onClick={() => setEsqueceSenhaModalOpen(true)}
             >
-              🔑 Alterar Senha
+              Alterar Senha
             </button>
+            )}
           </div>
         </div>
 
         {/* Atalho para a Lixeira */}
         <div className="perfil-card">
-          <div className="card-header">
-            <h2>🗑️ Lixeira</h2>
+          <div className="card-header card-header-clicavel" onClick={() => toggleSection('lixeira')}>
+            <h2>Lixeira</h2>
+            <ChevronDown size={18} className={`card-chevron ${expandedSections.lixeira ? 'aberto' : ''}`} />
           </div>
           <div className="card-content">
             <p className="card-description">Recupere clientes, animais, agendamentos, históricos ou despesas apagados por engano.</p>
+            {expandedSections.lixeira && (
             <button
               className="btn-manage-pricing"
               onClick={() => window.dispatchEvent(new CustomEvent('navegarPara', { detail: 'lixeira' }))}
             >
-              🗑️ Abrir Lixeira
+              Abrir Lixeira
             </button>
+            )}
           </div>
         </div>
 
@@ -896,7 +949,7 @@ export default function Perfil() {
               className="btn-logout"
               onClick={handleLogout}
             >
-              🚪 Sair do App
+              Sair do App
             </button>
           </div>
         </div>

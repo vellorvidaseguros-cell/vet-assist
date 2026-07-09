@@ -35,15 +35,15 @@
 
 .ed-modal-header h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   color: #333;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .ed-btn-close {
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   cursor: pointer;
   color: #666;
   width: 30px;
@@ -68,7 +68,7 @@
 
 .ed-description {
   margin: 0 0 1.25rem;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   color: #666;
   line-height: 1.5;
 }
@@ -80,8 +80,8 @@
   padding: 0.75rem 1rem;
   margin: 0 0 1rem;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
 }
 
 .ed-success {
@@ -91,8 +91,8 @@
   padding: 0.75rem 1rem;
   margin: 0 0 1rem;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
 }
 
 .ed-section {
@@ -101,10 +101,10 @@
 
 .ed-label {
   display: block;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #333;
   margin-bottom: 0.5rem;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
 }
 
 .ed-datas {
@@ -120,9 +120,9 @@
 }
 
 .ed-data-group span {
-  font-size: 0.8rem;
+  font-size: var(--font-size-sm);
   color: #888;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .ed-input {
@@ -133,7 +133,7 @@
   padding: 0 0.85rem !important;
   border: 2px solid #eee;
   border-radius: 8px;
-  font-size: 0.95rem !important;
+  font-size: var(--font-size-md) !important;
   font-family: inherit;
   box-sizing: border-box;
   background: white;
@@ -158,7 +158,7 @@
 
 /* Ícone de calendário nativo no mesmo tamanho dos emojis das opções */
 .ed-input::-webkit-calendar-picker-indicator {
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   padding: 2px;
   margin: 0;
 }
@@ -205,12 +205,12 @@
 }
 
 .ed-opcao strong {
-  font-size: 0.92rem;
+  font-size: var(--font-size-md);
   color: #333;
 }
 
 .ed-opcao span {
-  font-size: 0.8rem;
+  font-size: var(--font-size-sm);
   color: #777;
   line-height: 1.4;
 }
@@ -231,8 +231,8 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
   transition: all 0.2s;
 }
 
@@ -248,8 +248,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
   transition: background 0.2s;
 }
 

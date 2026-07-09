@@ -1,3 +1,12 @@
+.spin {
+  animation: ei-spin 1s linear infinite;
+}
+
+@keyframes ei-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .ei-modal-overlay {
   position: fixed;
   top: 0;
@@ -35,15 +44,15 @@
 
 .ei-modal-header h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   color: #333;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .ei-btn-close {
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   cursor: pointer;
   color: #666;
   width: 30px;
@@ -66,7 +75,7 @@
 
 .ei-description {
   margin: 0 0 1rem;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #666;
   line-height: 1.5;
 }
@@ -78,7 +87,7 @@
   padding: 0.75rem 1rem;
   margin: 0 0 1rem;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }
 
 .ei-btn-novo {
@@ -88,8 +97,8 @@
   border: 1.5px dashed #0d6b3a;
   border-radius: 8px;
   color: #0d6b3a;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   cursor: pointer;
   margin-bottom: 1rem;
   transition: all 0.2s;
@@ -103,7 +112,7 @@
   text-align: center;
   color: #999;
   padding: 1.5rem 1rem;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }
 
 .ei-lista {
@@ -137,9 +146,9 @@
 }
 
 .ei-item-nome {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #333;
-  font-size: 0.92rem;
+  font-size: var(--font-size-md);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -147,8 +156,8 @@
 }
 
 .ei-badge-baixo {
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-bold);
   color: #d32f2f;
   background: #fee;
   padding: 0.1rem 0.4rem;
@@ -156,7 +165,7 @@
 }
 
 .ei-item-detalhes {
-  font-size: 0.8rem;
+  font-size: var(--font-size-sm);
   color: #888;
 }
 
@@ -173,7 +182,7 @@
   margin-bottom: 0 !important;
   background: none;
   border: none;
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
   cursor: pointer;
   padding: 0.35rem;
   border-radius: 6px;
@@ -193,7 +202,7 @@
 
 .ei-form h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
   color: #333;
 }
 
@@ -204,10 +213,10 @@
 
 .ei-field label {
   display: block;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #333;
   margin-bottom: 0.35rem;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
 }
 
 .ei-field input,
@@ -216,7 +225,7 @@
   padding: 0.65rem 0.75rem;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 0.92rem;
+  font-size: var(--font-size-md);
   font-family: inherit;
   box-sizing: border-box;
   background: white;
@@ -248,8 +257,8 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
 }
 
 .ei-btn-cancelar:hover {
@@ -264,8 +273,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
 }
 
 .ei-btn-salvar:hover:not(:disabled) {

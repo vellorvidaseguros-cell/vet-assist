@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
@@ -10,6 +11,7 @@ import {
 import { RECURSOS, PLANOS, permissoesEfetivas } from '../config/planos.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const JWT_SECRET = process.env.JWT_SECRET || 'sua-chave-secreta-super-segura-aqui'
 
 // Painel do administrador do app: gestão de contas de assinantes.
 // Todas as rotas passam por exigirAdmin (ver routes/admin.js).
@@ -143,6 +145,32 @@ export const atualizarConta = async (req, res) => {
     data.permissoesEfetivas = permissoesEfetivas(conta)
 
     res.json({ sucesso: true, mensagem: 'Conta atualizada!', data })
+  } catch (erro) {
+    res.status(500).json({ sucesso: false, erro: erro.message })
+  }
+}
+
+// Gera um token de visualização (SOMENTE LEITURA) da conta de um assinante,
+// para o admin dar suporte remoto vendo exatamente o que o vet vê — sem
+// poder editar/apagar nada (bloqueado no middleware bloquearEscritaSomenteLeitura).
+// Expira em 1h. Toda ação nesse modo é atribuída à conta do vet (não do admin).
+export const gerarTokenVisualizacao = async (req, res) => {
+  try {
+    const conta = await Veterinario.findByPk(req.params.id)
+    if (!conta) return res.status(404).json({ sucesso: false, erro: 'Conta não encontrada' })
+    if (conta.role === 'admin') {
+      return res.status(400).json({ sucesso: false, erro: 'Não é possível visualizar outra conta de administrador' })
+    }
+
+    const token = jwt.sign(
+      { id: conta.id, somenteLeitura: true, adminId: req.veterinario.id },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    )
+
+    console.log(`[AUDITORIA] Admin ${req.veterinario.email} (id ${req.veterinario.id}) entrou em modo visualização da conta ${conta.email} (id ${conta.id})`)
+
+    res.json({ sucesso: true, data: { token, nome: conta.nome, email: conta.email } })
   } catch (erro) {
     res.status(500).json({ sucesso: false, erro: erro.message })
   }

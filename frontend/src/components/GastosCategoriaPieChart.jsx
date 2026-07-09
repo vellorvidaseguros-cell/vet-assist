@@ -89,7 +89,7 @@ export default function GastosCategoriaPieChart({ porCategoria, totalGastos }) {
 
   return (
     <div className="gastos-categoria-container">
-      <h3>📊 Gastos por Categoria</h3>
+      <h3>Gastos por Categoria</h3>
 
       {dadosOrdenados.length === 0 ? (
         <p className="empty-message">Nenhuma despesa registrada</p>
@@ -174,7 +174,7 @@ export default function GastosCategoriaPieChart({ porCategoria, totalGastos }) {
                   className="btn-fechar"
                   onClick={() => setCategoriaSelecionada(null)}
                 >
-                  ✕ Fechar
+                  Fechar
                 </button>
               </div>
             ) : (

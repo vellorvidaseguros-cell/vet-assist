@@ -34,15 +34,15 @@
 
 .es-modal-header h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   color: #333;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .es-btn-close {
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: var(--font-size-xl);
   cursor: pointer;
   color: #666;
   padding: 0;
@@ -68,7 +68,7 @@
 
 .es-description {
   margin: 0 0 1.5rem;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   color: #666;
   line-height: 1.5;
 }
@@ -80,8 +80,8 @@
   padding: 0.75rem 1rem;
   margin: 0 0 1rem;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
 }
 
 .es-success {
@@ -91,8 +91,8 @@
   padding: 0.75rem 1rem;
   margin: 0 0 1rem;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
 }
 
 .es-success-box {
@@ -102,9 +102,9 @@
 
 .es-label {
   margin: 0 0 1rem;
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
   color: #333;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .es-code {
@@ -112,8 +112,8 @@
   padding: 1rem;
   background: #f9f9f9;
   border-radius: 8px;
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-bold);
   color: #0d6b3a;
   letter-spacing: 4px;
   font-family: monospace;
@@ -121,7 +121,7 @@
 
 .es-hint {
   margin: 1rem 0;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #888;
   line-height: 1.5;
 }
@@ -131,7 +131,7 @@
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   font-family: inherit;
   box-sizing: border-box;
   margin-bottom: 0.75rem;
@@ -163,8 +163,8 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
   transition: all 0.2s;
 }
 

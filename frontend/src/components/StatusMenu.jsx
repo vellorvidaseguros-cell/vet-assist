@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { Clock, CircleCheck, X, RotateCw, Check } from 'lucide-react'
 import ConfirmModal from './ConfirmModal'
 import './StatusMenu.css'
 
 const STATUS_OPTIONS = [
-  { value: 'Pendente', label: 'PENDENTE', icon: '⏳', color: 'pendente' },
-  { value: 'Concluído', label: 'CONCLUÍDO', icon: '✅', color: 'concluido' },
-  { value: 'Cancelado', label: 'CANCELADO', icon: '❌', color: 'cancelado' },
-  { value: 'Reagendado', label: 'REAGENDADO', icon: '🔄', color: 'reagendado' }
+  { value: 'Pendente', label: 'PENDENTE', icon: Clock, color: 'pendente' },
+  { value: 'Concluído', label: 'CONCLUÍDO', icon: CircleCheck, color: 'concluido' },
+  { value: 'Cancelado', label: 'CANCELADO', icon: X, color: 'cancelado' },
+  { value: 'Reagendado', label: 'REAGENDADO', icon: RotateCw, color: 'reagendado' }
 ]
 
 export default function StatusMenu({ currentStatus, onStatusChange, agendamentoId }) {
@@ -87,7 +88,7 @@ export default function StatusMenu({ currentStatus, onStatusChange, agendamentoI
           className={`status-menu-btn ${currentOption.color}`}
           onClick={handleButtonClick}
         >
-          <span className="status-icon">{currentOption.icon}</span>
+          <span className="status-icon"><currentOption.icon size={14} /></span>
           <span className="status-label">{currentOption.label}</span>
         </button>
       </div>
@@ -110,9 +111,9 @@ export default function StatusMenu({ currentStatus, onStatusChange, agendamentoI
                 className={`status-option ${option.color} ${option.value === currentStatus ? 'active' : ''}`}
                 onClick={() => handleStatusSelect(option.value)}
               >
-                <span className="option-icon">{option.icon}</span>
+                <span className="option-icon"><option.icon size={16} /></span>
                 <span className="option-label">{option.label}</span>
-                {option.value === currentStatus && <span className="check-mark">✓</span>}
+                {option.value === currentStatus && <span className="check-mark"><Check size={16} /></span>}
               </button>
             ))}
           </div>

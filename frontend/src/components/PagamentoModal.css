@@ -62,14 +62,14 @@
 .modal-header h2 {
   margin: 0;
   color: #333;
-  font-size: 1.3rem;
+  font-size: var(--font-size-2xl);
   white-space: nowrap;
 }
 
 .modal-close {
   background: none;
   border: none;
-  font-size: 2rem;
+  font-size: var(--font-size-5xl);
   cursor: pointer;
   color: #999;
   padding: 0;
@@ -109,26 +109,26 @@
 }
 
 .info-item label {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #666;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }
 
 .valor-total {
-  font-size: 1.2rem;
+  font-size: var(--font-size-2xl);
   font-weight: bold;
   color: #16a94d;
 }
 
 .valor-recebido {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
   color: #4caf50;
 }
 
 .valor-faltante {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
   color: #ff9800;
 }
 
@@ -141,9 +141,9 @@
 }
 
 .historico-titulo {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #666;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   margin-bottom: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -163,17 +163,17 @@
   background-color: #ffffff;
   border-left: 3px solid #4caf50;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }
 
 .historico-data {
   color: #666;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .historico-valor {
   color: #4caf50;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .form-row {
@@ -200,9 +200,9 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #333;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
 }
 
 .form-group input {
@@ -210,7 +210,7 @@
   padding: 0.75rem;
   border: 2px solid #ddd;
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
   transition: border-color 0.3s;
   box-sizing: border-box;
 }
@@ -237,14 +237,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   color: #555;
   cursor: pointer;
   padding: 8px 12px;
   background-color: #f0fff4;
   border-radius: 8px;
-  border: 1px solid #34c759;
+  border: 1px solid var(--color-success);
   white-space: nowrap;
   width: 100% !important;
   margin-bottom: 0 !important;
@@ -252,8 +252,8 @@
 }
 
 .gratuito-bolinha {
-  font-size: 16px;
-  color: #34c759;
+  font-size: var(--font-size-lg);
+  color: var(--color-success);
   flex-shrink: 0;
   line-height: 1;
 }
@@ -261,7 +261,7 @@
 .gratuito-check.selecionado {
   background-color: #d4f5de;
   border-color: #1e9c44;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #1e6b35;
 }
 
@@ -269,18 +269,9 @@
   display: block;
   margin-top: 0.5rem;
   color: #999;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
 }
 
-.error-message {
-  background-color: #ffebee;
-  color: #c62828;
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-  border-left: 4px solid #c62828;
-}
 
 .modal-actions {
   display: flex;
@@ -295,8 +286,8 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
   transition: all 0.3s;
 }
 
@@ -344,13 +335,13 @@
   }
 
   .modal-header h2 {
-    font-size: 1.25rem;
+    font-size: var(--font-size-2xl);
   }
 
   .modal-close {
     width: 36px;
     height: 36px;
-    font-size: 1.75rem;
+    font-size: var(--font-size-4xl);
   }
 
   .modal-body {
@@ -367,11 +358,11 @@
   }
 
   .info-item label {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .valor-total {
-    font-size: 1rem;
+    font-size: var(--font-size-lg);
   }
 
   .form-row {
@@ -384,24 +375,24 @@
   }
 
   .form-group label {
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
     margin-bottom: 0.4rem;
   }
 
   .form-group input {
     padding: 0.65rem 0.75rem;
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
   }
 
   .help-text {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     margin-top: 0.3rem;
   }
 
   .error-message {
     padding: 0.65rem 0.9rem;
     margin-bottom: 0.85rem;
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .modal-actions {
@@ -412,7 +403,7 @@
   .btn-cancelar,
   .btn-registrar {
     padding: 0.65rem 1.25rem;
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
   }
 }
 
@@ -422,7 +413,7 @@
   }
 
   .modal-header h2 {
-    font-size: 1.1rem;
+    font-size: var(--font-size-xl);
   }
 
   .modal-body {
@@ -447,23 +438,23 @@
   }
 
   .historico-titulo {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     margin-bottom: 0.5rem;
   }
 
   .historico-item {
     padding: 0.55rem;
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .info-item label {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
   }
 
   .valor-total,
   .valor-recebido,
   .valor-faltante {
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
   }
 
   .form-row {
@@ -477,12 +468,12 @@
   }
 
   .form-group label {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .form-group input {
     padding: 0.6rem 0.65rem;
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
   }
 
   .modal-actions {
@@ -495,6 +486,6 @@
   .btn-registrar {
     width: 100%;
     padding: 0.6rem 1rem;
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 }

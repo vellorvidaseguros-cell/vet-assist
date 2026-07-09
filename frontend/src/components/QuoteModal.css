@@ -37,8 +37,8 @@
 
 .quote-header h2 {
   margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   color: #1a1a2e;
   white-space: nowrap;
   overflow: hidden;
@@ -48,7 +48,7 @@
 .quote-close {
   background: none;
   border: none;
-  font-size: 28px;
+  font-size: var(--font-size-4xl);
   color: #8e8e93;
   cursor: pointer;
   padding: 0;
@@ -83,14 +83,14 @@
 
 .quote-info-compact p {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   color: #333;
   line-height: 1.4;
 }
 
 .quote-info-compact strong {
   color: #1a5f2e;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .quote-section {
@@ -109,8 +109,8 @@
 
 .section-header h3 {
   margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
   color: #1a5f2e;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -122,8 +122,8 @@
   border: 1.5px dashed #1a5f2e;
   border-radius: 6px;
   color: #1a5f2e;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -188,7 +188,7 @@
   border-radius: 0 5px 5px 0 !important;
   color: #555 !important;
   cursor: pointer !important;
-  font-size: 0.9rem !important;
+  font-size: var(--font-size-base) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -249,16 +249,16 @@
 }
 
 .dropdown-item-name {
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   color: #333;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   flex: 1;
 }
 
 .dropdown-item-price {
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #0d6b3a;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   margin-left: 1rem;
   white-space: nowrap;
 }
@@ -267,7 +267,7 @@
   padding: 1rem;
   text-align: center;
   color: #999;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
 }
 
 .procedure-inputs {
@@ -283,7 +283,7 @@
   padding: 0.65rem 0.75rem;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   background: white;
   transition: border-color 0.2s;
 }
@@ -310,10 +310,10 @@
 .currency-label {
   position: absolute;
   left: 10px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #666;
   pointer-events: none;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   z-index: 1;
 }
 
@@ -328,11 +328,11 @@
   border: 1.5px solid #d32f2f;
   border-radius: 6px;
   color: #d32f2f;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   cursor: pointer;
   transition: all 0.2s ease;
   flex: 0 0 80px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   white-space: nowrap;
 }
 
@@ -342,8 +342,8 @@
 }
 
 .quote-section label {
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #333;
   display: block;
   margin-bottom: 0.5rem;
@@ -358,7 +358,7 @@
   padding: 0.65rem 0.75rem !important;
   border: 1px solid #ddd !important;
   border-radius: 6px !important;
-  font-size: 0.9rem !important;
+  font-size: var(--font-size-base) !important;
   background: white !important;
   margin: 0 !important;
 }
@@ -368,7 +368,7 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   color: #333;
   resize: vertical;
   min-height: 80px;
@@ -403,16 +403,16 @@
 }
 
 .valor-total-row label {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
   color: #1a5f2e;
   margin: 0;
   white-space: nowrap;
 }
 
 .valor-total-display {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
   color: #0d6b3a;
   text-align: left;
 }
@@ -442,8 +442,8 @@
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -468,8 +468,8 @@
   color: #1a5f2e;
   border: 1.5px solid #1a5f2e;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -489,8 +489,8 @@
   background: white;
   border: 1.5px solid #ccc;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #555;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -535,7 +535,7 @@
   }
 
   .quote-header h2 {
-    font-size: 1rem;
+    font-size: var(--font-size-lg);
   }
 
   .quote-body {
@@ -592,7 +592,7 @@
   .btn-compartilhar,
   .btn-cancelar {
     padding: 0.85rem 1rem;
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
     min-height: 48px;
     width: 100%;
     text-align: center;
@@ -611,7 +611,7 @@
   }
 
   .quote-header h2 {
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
   }
 
   .quote-body {
@@ -655,7 +655,7 @@
   .btn-compartilhar,
   .btn-cancelar {
     padding: 0.85rem 1rem;
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
     min-height: 44px;
   }
 
@@ -666,26 +666,26 @@
   }
 
   .valor-total-row label {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
     white-space: nowrap;
   }
 
   .valor-total-display {
-    font-size: 1.1rem;
+    font-size: var(--font-size-xl);
     text-align: left;
   }
 
   .procedure-dropdown-novo {
     max-height: 180px;
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .dropdown-item-name {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
   }
 
   .dropdown-item-price {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
   }
 }
 
@@ -726,15 +726,15 @@
 
 .compartilhamento-header h3 {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   color: #1a1a2e;
 }
 
 .compartilhamento-close {
   background: none;
   border: none;
-  font-size: 28px;
+  font-size: var(--font-size-4xl);
   color: #8e8e93;
   cursor: pointer;
   padding: 0;
@@ -762,7 +762,7 @@
 
 .compartilhamento-body p {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   color: #333;
   line-height: 1.4;
 }
@@ -784,8 +784,8 @@
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
@@ -822,7 +822,7 @@
   }
 
   .compartilhamento-header h3 {
-    font-size: 1rem;
+    font-size: var(--font-size-lg);
   }
 
   .compartilhamento-body {
@@ -831,7 +831,7 @@
   }
 
   .compartilhamento-body p {
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
   }
 
   .compartilhamento-footer {
@@ -841,7 +841,7 @@
   .btn-compartilhamento-email,
   .btn-compartilhamento-whatsapp {
     padding: 0.55rem 1rem;
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
     min-height: 44px;
   }
 }
@@ -856,7 +856,7 @@
 
 .quote-visita-aviso {
   margin: 0.5rem 0 0;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #8a6d0b;
   background: #fff8e6;
   border-left: 4px solid #b8860b;
@@ -878,8 +878,8 @@
 
 .quote-visita-field label {
   display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: #444;
   margin-bottom: 0.3rem;
 }
@@ -889,7 +889,7 @@
   padding: 0.6rem 0.7rem;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   box-sizing: border-box;
 }
 
@@ -911,7 +911,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.25rem 0;
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
   color: #555;
 }
 
@@ -924,14 +924,14 @@
   margin-top: 0.4rem;
   padding-top: 0.5rem;
   border-top: 2px solid #1a5f2e;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #1a5f2e;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
 }
 
 .quote-visita-total strong {
   color: #0d6b3a;
-  font-size: 1.05rem;
+  font-size: var(--font-size-lg);
 }
 
 .quote-visita-acoes {
@@ -955,8 +955,8 @@
   min-width: 0;
   padding: 0.65rem 0.5rem;
   border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   text-align: center;
   white-space: nowrap;
@@ -968,7 +968,7 @@
 @media (max-width: 360px) {
   .btn-visita-cancelar,
   .btn-visita-adicionar {
-    font-size: 0.78rem;
+    font-size: var(--font-size-xs);
     padding: 0.6rem 0.35rem;
   }
 }
@@ -1014,8 +1014,8 @@
 .qif-nome {
   flex: 1;
   min-width: 0;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #333;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1023,8 +1023,8 @@
 }
 
 .qif-valor {
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
   color: #0d6b3a;
   white-space: nowrap;
 }
@@ -1035,7 +1035,7 @@
   flex-shrink: 0;
   background: none;
   border: none;
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
   cursor: pointer;
   padding: 0.2rem 0.35rem !important;
   border-radius: 6px;
@@ -1047,7 +1047,7 @@
 
 .quote-orcamento-aviso {
   margin: 0.6rem 0 0;
-  font-size: 0.78rem;
+  font-size: var(--font-size-xs);
   color: #8a6d0b;
   background: #fff8e6;
   border-left: 3px solid #b8860b;

@@ -33,6 +33,9 @@ export default function App() {
     // Limpa cache da agenda para a próxima conta não ver dados de outra
     localStorage.removeItem('cache_agendamentos')
     localStorage.removeItem('cache_faturamentos')
+    // Se estava em modo "Ver como" (admin), limpa o backup também
+    localStorage.removeItem('admin_token_backup')
+    localStorage.removeItem('admin_conta_backup')
     setIsAuthenticated(false)
   }
 

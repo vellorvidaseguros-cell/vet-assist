@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { Receipt, DollarSign, Loader2, FileText, Trash2 } from 'lucide-react'
 import ConfirmModal from './ConfirmModal'
 import './EstoqueInsumosModal.css'
 
@@ -89,7 +90,7 @@ export default function DocumentosEmitidosModal({ isOpen, onClose }) {
     <div className="ei-modal-overlay">
       <div className="ei-modal">
         <div className="ei-modal-header">
-          <h2>📁 Documentos Emitidos</h2>
+          <h2>Documentos Emitidos</h2>
           <button className="ei-btn-close" onClick={onClose}>✕</button>
         </div>
 
@@ -110,7 +111,7 @@ export default function DocumentosEmitidosModal({ isOpen, onClose }) {
                 <div key={doc.id} className="ei-item">
                   <div className="ei-item-info">
                     <span className="ei-item-nome">
-                      {doc.tipo === 'cobranca' ? '💰' : '🧾'} {doc.clienteNome || 'Cliente'}
+                      {doc.tipo === 'cobranca' ? <DollarSign size={14} /> : <Receipt size={14} />} {doc.clienteNome || 'Cliente'}
                       {doc.petNome ? ` · ${doc.petNome}` : ''}
                     </span>
                     <span className="ei-item-detalhes">
@@ -124,14 +125,14 @@ export default function DocumentosEmitidosModal({ isOpen, onClose }) {
                       disabled={gerando === doc.id}
                       title="Gerar PDF novamente"
                     >
-                      {gerando === doc.id ? '⏳' : '📄'}
+                      {gerando === doc.id ? <Loader2 size={16} className="spin" /> : <FileText size={16} />}
                     </button>
                     <button
                       className="ei-btn-icon"
                       onClick={() => removerDocumento(doc)}
                       title="Remover"
                     >
-                      🗑️
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>

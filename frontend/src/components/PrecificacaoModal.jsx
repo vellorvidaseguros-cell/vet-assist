@@ -70,7 +70,7 @@ export default function PrecificacaoModal({ isOpen, onClose, perfil, custoKm, on
       }
       const res = await axios.put(`/api/perfil/${perfil?.id || 1}`, { precificacao })
       if (res.data.sucesso) {
-        setSucesso('✅ Precificação salva! O app agora usa sua hora técnica nos cálculos.')
+        setSucesso('Precificação salva! O app agora usa sua hora técnica nos cálculos.')
         onSaved && onSaved()
       }
     } catch (err) {
@@ -86,7 +86,7 @@ export default function PrecificacaoModal({ isOpen, onClose, perfil, custoKm, on
     <div className="pr-modal-overlay">
       <div className="pr-modal">
         <div className="pr-modal-header">
-          <h2>💡 Precificação</h2>
+          <h2>Precificação</h2>
           <button className="pr-btn-close" onClick={onClose}>✕</button>
         </div>
 
@@ -181,7 +181,7 @@ export default function PrecificacaoModal({ isOpen, onClose, perfil, custoKm, on
             onClick={handleSalvar}
             disabled={salvando}
           >
-            {salvando ? 'Salvando...' : '💾 Salvar Precificação'}
+            {salvando ? 'Salvando...' : 'Salvar Precificação'}
           </button>
         </div>
       </div>

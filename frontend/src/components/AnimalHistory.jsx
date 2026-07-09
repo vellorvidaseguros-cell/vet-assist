@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Trash2 } from 'lucide-react'
 import axios from 'axios'
 import { formatarData, formatarDataComDia } from '../utils/dateFormatter'
 import { apiUrl, API_BASE_URL } from '../utils/apiConfig'
@@ -367,7 +368,7 @@ export default function AnimalHistory() {
 
     // Gerar HTML das fotos — grid 3 por linha
     const fotosHTML = fotos.length > 0 ? `
-      <div class="section-title">📸 Fotos (${fotos.length})</div>
+      <div class="section-title">Fotos (${fotos.length})</div>
       <div class="photos-grid">
         ${fotos.map(foto => `
           <div class="photo-item">
@@ -387,7 +388,7 @@ export default function AnimalHistory() {
       </div>
     ` : `
       <div style="text-align: center; margin-bottom: 20px; color: #0d6b3a; font-weight: bold; font-size: 24px;">
-        🏥
+        
       </div>
     `
 
@@ -475,7 +476,7 @@ export default function AnimalHistory() {
         <body>
           <div class="compact-header">
             <div class="header-left">
-              ${logoSrc ? `<img src="${logoSrc}" alt="Logo" class="header-logo" onerror="this.style.display='none'" />` : `<div class="header-logo-placeholder">🏥</div>`}
+              ${logoSrc ? `<img src="${logoSrc}" alt="Logo" class="header-logo" onerror="this.style.display='none'" />` : `<div class="header-logo-placeholder"></div>`}
             </div>
             <div class="header-center">
               <h1>${wl.nomeClinica}</h1>
@@ -523,7 +524,7 @@ export default function AnimalHistory() {
   const abrirJanelaImpressao = (htmlContent) => {
     const printWindow = window.open('', '', 'width=800,height=600')
     if (!printWindow) {
-      alert('⚠️ Permita pop-ups para gerar o PDF.')
+      alert('Permita pop-ups para gerar o PDF.')
       return
     }
 
@@ -547,7 +548,7 @@ export default function AnimalHistory() {
           background: white; border: none; color: #0d6b3a;
           padding: 6px 14px; border-radius: 6px;
           font-size: 14px; cursor: pointer; font-weight: 700;
-        ">🖨️ Imprimir</button>
+        ">Imprimir</button>
       </div>
       <div style="height: 48px;" class="no-print"></div>
     `
@@ -622,7 +623,7 @@ export default function AnimalHistory() {
       </div>
     ` : `
       <div style="text-align: center; margin-bottom: 20px; color: #0d6b3a; font-weight: bold; font-size: 24px;">
-        🏥
+        
       </div>
     `
 
@@ -641,7 +642,7 @@ export default function AnimalHistory() {
       const dataConsulta = formatarData(item.data)
 
       const fotosHTML = fotos.length > 0 ? `
-        <div class="section-title">📸 Fotos (${fotos.length})</div>
+        <div class="section-title">Fotos (${fotos.length})</div>
         <div class="photos-grid">
           ${fotos.map(foto => `
             <div class="photo-item">
@@ -654,7 +655,7 @@ export default function AnimalHistory() {
 
       const logoMiniHTML = logoSrc
         ? `<img src="${logoSrc}" alt="Logo" class="header-logo" onerror="this.style.display='none'" />`
-        : `<div class="header-logo-placeholder">🏥</div>`
+        : `<div class="header-logo-placeholder"></div>`
 
       return `
         <div class="page-break">
@@ -970,10 +971,10 @@ export default function AnimalHistory() {
           )}
           <div className="mobile-nav-header">
             <button className="mobile-back-btn" onClick={() => setSelectedPetId('')}>← Voltar</button>
-            <h2>🐾 {petNome}</h2>
+            <h2>{petNome}</h2>
             {petAtendimentos.length > 0 && (
               <button className="btn-pdf" style={{ padding: '6px 10px', fontSize: '11px' }} onClick={() => generatePDFMultiple(petAtendimentos)}>
-                📄 PDF Geral
+                PDF Geral
               </button>
             )}
           </div>
@@ -990,9 +991,10 @@ export default function AnimalHistory() {
                     </span>
                     <span className="mobile-atend-tipo">{item.tipoAtendimento}</span>
                     <span className="mobile-atend-valor">R$ {item.valor?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}</span>
+                    {item.veterinario && <span className="mobile-atend-autor">{item.veterinario}</span>}
                   </div>
                   <button className="btn-pdf" onClick={(e) => { e.stopPropagation(); generatePDF(item) }} style={{ padding: '5px 9px', fontSize: '11px' }}>
-                    📄 PDF
+                    PDF
                   </button>
                 </div>
                 {expandedId === item.id && (
@@ -1006,7 +1008,7 @@ export default function AnimalHistory() {
                     {photosByHistorico[item.id] && photosByHistorico[item.id].length > 0 && (
                       <div style={{ marginTop: '8px' }}>
                         <p style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>
-                          📸 Fotos ({photosByHistorico[item.id].length})
+                          Fotos ({photosByHistorico[item.id].length})
                         </p>
                         <div className="mobile-fotos-grid">
                           {photosByHistorico[item.id].map(foto => (
@@ -1039,7 +1041,7 @@ export default function AnimalHistory() {
         <div className="history-container">
           <div className="mobile-nav-header">
             <button className="mobile-back-btn" onClick={() => { setSelectedClienteId(''); setSelectedPetId('') }}>← Voltar</button>
-            <h2>👤 {clienteNome}</h2>
+            <h2>{clienteNome}</h2>
           </div>
 
           <div className="mobile-clientes-lista">
@@ -1053,7 +1055,7 @@ export default function AnimalHistory() {
               if (qtd === 0) return null
               return (
                 <div key={pet.id} className="mobile-cliente-row" onClick={() => setSelectedPetId(pet.id.toString())}>
-                  <span className="mcr-nome">🐾 {pet.nome}</span>
+                  <span className="mcr-nome">{pet.nome}</span>
                   <span className="mcr-tel">{pet.especie || '—'}</span>
                   <span className="mcr-count">{qtd}</span>
                 </div>
@@ -1073,7 +1075,7 @@ export default function AnimalHistory() {
     return (
       <div className="history-container">
         <div className="history-header">
-          <h2>📋 Histórico</h2>
+          <h2>Histórico</h2>
         </div>
 
         {/* Campo de busca */}
@@ -1081,7 +1083,7 @@ export default function AnimalHistory() {
           <input
             type="text"
             className="mobile-busca-input"
-            placeholder="🔍  Buscar cliente..."
+            placeholder="Buscar cliente..."
             value={buscaHistorico}
             onChange={e => setBuscaHistorico(e.target.value)}
           />
@@ -1095,7 +1097,7 @@ export default function AnimalHistory() {
           </div>
           {clientesFiltrados.map(cli => (
             <div key={cli.id} className="mobile-cliente-row" onClick={() => setSelectedClienteId(cli.id.toString())}>
-              <span className="mcr-nome">👤 {cli.nome}</span>
+              <span className="mcr-nome">{cli.nome}</span>
               <span className="mcr-tel">{cli.telefone || '—'}</span>
               <span className="mcr-count">{cli.animais.size}</span>
             </div>
@@ -1128,7 +1130,7 @@ export default function AnimalHistory() {
         </div>
       )}
       <div className="history-header">
-        <h2>📋 Histórico Finalizado</h2>
+        <h2>Histórico Finalizado</h2>
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -1144,7 +1146,7 @@ export default function AnimalHistory() {
             <option value="">-- Todos os Proprietários --</option>
             {clientes.map(cliente => (
               <option key={cliente.id} value={cliente.id}>
-                👤 {cliente.nome}
+                {cliente.nome}
               </option>
             ))}
           </select>
@@ -1163,7 +1165,7 @@ export default function AnimalHistory() {
                 <option value="">-- Todos os Animais --</option>
                 {pets.map(pet => (
                   <option key={pet.id} value={pet.id}>
-                    🐾 {pet.nome} ({pet.especie})
+                    {pet.nome} ({pet.especie})
                   </option>
                 ))}
               </select>
@@ -1179,7 +1181,7 @@ export default function AnimalHistory() {
                     fontWeight: 500
                   }}
                 >
-                  📄 Gerar PDF Global
+                  Gerar PDF Global
                 </button>
               )}
             </div>
@@ -1210,14 +1212,19 @@ export default function AnimalHistory() {
                     </span>
                     <span className="type">{item.tipoAtendimento}</span>
                     <span className="client-name">
-                      👤 {item.Cliente?.nome}
+                      {item.Cliente?.nome}
                     </span>
                     <span className="animal">
-                      🐾 {item.Pet?.nome}
+                      {item.Pet?.nome}
                     </span>
                     <span className="valor">
                       R$ {item.valor?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}
                     </span>
+                    {item.veterinario && (
+                      <span className="valor" style={{ background: '#eaf6ee', color: '#0d6b3a', borderRadius: '999px', padding: '4px 10px', fontWeight: 600 }}>
+                        {item.veterinario}
+                      </span>
+                    )}
                   </div>
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
                     <button
@@ -1226,7 +1233,7 @@ export default function AnimalHistory() {
                       title="Gerar PDF"
                       style={{ padding: '0.6rem 1rem', fontSize: '0.9rem', fontWeight: 500, whiteSpace: 'nowrap' }}
                     >
-                      📄 Gerar PDF
+                      Gerar PDF
                     </button>
                     <button
                       className="btn-icon"
@@ -1234,7 +1241,7 @@ export default function AnimalHistory() {
                       title="Apagar Histórico"
                       style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '0.5rem' }}
                     >
-                      🗑️
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>
@@ -1279,7 +1286,7 @@ export default function AnimalHistory() {
 
                     {photosByHistorico[item.id] && photosByHistorico[item.id].length > 0 && (
                       <div className="photos-section">
-                        <strong>📸 Fotos ({photosByHistorico[item.id].length})</strong>
+                        <strong>Fotos ({photosByHistorico[item.id].length})</strong>
                         <div className="photos-grid">
                           {photosByHistorico[item.id].map(foto => (
                             <div key={foto.id} className="photo-item">
@@ -1295,7 +1302,7 @@ export default function AnimalHistory() {
                                 onClick={() => deletePhoto(foto.id)}
                                 title="Deletar foto"
                               >
-                                🗑️
+                                <Trash2 size={14} />
                               </button>
                             </div>
                           ))}
@@ -1338,9 +1345,9 @@ export default function AnimalHistory() {
                     {[...new Map(groupedByDate[date].map(i => [i.clienteId, i.Cliente])).entries()].map(([id, cli]) => (
                       cli && (
                         <div key={id} className="date-cliente-linha">
-                          <span className="date-cliente-nome">👤 {cli.nome}</span>
+                          <span className="date-cliente-nome">{cli.nome}</span>
                           {cli.telefone && (
-                            <span className="date-cliente-tel">📞 {cli.telefone}</span>
+                            <span className="date-cliente-tel">{cli.telefone}</span>
                           )}
                         </div>
                       )
@@ -1375,7 +1382,7 @@ export default function AnimalHistory() {
                           {new Date(item.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         <span className="type">{item.tipoAtendimento}</span>
-                        <span className="animal">🐾 {item.Pet?.nome}</span>
+                        <span className="animal">{item.Pet?.nome}</span>
                         <span className="valor">
                           R$ {item.valor?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}
                         </span>
@@ -1389,11 +1396,16 @@ export default function AnimalHistory() {
                             setSelectedClienteId(item.clienteId?.toString())
                           }}
                         >
-                          👤 {item.Cliente?.nome}
+                          {item.Cliente?.nome}
                         </span>
                         {item.Cliente?.telefone && (
                           <span style={{ fontSize: '0.85rem', color: '#555' }}>
-                            📞 {item.Cliente.telefone}
+                            {item.Cliente.telefone}
+                          </span>
+                        )}
+                        {item.veterinario && (
+                          <span style={{ background: '#eaf6ee', color: '#0d6b3a', borderRadius: '999px', padding: '4px 10px', fontWeight: 600, fontSize: '0.85rem' }}>
+                            {item.veterinario}
                           </span>
                         )}
                       </div>
@@ -1406,7 +1418,7 @@ export default function AnimalHistory() {
                       title="Gerar PDF"
                       style={{ padding: '0.6rem 1rem', fontSize: '0.9rem', fontWeight: 500, whiteSpace: 'nowrap' }}
                     >
-                      📄 Gerar PDF
+                      Gerar PDF
                     </button>
                     <button
                       className="btn-icon"
@@ -1414,7 +1426,7 @@ export default function AnimalHistory() {
                       title="Apagar Histórico"
                       style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '0.5rem' }}
                     >
-                      🗑️
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>
@@ -1455,7 +1467,7 @@ export default function AnimalHistory() {
 
                     {photosByHistorico[item.id] && photosByHistorico[item.id].length > 0 && (
                       <div className="photos-section">
-                        <strong>📸 Fotos ({photosByHistorico[item.id].length})</strong>
+                        <strong>Fotos ({photosByHistorico[item.id].length})</strong>
                         <div className="photos-grid">
                           {photosByHistorico[item.id].map(foto => (
                             <div key={foto.id} className="photo-item">
@@ -1471,7 +1483,7 @@ export default function AnimalHistory() {
                                 onClick={() => deletePhoto(foto.id)}
                                 title="Deletar foto"
                               >
-                                🗑️
+                                <Trash2 size={14} />
                               </button>
                             </div>
                           ))}

@@ -334,15 +334,15 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
       console.log('[Agendamento] Resposta da API:', response.data)
 
       if (response.data.sucesso) {
-        console.log('[Agendamento] ✅ Sucesso!')
+        console.log('[Agendamento] Sucesso!')
         onSuccess()
         onClose()
       } else {
-        console.error('[Agendamento] ❌ Falha:', response.data.erro)
+        console.error('[Agendamento] Falha:', response.data.erro)
         setErroComScroll(response.data.erro || 'Erro ao criar agendamento')
       }
     } catch (err) {
-      console.error('[Agendamento] ❌ Erro:', err)
+      console.error('[Agendamento] Erro:', err)
       console.error('[Agendamento] Response:', err.response?.data)
       const msg = err.response?.data?.erro || err.message || 'Erro ao salvar agendamento. Tente novamente.'
       setErroComScroll(msg)
@@ -360,7 +360,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
       <div className="nam-overlay" onClick={handleOverlayClick}>
         <div className="nam-modal">
           <div className="nam-header">
-            <h2>📅 Novo Agendamento</h2>
+            <h2>Novo Agendamento</h2>
           </div>
           <div className="nam-body">
             <p style={{ textAlign: 'center', color: '#8e8e93' }}>Carregando dados...</p>
@@ -376,16 +376,16 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
       <div className="nam-modal">
         {/* HEADER */}
         <div className="nam-header">
-          <h2>📅 Novo Agendamento</h2>
+          <h2>Novo Agendamento</h2>
         </div>
 
         {/* BODY */}
         <div className="nam-body">
-          {erro && <div className="nam-error">⚠️ {erro}</div>}
+          {erro && <div className="nam-error">{erro}</div>}
 
           {/* CLIENTE E PET */}
           <div className="nam-section">
-            <h3 className="nam-section-title">👤 Cliente e Pet</h3>
+            <h3 className="nam-section-title">Cliente e Pet</h3>
 
             <div className="nam-row">
               <div className="nam-group">
@@ -427,7 +427,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
 
           {/* DATA E HORA */}
           <div className="nam-section">
-            <h3 className="nam-section-title">📆 Data e Hora</h3>
+            <h3 className="nam-section-title">Data e Hora</h3>
 
             <div className="nam-row">
               <div className="nam-group">
@@ -459,7 +459,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
 
           {/* ATENDIMENTO */}
           <div className="nam-section">
-            <h3 className="nam-section-title">🏥 Tipos de Atendimento</h3>
+            <h3 className="nam-section-title">Tipos de Atendimento</h3>
 
             {tiposSelecionados.map((item, index) => (
               <div key={index} className="tipo-item">
@@ -474,7 +474,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
                       onClick={() => removerTipo(index)}
                       title="Remover este atendimento"
                     >
-                      ✕ Remover
+                      Remover
                     </button>
                   )}
                 </div>
@@ -524,7 +524,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
               className="btn-adicionar-tipo"
               onClick={adicionarTipo}
             >
-              ➕ Adicionar outro tipo de atendimento
+              Adicionar outro tipo de atendimento
             </button>
           </div>
 
@@ -536,13 +536,13 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
                 checked={atendimentoExterno}
                 onChange={(e) => setAtendimentoExterno(e.target.checked)}
               />
-              <span>🚗 Atendimento Externo (visita domiciliar)</span>
+              <span>Atendimento Externo (visita domiciliar)</span>
             </label>
 
             {atendimentoExterno && (
               (horaTecnica <= 0 && custoKmVeiculo <= 0) ? (
                 <p className="nam-aviso">
-                  ⚠️ Configure sua <strong>Hora Técnica</strong> e/ou o <strong>veículo</strong> no Perfil (card Precificação) para calcular o custo de deslocamento.
+                  Configure sua <strong>Hora Técnica</strong> e/ou o <strong>veículo</strong> no Perfil (card Precificação) para calcular o custo de deslocamento.
                 </p>
               ) : (
                 <>
@@ -584,14 +584,14 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
                 checked={mostrarInsumo}
                 onChange={(e) => setMostrarInsumo(e.target.checked)}
               />
-              <span>📦 Insumos Usados</span>
+              <span>Insumos Usados</span>
             </label>
 
             {mostrarInsumo && (
               <>
                 {erroInsumo && <p className="nam-aviso">{erroInsumo}</p>}
                 {insumosDisponiveis.length === 0 ? (
-                  <p className="nam-aviso">⚠️ Nenhum insumo cadastrado. Configure em <strong>Perfil → Estoque de Insumos</strong>.</p>
+                  <p className="nam-aviso">Nenhum insumo cadastrado. Configure em <strong>Perfil → Estoque de Insumos</strong>.</p>
                 ) : (
                   <>
                     <div className="nam-row">
@@ -624,7 +624,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
                         onClick={handleAdicionarInsumo}
                         disabled={!insumoSelecionado || insumoQtdNum <= 0}
                       >
-                        ✓ Adicionar Insumo
+                        Adicionar Insumo
                       </button>
                     </div>
                   </>
@@ -634,7 +634,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
 
             {itensInsumo.map(item => (
               <div key={item.id} className="nam-item-fixo">
-                <span>📦 {item.descricao}</span>
+                <span>{item.descricao}</span>
                 <strong>R$ {parseFloat(item.valor).toFixed(2)}</strong>
                 <button type="button" onClick={() => removerItemInsumo(item)} title="Remover">🗑️</button>
               </div>
@@ -643,7 +643,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
 
           {/* VALOR TOTAL */}
           <div className="nam-section">
-            <h3 className="nam-section-title">💰 Valor Total</h3>
+            <h3 className="nam-section-title">Valor Total</h3>
             <div className="valor-total-box">
               <span className="valor-total-label">Valor Total da Consulta</span>
               <span className="valor-total-amount">
@@ -666,7 +666,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
             onClick={handleSalvar}
             disabled={salvando}
           >
-            {salvando ? 'Salvando...' : '✓ Criar Agendamento'}
+            {salvando ? 'Salvando...' : 'Criar Agendamento'}
           </button>
         </div>
       </div>
