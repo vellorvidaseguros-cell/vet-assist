@@ -20,35 +20,40 @@
 .resumo-card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  color: white;
+  gap: 4px;
+  color: var(--color-text);
+  background: white;
   padding: 12px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid var(--color-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .resumo-card.resumo-a-receber {
-  background: linear-gradient(135deg, #0d6b3a 0%, #1a8f4f 100%);
+  border-left-color: var(--color-warning);
 }
 
 .resumo-card.resumo-faturamento-mes {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  border-left-color: var(--color-primary);
 }
 
 .resumo-card.resumo-faturado-hoje {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-left-color: var(--color-success);
 }
 
 .resumo-label {
   font-size: var(--font-size-2xs);
-  opacity: 0.9;
-  font-weight: var(--font-weight-medium);
+  color: #8e8e93;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
   line-height: 1.2;
 }
 
 .resumo-valor {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-bold);
+  color: var(--color-text);
   word-break: break-word;
 }
 

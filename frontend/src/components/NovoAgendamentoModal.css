@@ -25,6 +25,7 @@
   display: block;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
   padding-bottom: max(20px, env(safe-area-inset-bottom));
+  overflow-x: hidden;
 }
 
 @media (min-width: 768px) {
@@ -152,6 +153,28 @@
   max-width: 100%;
   box-sizing: border-box;
   font-family: inherit;
+}
+
+/* iOS Safari renderiza o input[type=date] nativo com altura/largura próprias
+   que ignoram CSS (height, padding) — nem !important resolve de forma
+   confiável. O wrapper com altura fixa + overflow:hidden força o tamanho
+   visual final, cortando qualquer excesso interno do controle nativo. */
+.nam-date-wrapper {
+  height: 44px;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  background: white;
+  box-sizing: border-box;
+}
+
+.nam-date-wrapper input[type="date"] {
+  border: none !important;
+  width: 100% !important;
+  height: 48px !important;
+  margin-top: -2px;
+  padding: 0 0.75rem !important;
+  box-sizing: border-box;
 }
 
 /* Previne scroll horizontal em qualquer lugar do modal */

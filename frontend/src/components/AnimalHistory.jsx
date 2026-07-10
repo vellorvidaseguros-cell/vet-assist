@@ -619,7 +619,7 @@ export default function AnimalHistory() {
     console.log('[DEBUG] Logo Base64:', !!logoBase64, 'logoBase64 length:', logoBase64?.length || 0, 'Original URL:', wl.logomarcaUrl)
     const logoHTML = logoSrc ? `
       <div style="text-align: center; margin-bottom: 20px;">
-        <img src="${logoSrc}" alt="Logo" style="max-height: 80px; max-width: 200px;" onerror="this.style.display='none'" />
+        <img src="${logoSrc}" alt="Logo" class="capa-logo-img" onerror="this.style.display='none'" />
       </div>
     ` : `
       <div style="text-align: center; margin-bottom: 20px; color: #0d6b3a; font-weight: bold; font-size: 24px;">
@@ -697,7 +697,6 @@ export default function AnimalHistory() {
                 ${wl.email ? `<div><strong>Email:</strong> ${wl.email}</div>` : ''}
               </div>
               ${wl.endereco ? `<p style="margin-top: 4px;">${wl.endereco}${wl.cidade ? ', ' + wl.cidade : ''}${wl.estado ? ' - ' + wl.estado : ''}</p>` : ''}
-              <p style="margin-top: 4px; font-size: 9px;">Valor: R$ ${item.valor?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}</p>
             </div>
           </div>
         </div>
@@ -842,6 +841,7 @@ export default function AnimalHistory() {
               padding: 12px 20px 8px;
               margin-top: auto;
               font-size: 9px;
+              text-align: center;
               color: #666;
               background-color: #f9f9f9;
             }
@@ -880,10 +880,11 @@ export default function AnimalHistory() {
               page-break-after: always;
               break-after: page;
             }
-            .info-capa img { max-height: 150px; margin-bottom: 30px; }
-            .info-capa h1 { font-size: 36px; color: #0d6b3a; margin: 30px 0 20px; letter-spacing: 1px; }
-            .info-capa p { font-size: 16px; color: #555; margin: 8px 0; }
-            .info-capa .capa-footer { margin-top: 50px; font-size: 13px; color: #999; }
+            .info-capa img { margin-bottom: 36px; }
+            .capa-logo-img { max-height: 340px !important; max-width: 420px !important; width: auto !important; height: auto !important; }
+            .info-capa h1 { font-size: 32px; color: #0d6b3a; margin: 30px 0 24px; letter-spacing: 0.5px; }
+            .info-capa p { font-size: 24px; color: #444; font-weight: 600; margin: 10px 0; }
+            .info-capa .capa-footer { margin-top: 50px; font-size: 15px; font-weight: 400; color: #999; }
 
             /* ====== QUEBRAS DE PÁGINA ====== */
             .page-break {
@@ -913,7 +914,7 @@ export default function AnimalHistory() {
             <h1>HISTÓRICO CLÍNICO COMPLETO</h1>
             <p>Paciente: <strong>${pet?.nome}</strong></p>
             <p>Total de Consultas: <strong>${historicoList.length}</strong></p>
-            <p class="capa-footer">Proprietário: ${cliente?.nome || 'N/A'}</p>
+            <p>Proprietário: <strong>${cliente?.nome || 'N/A'}</strong></p>
             <p class="capa-footer">Documento gerado em ${new Date().toLocaleDateString('pt-BR')}</p>
           </div>
 

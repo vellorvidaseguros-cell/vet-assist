@@ -140,7 +140,7 @@ export const atualizarAgendamento = async (req, res) => {
     const dadosAtualizacao = {};
 
     if (status !== undefined) dadosAtualizacao.status = status;
-    if (proximoRetorno !== undefined) dadosAtualizacao.proximoRetorno = proximoRetorno;
+    if (proximoRetorno !== undefined) dadosAtualizacao.proximoRetorno = proximoRetorno || null;
     if (valor !== undefined) dadosAtualizacao.valor = parseFloat(valor) || 0;
     if (req.body.diagnostico !== undefined) dadosAtualizacao.diagnostico = req.body.diagnostico;
     if (req.body.procedimentos !== undefined) dadosAtualizacao.procedimentos = req.body.procedimentos;

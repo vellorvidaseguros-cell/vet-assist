@@ -20,8 +20,13 @@ const formatarUrlAnexo = (anexo) => {
 // extraímos ano/mês/dia da string e montamos a data local, sem conversão de fuso.
 const formatarDataSemFuso = (data, opcoes = { day: '2-digit', month: '2-digit', year: 'numeric' }) => {
   if (!data) return ''
-  const datePart = String(data).split('T')[0]
+  // Sequelize retorna DATE como string no SQLite (dev) mas como objeto Date no
+  // Postgres (prod) — normaliza pra ISO antes de extrair ano/mês/dia, senão o
+  // split('T')/split('-') falha silenciosamente em produção e vira "Invalid Date".
+  const iso = data instanceof Date ? data.toISOString() : String(data)
+  const datePart = iso.split('T')[0]
   const [year, month, day] = datePart.split('-').map(Number)
+  if (!year || !month || !day) return ''
   return new Date(year, month - 1, day).toLocaleDateString('pt-BR', opcoes)
 }
 
@@ -700,8 +705,10 @@ export const gerarPDFHistoricoAnimal = async (req, res) => {
       ]
     })
 
-    // ===== Um bloco por atendimento =====
+    // ===== Um bloco por atendimento (cada atendimento em página própria) =====
     historicos.forEach((historico, idx) => {
+      if (idx > 0) doc.addPage()
+
       // Título do atendimento (data + tipo) como barra verde
       const dataFormatada = historico.data
         ? formatarDataSemFuso(historico.data, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
@@ -719,12 +726,6 @@ export const gerarPDFHistoricoAnimal = async (req, res) => {
       desenharSecaoTimbrada(doc, 'Observações', historico.observacoes)
       // O valor do atendimento NÃO entra no PDF de prontuário
       desenharFotosAtendimento(doc, { fs, path, uploadsDir, anexos: historico.Anexos })
-
-      // Separador entre atendimentos
-      if (idx < historicos.length - 1) {
-        if (doc.y > 700) doc.addPage()
-        else doc.moveDown(0.5)
-      }
     })
 
     // ===== Rodapé timbrado em todas as páginas =====

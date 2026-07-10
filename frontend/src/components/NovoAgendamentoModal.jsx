@@ -432,13 +432,15 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
             <div className="nam-row">
               <div className="nam-group">
                 <label>Data *</label>
-                <input
-                  type="date"
-                  name="data"
-                  value={agendamentoForm.data}
-                  onChange={handleInputChange}
-                  min={new Date().toISOString().split('T')[0]}
-                />
+                <div className="nam-date-wrapper">
+                  <input
+                    type="date"
+                    name="data"
+                    value={agendamentoForm.data}
+                    onChange={handleInputChange}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
               </div>
 
               <div className="nam-group">

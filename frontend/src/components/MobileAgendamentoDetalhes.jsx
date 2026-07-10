@@ -56,7 +56,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
 
     setUploadingPhoto(false)
     if (sucessos > 0) {
-      await fetchAgendamento()
+      await fetchAgendamento({ resetForm: false })
     }
     if (falhas.length > 0) {
       setError(`${sucessos} enviada(s), ${falhas.length} com erro: ${falhas[0]}`)
@@ -80,21 +80,25 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
     }
   }, [])
 
-  const fetchAgendamento = async () => {
+  // resetForm=false preserva o que o usuário está digitando (usado ao recarregar
+  // só pra atualizar a lista de fotos, sem sobrescrever o formulário em edição).
+  const fetchAgendamento = async ({ resetForm = true } = {}) => {
     try {
       setLoading(true)
       const response = await axios.get(`/api/agendamentos/${agendamentoId}`)
       if (response.data.sucesso) {
         setAgendamento(response.data.data)
-        setFormData({
-          medicamentos: response.data.data.medicamentos || '',
-          diagnostico: response.data.data.diagnostico || '',
-          procedimentos: response.data.data.procedimentos || '',
-          observacoes: response.data.data.observacoes || '',
-          proximoRetorno: response.data.data.proximoRetorno
-            ? new Date(response.data.data.proximoRetorno).toISOString().split('T')[0]
-            : ''
-        })
+        if (resetForm) {
+          setFormData({
+            medicamentos: response.data.data.medicamentos || '',
+            diagnostico: response.data.data.diagnostico || '',
+            procedimentos: response.data.data.procedimentos || '',
+            observacoes: response.data.data.observacoes || '',
+            proximoRetorno: response.data.data.proximoRetorno
+              ? new Date(response.data.data.proximoRetorno).toISOString().split('T')[0]
+              : ''
+          })
+        }
       }
     } catch (err) {
       setError('Erro ao carregar agendamento')
@@ -116,7 +120,10 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
     try {
       setSalvando(true)
       setError('')
-      const response = await axios.put(`/api/agendamentos/${agendamentoId}`, formData)
+      const response = await axios.put(`/api/agendamentos/${agendamentoId}`, {
+        ...formData,
+        proximoRetorno: formData.proximoRetorno || null
+      })
       if (response.data.sucesso) {
         setSalvoComSucesso(true)
         await fetchAgendamento()
@@ -164,7 +171,7 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
           onClose={() => setShowPhotoModal(false)}
           onUploadSuccess={() => {
             setShowPhotoModal(false)
-            fetchAgendamento()
+            fetchAgendamento({ resetForm: false })
           }}
         />
       )}
