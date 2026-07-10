@@ -150,6 +150,38 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.ncm-date-wrapper {
+  height: 44px;
+  overflow: hidden;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ncm-date-wrapper input[type="date"] {
+  height: 48px !important;
+  border: none !important;
+  border-radius: 6px;
+  width: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  padding: 0 0.75rem !important;
+  text-align: center;
+}
+
+.ncm-date-wrapper input[type="date"]::-webkit-date-and-time-value {
+  text-align: center;
+}
+
+.ncm-date-wrapper input[type="date"]:focus {
+  box-shadow: none;
+}
+
 .ncm-idade-calculada {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);

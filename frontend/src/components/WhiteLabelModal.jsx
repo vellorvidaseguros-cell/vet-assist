@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './WhiteLabelModal.css'
 
 export default function WhiteLabelModal({ isOpen, onClose, perfil }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [whiteLabel, setWhiteLabel] = useState({
     nomeClinica: '',
     cnpj: '',
@@ -135,7 +137,7 @@ export default function WhiteLabelModal({ isOpen, onClose, perfil }) {
 
   return createPortal(
     <div className="wl-modal-overlay">
-      <div className="wl-modal">
+      <div className="wl-modal" ref={swipeRef} style={swipeStyle}>
         {/* Header */}
         <div className="wl-modal-header">
           <h2>Configurar Clínica</h2>

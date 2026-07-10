@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './DiagnosisModal.css'
 
 export default function DiagnosisModal({ agendamentoId, historicoId, onClose, onSave }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [formData, setFormData] = useState({
     diagnostico: '',
     observacoes: '',
@@ -140,7 +142,7 @@ export default function DiagnosisModal({ agendamentoId, historicoId, onClose, on
 
   return createPortal(
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content diagnosis-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content diagnosis-modal" ref={swipeRef} style={swipeStyle} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h3>Diagnóstico e Observações</h3>
           <button className="btn-close" onClick={onClose}>✕</button>

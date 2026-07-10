@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './ExportarDadosModal.css'
 
 // Exporta CSV compatível com Excel pt-BR (BOM UTF-8 + separador ";")
@@ -37,6 +38,7 @@ const formatarValor = (v) => {
 }
 
 export default function ExportarDadosModal({ isOpen, onClose }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const hoje = new Date()
   const primeiroDiaMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1)
   const paraInput = (d) => d.toISOString().split('T')[0]
@@ -181,7 +183,7 @@ export default function ExportarDadosModal({ isOpen, onClose }) {
 
   return createPortal(
     <div className="ed-modal-overlay">
-      <div className="ed-modal">
+      <div className="ed-modal" ref={swipeRef} style={swipeStyle}>
         <div className="ed-modal-header">
           <h2>Exportar Dados</h2>
           <button className="ed-btn-close" onClick={onClose}>✕</button>

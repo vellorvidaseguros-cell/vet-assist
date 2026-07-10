@@ -7,6 +7,7 @@ import AnimalHistoryModal from './AnimalHistoryModal'
 import QuoteModal from './QuoteModal'
 import { calcularIdade } from '../utils/idadeUtils'
 import { petFotoUrl } from '../utils/petFotoUrl'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 
 const ANIMAL_VAZIO = { nome: '', especie: '', raca: '', sexo: '', porte: '', cor: '', microchip: '', dataNascimento: '' }
 
@@ -17,6 +18,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
   const [isEditing, setIsEditing] = useState(false)
   const [clienteEdit, setClienteEdit] = useState({})
   const [salvando, setSalvando] = useState(false)
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
 
   // Animal novo
   const [showNovoAnimal, setShowNovoAnimal] = useState(false)
@@ -222,7 +224,7 @@ export default function MobileClienteDetalhes({ clienteId, onClose }) {
   if (!cliente) return null
 
   return createPortal(
-    <div className="modal-overlay">
+    <div className="modal-overlay" ref={swipeRef} style={swipeStyle}>
       <div className="modal-content detalhes-modal">
 
         {/* Header — sem botão × */}

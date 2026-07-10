@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './GastosCategoriaPieChartModal.css'
 
 export default function GastosCategoriaPieChartModal({ porCategoria, totalGastos, onClose }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null)
 
   // Cores para as categorias
@@ -90,7 +92,7 @@ export default function GastosCategoriaPieChartModal({ porCategoria, totalGastos
 
   return createPortal(
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" ref={swipeRef} style={swipeStyle} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Detalhes de Gastos por Categoria</h2>
           <button className="modal-close" onClick={onClose}>×</button>

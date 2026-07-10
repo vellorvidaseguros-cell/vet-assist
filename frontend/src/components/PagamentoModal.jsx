@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './PagamentoModal.css'
 
 export default function PagamentoModal({ faturamento, onClose, onSuccess, isNested = false }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const valorFaltante = parseFloat(faturamento.valor) - parseFloat(faturamento.valorRecebido || 0)
   const valorTotal = parseFloat(faturamento.valor)
   const semValorDefinido = valorTotal <= 0 // retorno ou agendamento sem valor
@@ -80,7 +82,7 @@ export default function PagamentoModal({ faturamento, onClose, onSuccess, isNest
 
   return createPortal(
     <div className="modal-overlay" style={overlayStyle} onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" ref={swipeRef} style={swipeStyle} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Registrar Pagamento</h2>
         </div>

@@ -302,6 +302,63 @@
   border-bottom: none;
 }
 
+.vencimentos-lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.vencimento-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid #f0f0f0;
+  border-left: 4px solid var(--color-gray-medium);
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.vencimento-item.vencido {
+  border-left-color: var(--color-danger);
+}
+
+.vencimento-cliente {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: #000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.vencimento-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.vencimento-quando {
+  font-size: var(--font-size-2xs);
+  color: #8e8e93;
+  font-weight: var(--font-weight-semibold);
+}
+
+.vencimento-item.vencido .vencimento-quando {
+  color: var(--color-danger);
+}
+
+.vencimento-valor {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: #000;
+}
+
 .pendencia-top {
   display: flex;
   justify-content: space-between;
@@ -323,6 +380,13 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: #000;
+}
+
+.pendencia-nota {
+  font-size: var(--font-size-2xs);
+  color: #8e8e93;
+  display: block;
+  margin-top: 2px;
 }
 
 .pendencia-link {

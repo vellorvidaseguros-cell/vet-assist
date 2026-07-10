@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './NovoClienteModal.css'
 
 function useLockBodyScroll() {
@@ -15,30 +16,53 @@ const COBRANCA_VAZIA = {
   historicoConsultaId: '',
   valor: '',
   descricao: '',
+  dataVencimento: '',
   dataPagamento: '',
   status: 'Pendente'
 }
 
-export default function NovaCobrancaModal({ onClose, onSuccess }) {
+// cobrancaExistente: passe um faturamento pra abrir o modal em modo edição
+// (PUT em vez de POST, com os campos já preenchidos).
+export default function NovaCobrancaModal({ onClose, onSuccess, cobrancaExistente }) {
   useLockBodyScroll()
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
+  const editando = !!cobrancaExistente
 
-  const [cobrancaForm, setCobrancaForm] = useState(COBRANCA_VAZIA)
+  const [cobrancaForm, setCobrancaForm] = useState(() => cobrancaExistente ? {
+    historicoConsultaId: String(cobrancaExistente.historicoConsultaId || ''),
+    valor: String(cobrancaExistente.valor ?? ''),
+    descricao: cobrancaExistente.descricao || '',
+    dataVencimento: cobrancaExistente.dataVencimento ? String(cobrancaExistente.dataVencimento).substring(0, 10) : '',
+    dataPagamento: cobrancaExistente.dataPagamento ? String(cobrancaExistente.dataPagamento).substring(0, 10) : '',
+    status: cobrancaExistente.status || 'Pendente'
+  } : COBRANCA_VAZIA)
   const [historicos, setHistoricos] = useState([])
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
-  const [carregando, setCarregando] = useState(true)
+  const [carregando, setCarregando] = useState(!editando)
 
   useEffect(() => {
-    carregarDados()
+    if (!editando) carregarDados()
   }, [])
 
   const carregarDados = async () => {
     try {
       setCarregando(true)
-      const response = await axios.get('/api/historico')
-      if (response.data.sucesso) {
-        setHistoricos(response.data.data || [])
-      }
+      const [historicoRes, faturamentoRes] = await Promise.all([
+        axios.get('/api/historico'),
+        axios.get('/api/faturamento')
+      ])
+
+      const todosHistoricos = historicoRes.data.sucesso ? (historicoRes.data.data || []) : []
+
+      // Uma consulta já totalmente paga não deve aparecer aqui de novo — só
+      // as que ainda não têm cobrança, estão pendentes ou parcialmente pagas.
+      const faturamentos = faturamentoRes.data.sucesso ? (faturamentoRes.data.data || []) : []
+      const historicoIdsPagos = new Set(
+        faturamentos.filter(f => f.status === 'Pago').map(f => f.historicoConsultaId)
+      )
+
+      setHistoricos(todosHistoricos.filter(h => !historicoIdsPagos.has(h.id)))
     } catch (err) {
       console.error('Erro ao carregar históricos:', err)
       // Se não conseguir carregar, continua mesmo assim
@@ -55,7 +79,7 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
 
   const handleSalvar = async () => {
     // Validações
-    if (!cobrancaForm.historicoConsultaId.trim()) {
+    if (!editando && !cobrancaForm.historicoConsultaId.trim()) {
       setErro('Consulta é obrigatória')
       return
     }
@@ -69,24 +93,27 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
 
     try {
       const payload = {
-        historicoConsultaId: parseInt(cobrancaForm.historicoConsultaId),
         valor: parseFloat(cobrancaForm.valor),
         descricao: cobrancaForm.descricao.trim(),
+        dataVencimento: cobrancaForm.dataVencimento || null,
         status: cobrancaForm.status
       }
+      if (!editando) payload.historicoConsultaId = parseInt(cobrancaForm.historicoConsultaId)
 
       // Adicionar data de pagamento se status for diferente de Pendente
       if (cobrancaForm.status !== 'Pendente' && cobrancaForm.dataPagamento) {
         payload.dataPagamento = cobrancaForm.dataPagamento
       }
 
-      const response = await axios.post('/api/faturamento', payload)
+      const response = editando
+        ? await axios.put(`/api/faturamento/${cobrancaExistente.id}`, payload)
+        : await axios.post('/api/faturamento', payload)
 
       if (response.data.sucesso) {
         onSuccess()
         onClose()
       } else {
-        setErro(response.data.erro || 'Erro ao criar cobrança')
+        setErro(response.data.erro || 'Erro ao salvar cobrança')
       }
     } catch (err) {
       setErro(err.response?.data?.erro || 'Erro ao salvar cobrança. Tente novamente.')
@@ -103,9 +130,9 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
   if (carregando) {
     return createPortal(
       <div className="ncm-overlay" onClick={handleOverlayClick}>
-        <div className="ncm-modal">
+        <div className="ncm-modal" ref={swipeRef} style={swipeStyle}>
           <div className="ncm-header">
-            <h2>Nova Cobrança</h2>
+            <h2>{editando ? 'Editar Cobrança' : 'Nova Cobrança'}</h2>
             <button className="ncm-close" onClick={onClose} title="Fechar">×</button>
           </div>
           <div className="ncm-body">
@@ -119,10 +146,10 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
 
   return createPortal(
     <div className="ncm-overlay" onClick={handleOverlayClick}>
-      <div className="ncm-modal">
+      <div className="ncm-modal" ref={swipeRef} style={swipeStyle}>
         {/* HEADER */}
         <div className="ncm-header">
-          <h2>Nova Cobrança</h2>
+          <h2>{editando ? 'Editar Cobrança' : 'Nova Cobrança'}</h2>
           <button className="ncm-close" onClick={onClose} title="Fechar">×</button>
         </div>
 
@@ -131,31 +158,33 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
           {erro && <div className="ncm-error">{erro}</div>}
 
           {/* CONSULTA */}
-          <div className="ncm-section">
-            <h3 className="ncm-section-title">Consulta</h3>
+          {!editando && (
+            <div className="ncm-section">
+              <h3 className="ncm-section-title">Consulta</h3>
 
-            <div className="ncm-row single">
-              <div className="ncm-group">
-                <label>Consulta (Histórico) *</label>
-                <select
-                  name="historicoConsultaId"
-                  value={cobrancaForm.historicoConsultaId}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Selecione uma consulta</option>
-                  {historicos.length > 0 ? (
-                    historicos.map(historico => (
-                      <option key={historico.id} value={historico.id}>
-                        {historico.Pet?.nome || 'Pet'} - {historico.data ? new Date(historico.data).toLocaleDateString('pt-BR') : 'Data?'}
-                      </option>
-                    ))
-                  ) : (
-                    <option value="" disabled>Nenhuma consulta disponível</option>
-                  )}
-                </select>
+              <div className="ncm-row single">
+                <div className="ncm-group">
+                  <label>Consulta (Histórico) *</label>
+                  <select
+                    name="historicoConsultaId"
+                    value={cobrancaForm.historicoConsultaId}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Selecione uma consulta</option>
+                    {historicos.length > 0 ? (
+                      historicos.map(historico => (
+                        <option key={historico.id} value={historico.id}>
+                          {historico.Pet?.nome || 'Pet'} - {historico.data ? new Date(historico.data).toLocaleDateString('pt-BR') : 'Data?'}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>Nenhuma consulta disponível</option>
+                    )}
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* VALOR E DESCRIÇÃO */}
           <div className="ncm-section">
@@ -173,6 +202,23 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
                   value={cobrancaForm.valor}
                   onChange={handleInputChange}
                 />
+              </div>
+            </div>
+
+            <div className="ncm-row single">
+              <div className="ncm-group">
+                <label>Data de Vencimento</label>
+                <div className="ncm-date-wrapper">
+                  <input
+                    type="date"
+                    name="dataVencimento"
+                    value={cobrancaForm.dataVencimento}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <small style={{ color: '#888', fontSize: '0.75rem', marginTop: '6px', display: 'block', lineHeight: 1.4 }}>
+                  Se preencher, você recebe um aviso quando estiver perto de vencer.
+                </small>
               </div>
             </div>
 
@@ -214,12 +260,14 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
               <div className="ncm-row single">
                 <div className="ncm-group">
                   <label>Data do Pagamento</label>
-                  <input
-                    type="date"
-                    name="dataPagamento"
-                    value={cobrancaForm.dataPagamento}
-                    onChange={handleInputChange}
-                  />
+                  <div className="ncm-date-wrapper">
+                    <input
+                      type="date"
+                      name="dataPagamento"
+                      value={cobrancaForm.dataPagamento}
+                      onChange={handleInputChange}
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -236,7 +284,7 @@ export default function NovaCobrancaModal({ onClose, onSuccess }) {
             onClick={handleSalvar}
             disabled={salvando}
           >
-            {salvando ? 'Salvando...' : 'Criar Cobrança'}
+            {salvando ? 'Salvando...' : editando ? 'Salvar Alterações' : 'Criar Cobrança'}
           </button>
         </div>
       </div>

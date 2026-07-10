@@ -250,6 +250,11 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.cobranca-data-vencida {
+  color: var(--color-danger);
+  font-weight: var(--font-weight-semibold);
+}
+
 .cobranca-btn-pagar {
   flex: 1.2;
   padding: 10px 8px;

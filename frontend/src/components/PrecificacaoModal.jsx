@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
 import MoneyInput from './MoneyInput'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './PrecificacaoModal.css'
 
 const SEMANAS_POR_MES = 4.33
@@ -11,6 +12,7 @@ const fmtBR = (n) => (isFinite(n) ? n : 0).toLocaleString('pt-BR', { minimumFrac
 // Setup ÚNICO: o veterinário configura uma vez e o app usa em tudo
 // (calculadora de visita dentro do Orçamento, preço mínimo da tabela, relatório de lucratividade)
 export default function PrecificacaoModal({ isOpen, onClose, perfil, custoKm, onSaved }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [salvando, setSalvando] = useState(false)
   const [error, setError] = useState('')
   const [sucesso, setSucesso] = useState('')
@@ -84,7 +86,7 @@ export default function PrecificacaoModal({ isOpen, onClose, perfil, custoKm, on
 
   return createPortal(
     <div className="pr-modal-overlay">
-      <div className="pr-modal">
+      <div className="pr-modal" ref={swipeRef} style={swipeStyle}>
         <div className="pr-modal-header">
           <h2>Precificação</h2>
           <button className="pr-btn-close" onClick={onClose}>✕</button>

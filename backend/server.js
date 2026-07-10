@@ -31,6 +31,7 @@ import compartilhamentoRoutes from './routes/compartilhamento.js';
 import insumosRoutes from './routes/insumos.js';
 import documentosRoutes from './routes/documentos.js';
 import feedbackRoutes from './routes/feedback.js';
+import avisosRoutes from './routes/avisos.js';
 
 dotenv.config();
 
@@ -256,6 +257,7 @@ async function iniciarServidor() {
     app.use('/api/insumos', exigirRecurso('insumos'), insumosRoutes);
     app.use('/api/documentos', exigirRecurso('clientes'), documentosRoutes);
     app.use('/api/feedback', feedbackRoutes);
+    app.use('/api/avisos', avisosRoutes);
 
     // Endpoint para o frontend descobrir a porta do backend (Socket.IO direto)
     app.get('/api/backend-info', (req, res) => {

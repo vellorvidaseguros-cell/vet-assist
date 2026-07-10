@@ -4,6 +4,7 @@ import axios from 'axios'
 import { Pencil, Trash2 } from 'lucide-react'
 import MoneyInput from './MoneyInput'
 import ConfirmModal from './ConfirmModal'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './EstoqueInsumosModal.css'
 
 const UNIDADES = ['un', 'ml', 'mg', 'comprimido', 'frasco', 'caixa', 'kg', 'g']
@@ -18,6 +19,7 @@ const VAZIO = {
 }
 
 export default function EstoqueInsumosModal({ isOpen, onClose }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [insumos, setInsumos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -123,7 +125,7 @@ export default function EstoqueInsumosModal({ isOpen, onClose }) {
 
   return createPortal(
     <div className="ei-modal-overlay">
-      <div className="ei-modal">
+      <div className="ei-modal" ref={swipeRef} style={swipeStyle}>
         <div className="ei-modal-header">
           <h2>Estoque de Insumos</h2>
           <button className="ei-btn-close" onClick={onClose}>✕</button>

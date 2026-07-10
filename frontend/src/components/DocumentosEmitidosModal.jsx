@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { Receipt, DollarSign, Loader2, FileText, Trash2 } from 'lucide-react'
 import ConfirmModal from './ConfirmModal'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './EstoqueInsumosModal.css'
 
 const formatarValor = (v) =>
@@ -15,6 +16,7 @@ const formatarDataHora = (iso) => {
 }
 
 export default function DocumentosEmitidosModal({ isOpen, onClose }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [documentos, setDocumentos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -88,7 +90,7 @@ export default function DocumentosEmitidosModal({ isOpen, onClose }) {
 
   return createPortal(
     <div className="ei-modal-overlay">
-      <div className="ei-modal">
+      <div className="ei-modal" ref={swipeRef} style={swipeStyle}>
         <div className="ei-modal-header">
           <h2>Documentos Emitidos</h2>
           <button className="ei-btn-close" onClick={onClose}>✕</button>

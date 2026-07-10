@@ -123,7 +123,7 @@ export default function Dashboard({ onLogout }) {
               onNovoFeedback={() => setFeedbacksNovos(n => n + 1)}
               onNovaSolicitacaoSenha={() => setSolicitacoesSenhaNovas(n => n + 1)}
             />
-            <FeedbackWidget />
+            {activeTab === 'dashboard' && <FeedbackWidget />}
           </>
         )}
         {isMobile ? renderMobileContent() : renderDesktopContent()}

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
 import MoneyInput from './MoneyInput'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './DespesaModal.css'
 
 export default function DespesaModal({
@@ -11,6 +12,7 @@ export default function DespesaModal({
   veterinarioId = 1,
   categoriasDespesa = []
 }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [despesaForm, setDespesaForm] = useState({
     categoriaDespesa: '',
     descricao: '',
@@ -58,7 +60,7 @@ export default function DespesaModal({
 
   return createPortal(
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" ref={swipeRef} style={swipeStyle} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Nova Despesa</h2>
           <button className="modal-close" onClick={onClose} disabled={loading}>×</button>

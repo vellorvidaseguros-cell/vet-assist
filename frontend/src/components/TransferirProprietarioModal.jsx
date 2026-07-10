@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { formatarData } from '../utils/dateFormatter'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './TransferirProprietarioModal.css'
 
 /**
@@ -11,6 +12,7 @@ import './TransferirProprietarioModal.css'
  * revisão" do animal dentro do app.
  */
 export default function TransferirProprietarioModal({ pet, clientes, onClose, onSuccess }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [novoClienteId, setNovoClienteId] = useState('')
   const [motivo, setMotivo] = useState('')
   const [historico, setHistorico] = useState([])
@@ -66,7 +68,7 @@ export default function TransferirProprietarioModal({ pet, clientes, onClose, on
 
   return createPortal(
     <div className="tpm-overlay" onClick={handleOverlayClick}>
-      <div className="tpm-modal">
+      <div className="tpm-modal" ref={swipeRef} style={swipeStyle}>
         <div className="tpm-header">
           <h2>Transferir Proprietário</h2>
           <button className="tpm-close" onClick={onClose}>✕</button>

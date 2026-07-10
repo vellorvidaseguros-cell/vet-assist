@@ -13,5 +13,6 @@ import Insumo from './Insumo.js';
 import DocumentoEmitido from './DocumentoEmitido.js';
 import Feedback from './Feedback.js';
 import SolicitacaoSenha from './SolicitacaoSenha.js';
+import Aviso from './Aviso.js';
 
-export { Veterinario, Cliente, Pet, Agendamento, HistoricoConsulta, Anexo, Faturamento, Veiculo, Despesa, TransferenciaProprietario, Compartilhamento, Insumo, DocumentoEmitido, Feedback, SolicitacaoSenha };
+export { Veterinario, Cliente, Pet, Agendamento, HistoricoConsulta, Anexo, Faturamento, Veiculo, Despesa, TransferenciaProprietario, Compartilhamento, Insumo, DocumentoEmitido, Feedback, SolicitacaoSenha, Aviso };

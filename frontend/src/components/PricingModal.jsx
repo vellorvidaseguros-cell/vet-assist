@@ -4,6 +4,7 @@ import axios from 'axios'
 import { Pencil, Trash2 } from 'lucide-react'
 import ConfirmModal from './ConfirmModal'
 import PromptModal from './PromptModal'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './PricingModal.css'
 
 const DEFAULT_SERVICES = [
@@ -35,6 +36,7 @@ const formatBR = (value) => {
 }
 
 export default function PricingModal({ isOpen, onClose }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [services, setServices] = useState([...DEFAULT_SERVICES])
   const [customValues, setCustomValues] = useState({})     // numérico salvo
   const [inputValues, setInputValues] = useState({})        // texto temporário do input
@@ -255,7 +257,7 @@ export default function PricingModal({ isOpen, onClose }) {
 
   return createPortal(
     <div className="pricing-modal-overlay">
-      <div className="pricing-modal">
+      <div className="pricing-modal" ref={swipeRef} style={swipeStyle}>
         {/* Header */}
         <div className="modal-header">
           <h2>Tabela de Preços</h2>

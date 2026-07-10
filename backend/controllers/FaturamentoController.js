@@ -135,7 +135,7 @@ export const resumoFinanceiro = async (req, res) => {
 
 export const criarFaturamento = async (req, res) => {
   try {
-    const { historicoConsultaId, clienteId, valor, status, descricao, numeroNota } = req.body
+    const { historicoConsultaId, clienteId, valor, status, descricao, numeroNota, dataVencimento } = req.body
 
     const faturamento = await Faturamento.create({
       historicoConsultaId,
@@ -144,7 +144,8 @@ export const criarFaturamento = async (req, res) => {
       valor,
       status,
       descricao,
-      numeroNota
+      numeroNota,
+      dataVencimento: dataVencimento || null
     })
 
     res.status(201).json({ sucesso: true, mensagem: 'Faturamento criado!', data: faturamento })

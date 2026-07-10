@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { Trash2 } from 'lucide-react'
 import PhotoUploadModal from './PhotoUploadModal'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './AnimalHistoryModal.css'
 
 const NOVO_ATENDIMENTO_VAZIO = {
@@ -14,6 +15,7 @@ const NOVO_ATENDIMENTO_VAZIO = {
 }
 
 export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, onClose }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [historicos, setHistoricos] = useState([])
   const [podeEditar, setPodeEditar] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -325,7 +327,7 @@ export default function AnimalHistoryModal({ petId, petName, compartilhadoPor, o
   }
 
   return createPortal(
-    <div className="modal-overlay animal-historico-overlay">
+    <div className="modal-overlay animal-historico-overlay" ref={swipeRef} style={swipeStyle}>
       <div className="modal-content detalhes-modal">
         {/* Header */}
         <div className="modal-header">

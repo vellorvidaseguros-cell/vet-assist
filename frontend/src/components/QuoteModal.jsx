@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { Trash2 } from 'lucide-react'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './QuoteModal.css'
 
 export default function QuoteModal({ cliente, pet, onClose }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [procedimentos, setProcedimentos] = useState([
     { id: 1, descricao: '', valor: '', filtro: '' }
   ])
@@ -684,7 +686,7 @@ export default function QuoteModal({ cliente, pet, onClose }) {
     <div className="quote-overlay" onClick={(e) => {
       if (e.target === e.currentTarget) onClose()
     }}>
-      <div className="quote-modal">
+      <div className="quote-modal" ref={swipeRef} style={swipeStyle}>
         {/* Header */}
         <div className="quote-header">
           <h2>Novo Orçamento</h2>

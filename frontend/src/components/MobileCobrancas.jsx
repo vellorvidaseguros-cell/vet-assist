@@ -3,7 +3,9 @@ import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { MessageCircle, Mail } from 'lucide-react'
 import PagamentoModal from './PagamentoModal'
+import NovaCobrancaModal from './NovaCobrancaModal'
 import { fotoUrl } from '../utils/fotoUrl'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './MobileCobrancas.css'
 
 const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
@@ -14,6 +16,7 @@ export default function MobileCobrancas() {
   const [error, setError] = useState('')
   const [filtro, setFiltro] = useState('Pendente')
   const [pagamentoModalFat, setPagamentoModalFat] = useState(null)
+  const [editarCobrancaFat, setEditarCobrancaFat] = useState(null)
   const [enviarCobrancaFat, setEnviarCobrancaFat] = useState(null)
   const [enviando, setEnviando] = useState(false)
   const [showMesSeletor, setShowMesSeletor] = useState(false)
@@ -23,6 +26,7 @@ export default function MobileCobrancas() {
   const hoje = new Date()
   // null = todos os meses; objeto = mês específico
   const [mesSelecionado, setMesSelecionado] = useState({ mes: hoje.getMonth(), ano: hoje.getFullYear() })
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(() => setEnviarCobrancaFat(null))
 
   useEffect(() => {
     fetchFaturamentos()
@@ -565,6 +569,15 @@ Obrigado!`
               return new Date(y, m - 1, d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
             })()
 
+            // Data de vencimento (se definida)
+            const dataVencFormatada = cobranca.dataVencimento
+              ? (() => {
+                  const [y, m, d] = String(cobranca.dataVencimento).substring(0, 10).split('-').map(Number)
+                  return new Date(y, m - 1, d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                })()
+              : null
+            const vencida = cobranca.dataVencimento && new Date(cobranca.dataVencimento) < new Date(new Date().toDateString())
+
             const valorTotal = parseFloat(cobranca.valor)
             const valorRecebido = parseFloat(cobranca.valorRecebido || 0)
             const valorFaltante = valorTotal - valorRecebido
@@ -603,6 +616,11 @@ Obrigado!`
                   {dataFormatada && (
                     <span className="cobranca-data-item">Consulta: {dataFormatada}</span>
                   )}
+                  {dataVencFormatada && cobranca.status !== 'Pago' && (
+                    <span className={`cobranca-data-item ${vencida ? 'cobranca-data-vencida' : ''}`}>
+                      Vencimento: {dataVencFormatada}
+                    </span>
+                  )}
                   {dataPagFormatada && (
                     <span className="cobranca-data-item cobranca-data-pago">Pago em: {dataPagFormatada}</span>
                   )}
@@ -635,6 +653,16 @@ Obrigado!`
                       </button>
                     </>
                   )}
+
+                  {(cobranca.status === 'Pendente' || cobranca.status === 'Parcialmente Pago') && (
+                    <button
+                      className="cobranca-btn-detalhes"
+                      onClick={() => setEditarCobrancaFat(cobranca)}
+                      title="Editar cobrança"
+                    >
+                      Editar
+                    </button>
+                  )}
                 </div>
               </div>
             )
@@ -653,10 +681,21 @@ Obrigado!`
         />
       )}
 
+      {editarCobrancaFat && (
+        <NovaCobrancaModal
+          cobrancaExistente={editarCobrancaFat}
+          onClose={() => setEditarCobrancaFat(null)}
+          onSuccess={() => {
+            setEditarCobrancaFat(null)
+            fetchFaturamentos()
+          }}
+        />
+      )}
+
       {/* Modal de escolha de envio */}
       {enviarCobrancaFat && createPortal(
         <div className="enviar-overlay" onClick={() => setEnviarCobrancaFat(null)}>
-          <div className="enviar-modal" onClick={e => e.stopPropagation()}>
+          <div className="enviar-modal" ref={swipeRef} style={swipeStyle} onClick={e => e.stopPropagation()}>
             <div className="enviar-header">
               <h3>Enviar Cobrança</h3>
               <p>Como você quer enviar a cobrança?</p>

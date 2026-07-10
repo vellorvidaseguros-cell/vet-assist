@@ -266,6 +266,58 @@ export default function LembretesListener({ onNovoFeedback, onNovaSolicitacaoSen
     }
   }, [removerAlerta, onNovaSolicitacaoSenha])
 
+  // Cobrança vencendo/vencida — só quem é dono da cobrança recebe (mesmo
+  // filtro por veterinarioId já usado no lembrete de agendamento).
+  const handleCobrancaVencendo = useCallback((data) => {
+    const vetId = getVetIdLogado()
+    if (data.veterinarioId != null && vetId != null && data.veterinarioId !== vetId) return
+
+    const chave = `cobranca-${data.id}-${new Date(data.timestamp).toISOString().split('T')[0]}`
+    if (notificacoesRef.current.has(chave)) return
+    notificacoesRef.current.add(chave)
+    setTimeout(() => notificacoesRef.current.delete(chave), 2 * 60 * 60 * 1000)
+
+    setAlertas(prev => [{
+      id: chave,
+      titulo: 'Cobrança a vencer',
+      mensagem: data.mensagem,
+      cliente: data.cliente,
+      pet: '',
+      tipo: 'feedback',
+      hora_recebido: new Date().toLocaleTimeString('pt-BR')
+    }, ...prev.slice(0, 4)])
+    setTimeout(() => removerAlerta(chave), 30000)
+
+    if ('Notification' in window && Notification.permission === 'granted' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.ready
+        .then(reg => reg.showNotification('Cobrança a vencer', {
+          body: data.mensagem,
+          icon: '/favicon.ico',
+          tag: chave
+        }))
+        .catch(() => {})
+    }
+  }, [removerAlerta])
+
+  // Novo aviso publicado pelo admin — vai pra todo mundo (sem filtro de role,
+  // diferente do feedback). Dispara um evento na janela pro FeedbackWidget
+  // atualizar o selo de notificação sem precisar de outra conexão de socket.
+  const handleNovoAviso = useCallback((data) => {
+    window.dispatchEvent(new CustomEvent('novoAvisoRecebido', { detail: data }))
+
+    const chave = `aviso-${data.id}`
+    setAlertas(prev => [{
+      id: chave,
+      titulo: 'Novo aviso',
+      mensagem: data.mensagem,
+      cliente: '',
+      pet: '',
+      tipo: 'feedback',
+      hora_recebido: new Date().toLocaleTimeString('pt-BR')
+    }, ...prev.slice(0, 4)])
+    setTimeout(() => removerAlerta(chave), 30000)
+  }, [removerAlerta])
+
   // Conectar Socket.IO
   useEffect(() => {
     let cancelado = false
@@ -292,6 +344,8 @@ export default function LembretesListener({ onNovoFeedback, onNovaSolicitacaoSen
       socket.on('lembrete', handleLembrete)
       socket.on('novoFeedback', handleNovoFeedback)
       socket.on('novaSolicitacaoSenha', handleNovaSolicitacaoSenha)
+      socket.on('novoAviso', handleNovoAviso)
+      socket.on('cobrancaVencendo', handleCobrancaVencendo)
     })
 
     return () => {
@@ -299,7 +353,7 @@ export default function LembretesListener({ onNovoFeedback, onNovaSolicitacaoSen
       socketRef.current?.disconnect()
       socketRef.current = null
     }
-  }, [handleLembrete, handleNovoFeedback, handleNovaSolicitacaoSenha])
+  }, [handleLembrete, handleNovoFeedback, handleNovaSolicitacaoSenha, handleNovoAviso, handleCobrancaVencendo])
 
   // Pedir permissão de notificação — DEVE ser chamado dentro de um toque do usuário
   const pedirPermissao = async () => {
@@ -634,7 +688,8 @@ const estilosAlertas = {
   mensagem: {
     fontSize: '14px',
     marginBottom: '8px',
-    lineHeight: 1.4
+    lineHeight: 1.4,
+    whiteSpace: 'pre-line'
   },
   info: {
     fontSize: '12px',

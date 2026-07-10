@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { Trash2 } from 'lucide-react'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './CompartilharAnimalModal.css'
 
 export default function CompartilharAnimalModal({ isOpen, onClose, animais, onCompartilharSuccess }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [animalId, setAnimalId] = useState('')
   const [emailVet, setEmailVet] = useState('')
   const [vetExistente, setVetExistente] = useState(null)
@@ -106,7 +108,7 @@ export default function CompartilharAnimalModal({ isOpen, onClose, animais, onCo
 
   return createPortal(
     <div className="ca-modal-overlay">
-      <div className="ca-modal">
+      <div className="ca-modal" ref={swipeRef} style={swipeStyle}>
         {/* Header */}
         <div className="ca-modal-header">
           <h2>Compartilhar Animal</h2>

@@ -4,9 +4,11 @@ import axios from 'axios'
 import { formatarData } from '../utils/dateFormatter'
 import PagamentoModal from './PagamentoModal'
 import ConfirmModal from './ConfirmModal'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './HistoricoPagamentosModal.css'
 
 export default function HistoricoPagamentosModal({ faturamento, onClose, onPaymentSuccess }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [showPagamentoModal, setShowPagamentoModal] = useState(false)
   const [faturamentoAtualizado, setFaturamentoAtualizado] = useState(faturamento)
   const [deletando, setDeletando] = useState(false)
@@ -139,7 +141,7 @@ export default function HistoricoPagamentosModal({ faturamento, onClose, onPayme
 
       {createPortal(
         <div className="modal-overlay" onClick={onClose}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-content" ref={swipeRef} style={swipeStyle} onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
             <h2>Histórico de Pagamentos</h2>
             <button className="modal-close" onClick={onClose}>×</button>

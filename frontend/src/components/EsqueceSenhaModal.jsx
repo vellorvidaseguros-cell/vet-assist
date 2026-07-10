@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './EsqueceSenhaModal.css'
 
 export default function EsqueceSenhaModal({ isOpen, onClose }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [step, setStep] = useState('email') // 'email' | 'aguardando' | 'reset-password' | 'sucesso'
   const [email, setEmail] = useState('')
   const [codigo, setCodigo] = useState('')
@@ -99,7 +101,7 @@ export default function EsqueceSenhaModal({ isOpen, onClose }) {
 
   return createPortal(
     <div className="es-modal-overlay">
-      <div className="es-modal">
+      <div className="es-modal" ref={swipeRef} style={swipeStyle}>
         {/* Header */}
         <div className="es-modal-header">
           <h2>Recuperar Senha</h2>

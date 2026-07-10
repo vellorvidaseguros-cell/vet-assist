@@ -37,6 +37,7 @@ const Faturamento = sequelize.define('Faturamento', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+  dataVencimento: DataTypes.DATEONLY,
   dataPagamento: DataTypes.DATE,
   dataUltimoPagamento: DataTypes.DATE,
   descricao: DataTypes.TEXT,

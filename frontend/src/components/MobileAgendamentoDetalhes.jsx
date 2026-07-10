@@ -4,6 +4,7 @@ import axios from 'axios'
 import { formatarData } from '../utils/dateFormatter'
 import PhotoUploadModal from './PhotoUploadModal'
 import { fotoUrl } from '../utils/fotoUrl'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './MobileAgendamentoDetalhes.css'
 
 export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSuccess }) {
@@ -20,6 +21,8 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
     observacoes: '',
     proximoRetorno: ''
   })
+
+  const { ref: overlayRefCallback, style: swipeStyle } = useSwipeToClose(onClose)
 
   // Upload direto de foto (sem modal intermediário)
   const handleFotoUpload = async (e) => {
@@ -164,7 +167,11 @@ export default function MobileAgendamentoDetalhes({ agendamentoId, onClose, onSu
   }
 
   return createPortal(
-    <div className="agdet-overlay">
+    <div
+      ref={overlayRefCallback}
+      className="agdet-overlay"
+      style={swipeStyle}
+    >
       {showPhotoModal && (
         <PhotoUploadModal
           agendamentoId={agendamentoId}

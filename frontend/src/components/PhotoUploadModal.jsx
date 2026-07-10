@@ -3,9 +3,11 @@ import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { FolderOpen } from 'lucide-react'
 import { API_BASE_URL } from '../utils/apiConfig'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './PhotoUploadModal.css'
 
 export default function PhotoUploadModal({ historicoId, agendamentoId, onClose, onUploadSuccess }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [selectedFiles, setSelectedFiles] = useState([])
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -168,7 +170,7 @@ export default function PhotoUploadModal({ historicoId, agendamentoId, onClose, 
 
   return createPortal(
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" ref={swipeRef} style={swipeStyle} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h3>Enviar Fotos</h3>
           <button className="btn-close" onClick={onClose}>✕</button>

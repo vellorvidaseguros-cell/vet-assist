@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './NotificacoesModal.css'
 
 // Opções de antecedência oferecidas ao vet (valor em minutos)
@@ -19,6 +20,7 @@ const PADRAO = {
 }
 
 export default function NotificacoesModal({ veterinarioId, onClose, onSaved }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [prefs, setPrefs] = useState(PADRAO)
   const [loading, setLoading] = useState(true)
   const [salvando, setSalvando] = useState(false)
@@ -66,8 +68,8 @@ export default function NotificacoesModal({ veterinarioId, onClose, onSaved }) {
   }
 
   return createPortal(
-    <div className="modal-overlay notif-overlay" onClick={onClose}>
-      <div className="modal-content notif-modal" onClick={e => e.stopPropagation()}>
+    <div className="notif-overlay" onClick={onClose}>
+      <div className="notif-modal" ref={swipeRef} style={swipeStyle} onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h3>Notificações</h3>
           <button className="btn-close" onClick={onClose} type="button">×</button>
@@ -100,12 +102,35 @@ export default function NotificacoesModal({ veterinarioId, onClose, onSaved }) {
               )}
             </section>
 
-            <section className="notif-secao notif-secao-embreve">
-              <h4>Vencimento de cobranças <span className="notif-badge-embreve">em breve</span></h4>
+            <section className="notif-secao">
+              <h4>Vencimento de cobranças</h4>
               <p className="notif-hint">
-                Aviso de cobranças a vencer e lembrete/cobrança ao proprietário pelo WhatsApp.
-                Para isso, primeiro vamos adicionar uma <strong>data de vencimento</strong> às cobranças.
+                Avisa quando uma cobrança com data de vencimento estiver perto de vencer (ou já vencida).
+                Defina a data de vencimento ao criar a cobrança em Cobranças → Nova Cobrança.
               </p>
+              <label className="notif-check-row">
+                <input
+                  type="checkbox"
+                  checked={prefs.avisarVencimentoCobranca}
+                  onChange={(e) => setPrefs(prev => ({ ...prev, avisarVencimentoCobranca: e.target.checked }))}
+                />
+                Avisar sobre cobranças a vencer
+              </label>
+              {prefs.avisarVencimentoCobranca && (
+                <div className="notif-dias">
+                  <label>Avisar com quantos dias de antecedência?</label>
+                  <select
+                    value={prefs.diasAntesVencimento}
+                    onChange={(e) => setPrefs(prev => ({ ...prev, diasAntesVencimento: parseInt(e.target.value) }))}
+                  >
+                    <option value={0}>No dia do vencimento</option>
+                    <option value={1}>1 dia antes</option>
+                    <option value={2}>2 dias antes</option>
+                    <option value={3}>3 dias antes</option>
+                    <option value={7}>7 dias antes</option>
+                  </select>
+                </div>
+              )}
             </section>
 
             <div className="notif-acoes">

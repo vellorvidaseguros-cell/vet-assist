@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { calcularIdade } from '../utils/idadeUtils'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './NovoClienteModal.css'
 
 function useLockBodyScroll() {
@@ -37,6 +38,7 @@ const CLIENTE_VAZIO = {
 
 export default function NovoClienteModal({ onClose, onSuccess }) {
   useLockBodyScroll()
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
 
   const [clienteForm, setClienteForm] = useState(CLIENTE_VAZIO)
   const [animais, setAnimais] = useState([])
@@ -124,7 +126,7 @@ export default function NovoClienteModal({ onClose, onSuccess }) {
 
   return createPortal(
     <div className="ncm-overlay" onClick={handleOverlayClick}>
-      <div className="ncm-modal">
+      <div className="ncm-modal" ref={swipeRef} style={swipeStyle}>
         {/* HEADER */}
         <div className="ncm-header">
           <h2>Novo Cliente</h2>

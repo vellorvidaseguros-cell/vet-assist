@@ -146,14 +146,29 @@ export default function MobileHome() {
     agendasParaExibir = agendasParaExibir.filter(a => statusFilter.includes(a.status))
   }
 
-  // Calcular pendências
-  const totalPendente = faturamentos
-    .filter(f => f.status === 'Pendente')
-    .reduce((sum, f) => sum + parseFloat(f.valor || 0), 0)
+  // Calcular pendências: pendentes (valor cheio) + saldo restante das parcialmente pagas
+  const totalPendente = faturamentos.reduce((sum, f) => {
+    if (f.status === 'Pendente') return sum + parseFloat(f.valor || 0)
+    if (f.status === 'Parcialmente Pago') return sum + (parseFloat(f.valor || 0) - parseFloat(f.valorRecebido || 0))
+    return sum
+  }, 0)
 
   const retornosAgendar = agendamentos
     .filter(a => a.status === 'Pendente')
     .length
+
+  // Cobranças com data de vencimento definida: vencidas primeiro, depois as
+  // que vencem em breve (próximos 7 dias) — pra aparecer na Agenda sem
+  // precisar esperar a notificação do job do backend.
+  const cobrancasVencendo = faturamentos
+    .filter(f => (f.status === 'Pendente' || f.status === 'Parcialmente Pago') && f.dataVencimento)
+    .map(f => {
+      const dataVenc = getDataSemHora(f.dataVencimento)
+      const diffDias = Math.round((dataVenc.getTime() - hoje.getTime()) / 86400000)
+      return { ...f, diffDias }
+    })
+    .filter(f => f.diffDias <= 7)
+    .sort((a, b) => a.diffDias - b.diffDias)
 
   // Formatar data para exibição
   const formatarDataCompleta = (data) => {
@@ -424,8 +439,38 @@ export default function MobileHome() {
           <span className="pendencia-valor">
             R$ {totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
+          <span className="pendencia-nota">Todas as cobranças em aberto, de qualquer período</span>
         </div>
 
+        {cobrancasVencendo.length > 0 && (
+          <div className="vencimentos-lista">
+            {cobrancasVencendo.map(f => {
+              const clienteNome = f.Cliente?.nome || f.HistoricoConsulta?.Cliente?.nome || 'Cliente'
+              const vencida = f.diffDias < 0
+              const hojeVenc = f.diffDias === 0
+              let quando
+              if (vencida) quando = `Venceu há ${Math.abs(f.diffDias)} dia(s)`
+              else if (hojeVenc) quando = 'Vence hoje'
+              else quando = `Vence em ${f.diffDias} dia(s)`
+
+              return (
+                <button
+                  key={f.id}
+                  className={`vencimento-item ${vencida ? 'vencido' : hojeVenc ? 'hoje' : ''}`}
+                  onClick={handleVerTodasCobancas}
+                >
+                  <span className="vencimento-cliente">{clienteNome}</span>
+                  <span className="vencimento-info">
+                    <span className="vencimento-quando">{quando}</span>
+                    <span className="vencimento-valor">
+                      R$ {parseFloat(f.valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Busca Rápida */}

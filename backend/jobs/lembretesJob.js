@@ -3,13 +3,16 @@
  * Executa a cada minuto
  */
 import schedule from 'node-schedule'
-import { Agendamento, Cliente, Pet, Veterinario } from '../models/index.js'
+import { Agendamento, Cliente, Pet, Veterinario, Faturamento } from '../models/index.js'
 
 // Antecedências padrão (minutos) caso o vet não tenha configurado nada
 const ANTECEDENCIAS_PADRAO = [5, 30]
 
 // Manter em memória quais lembretes já foram enviados
 const lembretesEnviados = new Set()
+
+// Cobranças cujo aviso de vencimento já foi enviado hoje (evita repetir a cada execução do dia)
+const avisosCobrancaEnviados = new Set()
 
 export function initLembretesJob(io) {
   console.log('🔔 Iniciando job de lembretes...')
@@ -22,6 +25,17 @@ export function initLembretesJob(io) {
       console.error('[LEMBRETE] Erro:', err.message)
     }
   })
+
+  // Vencimento de cobranças: verificação diária (não precisa de granularidade de minuto)
+  schedule.scheduleJob('0 9 * * *', async () => {
+    try {
+      await verificarCobrancasVencendo(io)
+    } catch (err) {
+      console.error('[COBRANCA] Erro:', err.message)
+    }
+  })
+  // Roda uma vez também ao iniciar o servidor, pra não depender de esperar até 9h
+  verificarCobrancasVencendo(io).catch(err => console.error('[COBRANCA] Erro na verificação inicial:', err.message))
 
   console.log('✅ Job de lembretes iniciado')
 }
@@ -175,10 +189,103 @@ function enviarLembrete(agendamento, io, tipo = '5min') {
   }
 }
 
+// Verifica cobranças pendentes com data de vencimento próxima, respeitando a
+// preferência de cada vet (avisarVencimentoCobranca / diasAntesVencimento).
+async function verificarCobrancasVencendo(io) {
+  try {
+    console.log('[COBRANCA] Verificando vencimentos...')
+
+    const faturamentos = await Faturamento.findAll({
+      where: { status: ['Pendente', 'Parcialmente Pago'] },
+      include: [{ model: Cliente, required: false }]
+    })
+
+    const pendentesComVencimento = faturamentos.filter(f => f.dataVencimento)
+    if (pendentesComVencimento.length === 0) {
+      console.log('[COBRANCA] Nenhuma cobrança pendente com data de vencimento definida')
+      return
+    }
+
+    const hoje = new Date()
+    const hojeSemHora = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate())
+    const chaveDia = hojeSemHora.toISOString().split('T')[0]
+
+    const prefsPorVet = {}
+    const getPrefs = async (vetId) => {
+      if (vetId == null) return { avisar: true, dias: 1 }
+      if (!(vetId in prefsPorVet)) {
+        try {
+          const vet = await Veterinario.findByPk(vetId, { attributes: ['preferenciasNotificacao'] })
+          const prefs = vet?.preferenciasNotificacao || {}
+          prefsPorVet[vetId] = {
+            avisar: prefs.avisarVencimentoCobranca !== false,
+            dias: Number.isFinite(prefs.diasAntesVencimento) ? prefs.diasAntesVencimento : 1
+          }
+        } catch {
+          prefsPorVet[vetId] = { avisar: true, dias: 1 }
+        }
+      }
+      return prefsPorVet[vetId]
+    }
+
+    for (const fat of pendentesComVencimento) {
+      const prefs = await getPrefs(fat.veterinarioId)
+      if (!prefs.avisar) continue
+
+      const [ano, mes, dia] = String(fat.dataVencimento).substring(0, 10).split('-').map(Number)
+      const dataVenc = new Date(ano, mes - 1, dia)
+      const diffDias = Math.round((dataVenc.getTime() - hojeSemHora.getTime()) / 86400000)
+
+      // Avisa quando faltar exatamente X dias configurados, ou já estiver vencida (diffDias <= 0)
+      const deveAvisar = diffDias === prefs.dias || diffDias === 0 || diffDias < 0
+      if (!deveAvisar) continue
+
+      const chave = `${fat.id}-${chaveDia}`
+      if (avisosCobrancaEnviados.has(chave)) continue
+      avisosCobrancaEnviados.add(chave)
+
+      enviarAvisoCobranca(fat, diffDias, io)
+    }
+  } catch (err) {
+    console.error('[COBRANCA] Erro ao verificar vencimentos:', err)
+  }
+}
+
+function enviarAvisoCobranca(faturamento, diffDias, io) {
+  const cliente = faturamento.Cliente?.nome || 'Cliente'
+  const valor = parseFloat(faturamento.valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+
+  let quando
+  if (diffDias < 0) quando = `venceu há ${Math.abs(diffDias)} dia(s)`
+  else if (diffDias === 0) quando = 'vence hoje'
+  else quando = `vence em ${diffDias} dia(s)`
+
+  const mensagem = `Cobrança de ${cliente} (R$ ${valor}) ${quando}`
+  console.log(`[COBRANCA] Enviando aviso: ${mensagem}`)
+
+  if (io) {
+    io.emit('cobrancaVencendo', {
+      id: faturamento.id,
+      veterinarioId: faturamento.veterinarioId,
+      cliente,
+      valor: faturamento.valor,
+      dataVencimento: faturamento.dataVencimento,
+      mensagem,
+      timestamp: new Date().toISOString()
+    })
+  }
+}
+
 // Limpar lembretes antigos a cada hora
 export function startCleanup() {
   schedule.scheduleJob('0 * * * *', () => {
     console.log('[LEMBRETE] Limpando cache de lembretes enviados...')
     lembretesEnviados.clear()
+  })
+
+  // Limpa os avisos de cobrança enviados uma vez por dia (à meia-noite)
+  schedule.scheduleJob('0 0 * * *', () => {
+    console.log('[COBRANCA] Limpando cache de avisos de vencimento enviados...')
+    avisosCobrancaEnviados.clear()
   })
 }

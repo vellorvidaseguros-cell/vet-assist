@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { HORARIOS } from '../utils/horariosDisponiveis'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './NovoAgendamentoModal.css'
 
 // Hook que bloqueia o scroll do body enquanto o modal está aberto
@@ -40,6 +41,7 @@ const TIPOS_ATENDIMENTO = [
 
 export default function NovoAgendamentoModal({ onClose, onSuccess }) {
   useLockBodyScroll()  // Trava scroll do app de fundo
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
 
   const [agendamentoForm, setAgendamentoForm] = useState(AGENDAMENTO_VAZIO)
   // Array de objetos: [{ tipo: 'Consulta', valor: '150.00', descricao: '...' }, ...]
@@ -358,7 +360,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
   if (carregando) {
     return createPortal(
       <div className="nam-overlay" onClick={handleOverlayClick}>
-        <div className="nam-modal">
+        <div className="nam-modal" ref={swipeRef} style={swipeStyle}>
           <div className="nam-header">
             <h2>Novo Agendamento</h2>
           </div>
@@ -373,7 +375,7 @@ export default function NovoAgendamentoModal({ onClose, onSuccess }) {
 
   return createPortal(
     <div className="nam-overlay" onClick={handleOverlayClick}>
-      <div className="nam-modal">
+      <div className="nam-modal" ref={swipeRef} style={swipeStyle}>
         {/* HEADER */}
         <div className="nam-header">
           <h2>Novo Agendamento</h2>

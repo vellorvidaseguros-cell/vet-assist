@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import axios from 'axios'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import './SelecionarAnimalOrcamentoModal.css'
 
 // Atalho rápido do FAB: escolhe cliente → animal antes de abrir o Orçamento,
 // já que o QuoteModal precisa desses dois objetos.
 export default function SelecionarAnimalOrcamentoModal({ onClose, onSelecionar }) {
+  const { ref: swipeRef, style: swipeStyle } = useSwipeToClose(onClose)
   const [clientes, setClientes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -40,7 +42,7 @@ export default function SelecionarAnimalOrcamentoModal({ onClose, onSelecionar }
 
   return createPortal(
     <div className="sao-overlay" onClick={onClose}>
-      <div className="sao-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="sao-modal" ref={swipeRef} style={swipeStyle} onClick={(e) => e.stopPropagation()}>
         <div className="sao-header">
           <h2>Novo Orçamento</h2>
           <button className="sao-btn-close" onClick={onClose}>✕</button>
